@@ -6,14 +6,18 @@ import kotlinx.serialization.Serializable
 // at the last presentation layer
 
 @Serializable
-data class ForecastContainer(val forecast: ForecastDay,
-                             val alerts: AlertList )
+data class ForecastContainer(
+    val location: LocationData,
+    val forecast: ForecastDay,
+    val alerts: AlertList
+)
 
 @Serializable
 data class ForecastDay(
     val forecastday: List<Day>
 )
 
+@Serializable
 data class AlertList(
     val alert: List<Alert>
 )

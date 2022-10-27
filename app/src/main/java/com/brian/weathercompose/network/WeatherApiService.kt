@@ -7,6 +7,7 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.Converter
 import retrofit2.HttpException
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -23,12 +24,17 @@ private const val FORECAST = "forecast.json?key=${Constants.APIKEY}"
 private const val SEARCH = "search.json?key=${Constants.APIKEY}"
 
 
+private val json = Json {
+    ignoreUnknownKeys = true
+}
+
 // Configure retrofit to parse JSON and use coroutines
 @OptIn(ExperimentalSerializationApi::class)
 private val retrofit: Retrofit = Retrofit.Builder()
-    .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+    .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
     .baseUrl(BASE_URL)
     .build()
+
 
 interface WeatherApiService {
     @GET(CURRENT)

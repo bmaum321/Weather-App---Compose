@@ -12,10 +12,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.brian.weathercompose.data.WeatherDatabase.Companion.getDatabase
 import com.brian.weathercompose.network.ApiResponse
 import com.brian.weathercompose.repository.WeatherRepository
-import com.brian.weathercompose.theme.WeatherComposeTheme
+import com.brian.weathercompose.ui.WeatherApp
+import com.brian.weathercompose.ui.screens.theme.WeatherComposeTheme
+import com.brian.weathercompose.ui.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.coroutineScope
 
 class MainActivity : ComponentActivity() {
@@ -28,37 +31,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting()
+                    WeatherApp(viewModel(factory = WeatherListViewModel.Factory))
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting() {
-    val application = Application()
-    val weatherRepository = WeatherRepository()
-    var y = ""
-    LaunchedEffect(key1 = "",) {
-        coroutineScope {
-            val x = weatherRepository.getForecast("13088")
-
-            when(x) {
-                is ApiResponse.Success ->  y = x.data.forecast.forecastday[0].day.avgtemp_f.toString()
-                is ApiResponse.Exception -> y = x.e.toString()
-            }
-        }
-    }
-
-    Text(text = y)
-
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    WeatherComposeTheme {
-        Greeting()
     }
 }

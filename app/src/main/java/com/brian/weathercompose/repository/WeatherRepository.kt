@@ -3,6 +3,8 @@ package com.brian.weathercompose.repository
 import android.content.SharedPreferences
 import android.content.res.Resources
 import com.brian.weathercompose.data.WeatherDatabase
+import com.brian.weathercompose.domain.WeatherDomainObject
+import com.brian.weathercompose.domain.asDomainModel
 import com.brian.weathercompose.model.ForecastContainer
 import com.brian.weathercompose.model.Search
 import com.brian.weathercompose.network.*
@@ -23,13 +25,15 @@ class WeatherRepository() {
     suspend fun getSearchResults(location: String): ApiResponse<List<Search>> = handleApi {
         WeatherApi.retrofitService.locationSearch(location)
     }
-/*
+
 
     suspend fun getWeather(zipcode: String, resources: Resources, sharedPreferences: SharedPreferences): WeatherDomainObject {
         val weatherData: WeatherContainer = WeatherApi.retrofitService.getWeather(zipcode)
         return weatherData
             .asDomainModel(zipcode, resources, sharedPreferences)
     }
+
+
 
 
     suspend fun getWeatherListForZipCodes(zipcodes: List<String>, resources: Resources, sharedPreferences: SharedPreferences): List<WeatherDomainObject> {
@@ -40,5 +44,5 @@ class WeatherRepository() {
         return weatherDomainObjects
     }
 
- */
+
 }

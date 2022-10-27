@@ -8,10 +8,7 @@ import com.brian.weathercompose.network.WeatherContainer
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Build
-import com.example.weather.R
-import com.brian.weather.model.*
-import com.brian.weather.network.WeatherContainer
-import com.brian.weather.ui.settings.GetSettings
+import com.brian.weathercompose.model.*
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -48,6 +45,7 @@ data class ForecastDomainObject(
     val alerts: List<Alert>,
 )
 
+
 fun WeatherContainer.asDomainModel(
     zipcode: String,
     resources: Resources,
@@ -60,7 +58,7 @@ fun WeatherContainer.asDomainModel(
         .atZone(ZoneId.of(location.tz_id))
         .format(
             DateTimeFormatter
-                .ofPattern(GetSettings().getTimeFormatFromPreferences(sharedPreferences, resources))
+                .ofPattern("hh:mm a")
         )
         .removePrefix("0")
 
@@ -70,19 +68,22 @@ fun WeatherContainer.asDomainModel(
      * otherwise, the background is transparent
      */
 
-    var backgroundColor: Int = R.color.material_dynamic_neutral_variant30
-    var textColor: Int = R.color.material_dynamic_neutral_variant80
+    //var backgroundColor: Int = R.color.material_dynamic_neutral_variant30
+    //var textColor: Int = R.color.material_dynamic_neutral_variant80
+
+    var backgroundColor: Int = R.color.white
+    var textColor: Int = R.color.black
 
     // Dynamic Material colors not supported on < API 31
     if(Build.VERSION.SDK_INT <= 31) {
         textColor = R.color.black
         backgroundColor = R.color.transparent
     }
-    if (sharedPreferences.getBoolean(
-            resources.getString(R.string.show_current_condition_color),
-            true
-        )
-    ) {
+//    if (sharedPreferences.getBoolean(
+//            resources.getString(R.string.show_current_condition_color),
+  //          true
+  //      )
+ //   ) {
         backgroundColor = when (current.condition.code) {
             1000 -> {
                 if (current.condition.text == resources.getString(R.string.Sunny)) {
@@ -109,11 +110,13 @@ fun WeatherContainer.asDomainModel(
         ) {
             textColor = R.color.light_black
         }
-    }
+  //  }
+
+
 
     /**
      * Country formatting
-     */
+
     when (location.country) {
         resources.getString(R.string.USA) -> location.country =
             resources.getString(R.string.USA_Acronym)
@@ -122,35 +125,26 @@ fun WeatherContainer.asDomainModel(
         resources.getString(R.string.UK) -> location.country =
             resources.getString(R.string.UK_Acronym)
     }
-
+     */
     return WeatherDomainObject(
         time = location.localtime,
         location = location.name,
         zipcode = zipcode,
-        temp =
-        if (GetSettings().getTemperatureFormatFromPreferences(sharedPreferences, resources)) {
-            current.temp_f.toInt().toString()
-        } else current.temp_c.toInt().toString(),
+        temp = current.temp_f.toInt().toString(),
         imgSrcUrl = current.condition.icon,
         conditionText = current.condition.text,
-        windSpeed = if (GetSettings().getWindSpeedFormatFromPreferences(
-                sharedPreferences,
-                resources
-            )
-        ) {
-            current.wind_mph
-        } else current.wind_kph,
+        windSpeed = current.wind_mph,
         windDirection = current.wind_dir,
         backgroundColor = backgroundColor,
         code = current.condition.code,
         textColor = textColor,
         country = location.country,
-        feelsLikeTemp =
-        if (GetSettings().getTemperatureFormatFromPreferences(sharedPreferences, resources)) {
-            current.feelslike_f.toInt().toString()
-        } else current.feelslike_c.toInt().toString()
+        feelsLikeTemp = current.feelslike_f.toInt().toString()
     )
 }
+
+
+/*
 
 fun ForecastContainer.asDomainModel(
     sharedPreferences: SharedPreferences,
@@ -219,6 +213,8 @@ fun ForecastContainer.asDomainModel(
     )
 }
 
+
+ */
 
 
 

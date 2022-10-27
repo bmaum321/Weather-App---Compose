@@ -1,4 +1,4 @@
-package com.brian.weathercompose.ui.screens.theme
+package com.brian.weathercompose.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme

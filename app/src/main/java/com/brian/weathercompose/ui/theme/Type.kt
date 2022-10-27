@@ -1,4 +1,4 @@
-package com.brian.weathercompose.ui.screens.theme
+package com.brian.weathercompose.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle

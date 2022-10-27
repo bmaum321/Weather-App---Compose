@@ -1,4 +1,4 @@
-package com.brian.weathercompose.ui.screens.theme
+package com.brian.weathercompose.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes

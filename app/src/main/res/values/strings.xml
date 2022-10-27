@@ -63,4 +63,7 @@
     <string name="loading_failed">Failed to load</string>
     <string name="retry">Retry</string>
     <string name="loading">Loading</string>
+    <string name="add_weather_fab_description">Add Weather Location</string>
+    <string name="back_button">Back</string>
+    <string name="action_menu">Action Menu</string>
 </resources>

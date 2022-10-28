@@ -21,6 +21,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.brian.weathercompose.R
 import com.brian.weathercompose.domain.WeatherDomainObject
+import com.brian.weathercompose.ui.WeatherScreen
 import com.brian.weathercompose.ui.theme.WeatherComposeTheme
 import com.brian.weathercompose.ui.viewmodels.WeatherListState
 
@@ -29,14 +30,22 @@ fun MainWeatherListScreen(
     weatherUiState: WeatherListState,
     retryAction: () -> Unit,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    navAction: () -> Unit
 ) {
     when (weatherUiState) {
+        is WeatherListState.Empty -> WeatherListScreen(
+            emptyList<WeatherDomainObject>(),
+            modifier,
+            onClick,
+            navAction
+        )
         is WeatherListState.Loading -> LoadingScreen(modifier)
         is WeatherListState.Success -> WeatherListScreen(
             weatherUiState.weatherDomainObjects,
             modifier,
-            onClick
+            onClick,
+            navAction
         )
         is WeatherListState.Error -> ErrorScreen(retryAction, modifier)
     }
@@ -53,6 +62,7 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
     ) {
         Image(
             modifier = Modifier.size(200.dp),
+            // TODO Turn this into a loading animation
             painter = painterResource(R.drawable.loading_img),
             contentDescription = stringResource(R.string.loading)
         )
@@ -63,17 +73,23 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
  * The home screen displaying error message with re-attempt button.
  */
 @Composable
-fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(stringResource(R.string.loading_failed))
-        Button(onClick = { }) {
-            Text(stringResource(R.string.retry))
+fun ErrorScreen(
+    retryAction: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+        Column(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(stringResource(R.string.loading_failed))
+            Button(onClick = retryAction) {
+                Text(stringResource(R.string.retry))
+            }
         }
-    }
+
+
 }
 
 /**
@@ -83,14 +99,23 @@ fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
 fun WeatherListScreen(
     weatherDomainObjectList: List<WeatherDomainObject>,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    navAction: () -> Unit
 ) {
-    LazyColumn(
-        modifier = modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(4.dp)
-    ) {
-        items(weatherDomainObjectList) {
-            WeatherListItem(it, onClick = onClick)
+    Scaffold(
+        floatingActionButton = {
+            AddWeatherFab(onClick = navAction
+            )
+        }
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = modifier.fillMaxWidth()
+                .padding(innerPadding),
+            contentPadding = PaddingValues(4.dp)
+        ) {
+            items(weatherDomainObjectList) {
+                WeatherListItem(it, onClick = onClick)
+            }
         }
     }
 }
@@ -102,7 +127,7 @@ fun AddWeatherFab(
     onClick: () -> Unit
 ) {
     FloatingActionButton(
-        onClick =  onClick,
+        onClick = onClick,
         shape = RoundedCornerShape(size = 18.dp),
         modifier = modifier.size(64.dp)
     ) {
@@ -200,6 +225,6 @@ fun PhotosGridScreenPreview() {
                 "SSW", "", 1, 1000, 1, "USA", "32"
             )
         }
-        WeatherListScreen(mockData, onClick = {})
+        WeatherListScreen(mockData, onClick = {}, navAction = {})
     }
 }

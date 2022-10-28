@@ -1,7 +1,5 @@
 package com.brian.weathercompose.ui
 
-import android.content.SharedPreferences
-import android.content.res.Resources
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,12 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -24,7 +22,10 @@ import com.brian.weathercompose.R
 import com.brian.weathercompose.ui.screens.AddWeatherFab
 import com.brian.weathercompose.ui.screens.AddWeatherScreen
 import com.brian.weathercompose.ui.screens.MainWeatherListScreen
+import com.brian.weathercompose.ui.viewmodels.WeatherListState
 import com.brian.weathercompose.ui.viewmodels.WeatherListViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Enum class that holds all the screens
@@ -85,6 +86,9 @@ fun WeatherAppBar(
  * Main entry point composable for app
  */
 
+
+
+
 @Composable
 fun WeatherApp(
     weatherListViewModel: WeatherListViewModel,
@@ -103,6 +107,22 @@ fun WeatherApp(
 
     val context = LocalContext.current
     val pref = PreferenceManager.getDefaultSharedPreferences(context)
+    val coroutineScope = rememberCoroutineScope()
+
+
+    // Get weather on compose
+    LaunchedEffect(key1 = true) {
+        weatherListViewModel.getAllWeather(pref, context.resources).collect{
+            when(it) {
+                is WeatherListState.Success -> weatherListViewModel.weatherUiState = WeatherListState.Success(it.weatherDomainObjects)
+                is WeatherListState.Empty -> weatherListViewModel.weatherUiState = WeatherListState.Empty
+                is WeatherListState.Error -> weatherListViewModel.weatherUiState = WeatherListState.Error
+                is WeatherListState.Loading -> weatherListViewModel.weatherUiState = WeatherListState.Loading
+            }
+        }
+
+    }
+
     Scaffold(
         topBar = {
             WeatherAppBar(
@@ -123,34 +143,41 @@ fun WeatherApp(
             modifier = modifier.padding(innerPadding)
         ) {
             composable(route = WeatherScreen.WeatherList.name) {
-                Scaffold(
-                    floatingActionButton = {
-                        AddWeatherFab(onClick = {
-                            navController.navigate(WeatherScreen.AddLocation.name)
-                          //  weatherListViewModel.getForecast(pref, context.resources)
-                        }
-                        )
-                    }
-                ) {
+            //    Scaffold(
+           //         floatingActionButton = {
+            //            AddWeatherFab(onClick = {
+             //               navController.navigate(WeatherScreen.AddLocation.name)
+             //           }
+             //           )
+              //      }
+             //   ) {
                     Surface(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(it),
+                            .fillMaxSize(),
+                            //.padding(it),
                         color = MaterialTheme.colors.background
                     ) {
                         MainWeatherListScreen(
                             weatherUiState = weatherListViewModel.weatherUiState,
-                            //  retryAction = weatherListViewModel::getForecast,
-                            retryAction = {},
+                            retryAction = {
+                                // Not sure if I should be doing this
+                                coroutineScope.launch {
+                                    weatherListViewModel.getAllWeather(pref, context.resources).collect{
+                                        when(it) {
+                                            is WeatherListState.Success -> weatherListViewModel.weatherUiState = WeatherListState.Success(it.weatherDomainObjects)
+                                            is WeatherListState.Empty -> weatherListViewModel.weatherUiState = WeatherListState.Empty
+                                            is WeatherListState.Error -> weatherListViewModel.weatherUiState = WeatherListState.Error
+                                            is WeatherListState.Loading -> weatherListViewModel.weatherUiState = WeatherListState.Loading
+                                        }
+                                    }
+                                }
+                            },
                             modifier = modifier,
-                            onClick = {
-                                navController.navigate(
-                                    WeatherScreen.DailyForecast.name
-                                )
-                            }
+                            onClick = { navController.navigate(WeatherScreen.DailyForecast.name) },
+                            navAction = { navController.navigate(WeatherScreen.AddLocation.name) }
                         )
                     }
-                }
+              //  }
             }
 
             composable(route = WeatherScreen.AddLocation.name) {

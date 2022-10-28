@@ -1,7 +1,6 @@
 package com.brian.weathercompose.ui.viewmodels
 
 import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.compose.runtime.getValue
@@ -10,21 +9,19 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.preference.PreferenceManager
-import com.brian.weathercompose.data.BaseApplication
 import com.brian.weathercompose.data.WeatherDao
 import com.brian.weathercompose.domain.WeatherDomainObject
 import com.brian.weathercompose.model.WeatherEntity
 import com.brian.weathercompose.network.ApiResponse
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.io.IOException
 
 /**
  * UI state for the Home screen
@@ -33,6 +30,7 @@ sealed interface WeatherListState {
     data class Success(val weatherDomainObjects: List<WeatherDomainObject>) : WeatherListState
     object Error : WeatherListState
     object Loading : WeatherListState
+    object Empty: WeatherListState
 }
 
 class WeatherListViewModel(
@@ -41,8 +39,12 @@ class WeatherListViewModel(
     application: Application
 ) : AndroidViewModel(application) {
     /** The mutable State that stores the status of the most recent request */
-    var weatherUiState: WeatherListState by mutableStateOf(WeatherListState.Loading)
-        private set
+    // Turn this into a flow?
+    var weatherUiState: WeatherListState by mutableStateOf(WeatherListState.Empty)
+
+    private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST).apply {
+        tryEmit(Unit)
+    }
 
     init {
         //TODO this is just initializing the data on home screen
@@ -50,8 +52,11 @@ class WeatherListViewModel(
         //    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(application),
       //      resources = Resources.getSystem()
       //  )
-        viewModelScope.launch { insertWeather() }
 
+    }
+
+    private fun getZipCodesFromDatabase(): Flow<List<String>> {
+        return weatherDao.getZipcodesFlow()
     }
 
     suspend fun insertWeather() {
@@ -75,27 +80,36 @@ class WeatherListViewModel(
      * Gets Mars photos information from the Mars API Retrofit service and updates the
      * [MarsPhoto] [List] [MutableList].
      */
-    fun getForecast(
+    fun getAllWeather(
         sharedPreferences: SharedPreferences,
         resources: Resources
-    ) {
+    ): Flow<WeatherListState> {
+        return refreshFlow
+            .flatMapLatest {
+                getZipCodesFromDatabase()
+                    .flatMapLatest { zipcodes ->
+                        flow {
+                            if (zipcodes.isNotEmpty()) {
+                                weatherUiState = WeatherListState.Loading
+                                emit(WeatherListState.Loading) // Was a bug here, stuck in loading if database is empty, we did it before the empty check and had no listerner set on FAB
+                                when (weatherRepository.getWeatherWithErrorHandling(zipcodes.first())) {
+                                    is ApiResponse.Success -> emit(
+                                        WeatherListState.Success(
+                                            weatherRepository.getWeatherListForZipCodes(
+                                                zipcodes,
+                                                resources,
+                                                sharedPreferences
+                                            )
+                                        )
+                                    )
+                                    is ApiResponse.Failure -> emit(WeatherListState.Error)
+                                    is ApiResponse.Exception -> emit(WeatherListState.Error)
+                                }
+                            }
+                        }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            val zipcodes = weatherDao.getZipcodesStatic()
-            weatherUiState = WeatherListState.Loading
-            when (weatherRepository.getSearchResults("13088")) {
-                is ApiResponse.Success -> weatherUiState = WeatherListState.Success(
-                    weatherRepository.getWeatherListForZipCodes(
-                        zipcodes,
-                        resources,
-                        sharedPreferences
-                    )
-                )
-                is ApiResponse.Exception -> weatherUiState = WeatherListState.Error
-                is ApiResponse.Failure -> weatherUiState = WeatherListState.Error
-
+                    }
             }
-        }
     }
 
     /*

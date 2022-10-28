@@ -66,4 +66,5 @@
     <string name="add_weather_fab_description">Add Weather Location</string>
     <string name="back_button">Back</string>
     <string name="action_menu">Action Menu</string>
+    <string name="weather_condition_icon">weather condition icon</string>
 </resources>

@@ -8,7 +8,6 @@ import com.brian.weathercompose.network.WeatherContainer
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Build
-import com.brian.weathercompose.model.*
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -144,12 +143,12 @@ fun WeatherContainer.asDomainModel(
 }
 
 
-/*
+
 
 fun ForecastContainer.asDomainModel(
     sharedPreferences: SharedPreferences,
     resources: Resources
-): ForecastDomainObject {
+): com.brian.weathercompose.domain.ForecastDomainObject {
 
     /**
      * Remove any hours that are in the past
@@ -191,11 +190,9 @@ fun ForecastContainer.asDomainModel(
                         .format(
                             DateTimeFormatter
                                 .ofPattern(
-                                    GetSettings().getTimeFormatFromPreferences(
-                                        sharedPreferences,
-                                        resources
+                                    "hh:mm a"
                                     )
-                                ) // Add AM/PM postfix
+                                // Add AM/PM postfix
                         )
                         .removePrefix("0") // Remove 0 prefix, Ex: Turn 01:00 PM into 1:00PM
                 }
@@ -214,7 +211,7 @@ fun ForecastContainer.asDomainModel(
 }
 
 
- */
+
 
 
 

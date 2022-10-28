@@ -46,15 +46,6 @@ class WeatherListViewModel(
         tryEmit(Unit)
     }
 
-    init {
-        //TODO this is just initializing the data on home screen
-      //  getForecast(
-        //    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(application),
-      //      resources = Resources.getSystem()
-      //  )
-
-    }
-
     private fun getZipCodesFromDatabase(): Flow<List<String>> {
         return weatherDao.getZipcodesFlow()
     }
@@ -76,6 +67,10 @@ class WeatherListViewModel(
         }
     }
 
+    fun refresh() {
+        refreshFlow.tryEmit(Unit)
+    }
+
     /**
      * Gets Mars photos information from the Mars API Retrofit service and updates the
      * [MarsPhoto] [List] [MutableList].
@@ -91,7 +86,7 @@ class WeatherListViewModel(
                         flow {
                             if (zipcodes.isNotEmpty()) {
                                 weatherUiState = WeatherListState.Loading
-                                emit(WeatherListState.Loading) // Was a bug here, stuck in loading if database is empty, we did it before the empty check and had no listerner set on FAB
+                                emit(WeatherListState.Loading)
                                 when (weatherRepository.getWeatherWithErrorHandling(zipcodes.first())) {
                                     is ApiResponse.Success -> emit(
                                         WeatherListState.Success(

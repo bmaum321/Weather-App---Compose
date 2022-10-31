@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key.Companion.W
+import androidx.compose.ui.node.modifierElementOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,9 +36,12 @@ fun AddWeatherScreen(
 ) {
     val application = BaseApplication()
     val viewModel: AddWeatherLocationViewModel =
-        viewModel(factory = AddWeatherLocationViewModel
-            .AddWeatherLocationViewModelFactory(application.database.weatherDao(),
-            application)
+        viewModel(
+            factory = AddWeatherLocationViewModel
+                .AddWeatherLocationViewModelFactory(
+                    application.database.weatherDao(),
+                    application
+                )
         )
     var location by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
@@ -45,7 +49,6 @@ fun AddWeatherScreen(
 
     Column(
         modifier = Modifier.padding(32.dp),
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextField(
@@ -70,22 +73,21 @@ fun AddWeatherScreen(
 
 
 private suspend fun addWeather(
-    navAction: ()-> Unit,
+    navAction: () -> Unit,
     viewModel: AddWeatherLocationViewModel,
     location: String,
     context: Context
-){
+) {
     // Add weather to database
     // TODO
-    if(location.isNotBlank()) {
-    if(!viewModel.storeNetworkDataInDatabase(location)) {
-        withContext(Dispatchers.Main) {
-            showToast(Constants.ERRORTEXT, context)
+    if (location.isNotBlank()) {
+        if (!viewModel.storeNetworkDataInDatabase(location)) {
+            withContext(Dispatchers.Main) {
+                showToast(Constants.ERRORTEXT, context)
+            }
         }
-    }
 
-        //Navigate back to main screen, is this the best way to do this?
-        // Google recommended not passing the nav controller to other composables
+        //Navigate back to main screen
         withContext(Dispatchers.Main) {
             run(navAction)
         }
@@ -99,7 +101,6 @@ private fun showToast(text: String?, context: Context) {
     val toast = Toast.makeText(context, text, duration)
     toast.show()
 }
-
 
 
 @Preview(showBackground = true, showSystemUi = true)

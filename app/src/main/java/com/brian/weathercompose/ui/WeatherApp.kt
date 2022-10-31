@@ -2,7 +2,9 @@ package com.brian.weathercompose.ui
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -62,7 +64,9 @@ fun WeatherAppBar(
 ) {
     TopAppBar(
         title = { Text(stringResource(id = R.string.app_name)) },
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth()
+            .background(color = MaterialTheme.colors.primary),
+
         actions = {
             IconButton(onClick = actionBarOnClick) {
                 Icon(

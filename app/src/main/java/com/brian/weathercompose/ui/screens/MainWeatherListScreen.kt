@@ -3,6 +3,7 @@ package com.brian.weathercompose.ui.screens
 import android.graphics.drawable.AnimatedImageDrawable
 import android.graphics.drawable.AnimatedVectorDrawable
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,6 +15,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -47,7 +49,7 @@ fun MainWeatherListScreen(
 ) {
     when (weatherUiState) {
         is WeatherListState.Empty -> WeatherListScreen(
-            emptyList<WeatherDomainObject>(),
+            emptyList(),
             modifier,
             onClick,
             addWeatherFabAction,
@@ -103,6 +105,7 @@ fun WeatherListScreen(
             LazyColumn(
                 modifier = modifier
                     .fillMaxWidth()
+                    .background(MaterialTheme.colors.background)
                     .padding(innerPadding),
                 contentPadding = PaddingValues(4.dp)
             ) {
@@ -152,7 +155,8 @@ fun WeatherListItem(
     Card(
         modifier = Modifier.padding(8.dp),
         elevation = 4.dp,
-        onClick = { onClick(location) } // only way I can see to pass location is to pass a nav controller to this composable and do the navigation here
+        onClick = { onClick(location) },
+       // backgroundColor = MaterialTheme.colors.background
     ) {
         Row(
             modifier = Modifier

@@ -1,5 +1,7 @@
 package com.brian.weathercompose.ui.screens
 
+import android.graphics.drawable.AnimatedImageDrawable
+import android.graphics.drawable.AnimatedVectorDrawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,10 +22,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.brian.weathercompose.R
 import com.brian.weathercompose.domain.WeatherDomainObject
+import com.brian.weathercompose.ui.screens.reusablecomposables.ErrorScreen
+import com.brian.weathercompose.ui.screens.reusablecomposables.LoadingScreen
+import com.brian.weathercompose.ui.screens.reusablecomposables.WeatherConditionIcon
 import com.brian.weathercompose.ui.theme.WeatherComposeTheme
 import com.brian.weathercompose.ui.viewmodels.WeatherListState
 import com.brian.weathercompose.ui.viewmodels.WeatherListViewModel
@@ -34,9 +41,9 @@ fun MainWeatherListScreen(
     weatherUiState: WeatherListState,
     retryAction: () -> Unit,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit,
+    onClick: (String) -> Unit,
     addWeatherFabAction: () -> Unit,
-    weatherListViewModel: WeatherListViewModel //Should I be passing around a viewmodel like this to subcomposables?
+    weatherListViewModel: WeatherListViewModel, //Should I be passing around a viewmodel like this to subcomposables?
 ) {
     when (weatherUiState) {
         is WeatherListState.Empty -> WeatherListScreen(
@@ -44,7 +51,7 @@ fun MainWeatherListScreen(
             modifier,
             onClick,
             addWeatherFabAction,
-            weatherListViewModel
+            weatherListViewModel,
         )
         is WeatherListState.Loading -> LoadingScreen(modifier)
         is WeatherListState.Success -> WeatherListScreen(
@@ -52,53 +59,12 @@ fun MainWeatherListScreen(
             modifier,
             onClick,
             addWeatherFabAction,
-            weatherListViewModel
+            weatherListViewModel,
         )
         is WeatherListState.Error -> ErrorScreen(retryAction, modifier)
     }
 }
 
-/**
- * The home screen displaying the loading message.
- */
-//TODO move reusable composables to a seperate package?
-@Composable
-fun LoadingScreen(modifier: Modifier = Modifier) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.fillMaxSize()
-    ) {
-        Image(
-            modifier = Modifier.size(200.dp),
-            // TODO Turn this into a loading animation
-            painter = painterResource(R.drawable.loading_img),
-            contentDescription = stringResource(R.string.loading)
-        )
-    }
-}
-
-/**
- * The home screen displaying error message with re-attempt button.
- */
-@Composable
-fun ErrorScreen(
-    retryAction: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(stringResource(R.string.loading_failed))
-        Button(onClick = retryAction) {
-            Text(stringResource(R.string.retry))
-        }
-    }
-
-
-}
 
 /**
  * The home screen displaying list of weather objects
@@ -108,9 +74,9 @@ fun ErrorScreen(
 fun WeatherListScreen(
     weatherDomainObjectList: List<WeatherDomainObject>,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit,
+    onClick: (String) -> Unit,
     addWeatherFabAction: () -> Unit,
-    weatherListViewModel: WeatherListViewModel
+    weatherListViewModel: WeatherListViewModel,
 ) {
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
@@ -140,8 +106,8 @@ fun WeatherListScreen(
                     .padding(innerPadding),
                 contentPadding = PaddingValues(4.dp)
             ) {
-                items(weatherDomainObjectList) {
-                    WeatherListItem(it, onClick = onClick)
+                items(weatherDomainObjectList) { item ->
+                    WeatherListItem(item, onClick = onClick)
                 }
             }
             PullRefreshIndicator(
@@ -180,12 +146,13 @@ fun AddWeatherFab(
 fun WeatherListItem(
     weatherDomainObject: WeatherDomainObject,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: (String) -> Unit,
 ) {
+    val location = weatherDomainObject.zipcode
     Card(
         modifier = Modifier.padding(8.dp),
         elevation = 4.dp,
-        onClick = onClick
+        onClick = { onClick(location) } // only way I can see to pass location is to pass a nav controller to this composable and do the navigation here
     ) {
         Row(
             modifier = Modifier
@@ -219,25 +186,6 @@ fun WeatherListItem(
         }
 
     }
-}
-
-@Composable
-fun WeatherConditionIcon(
-    iconUrl: String,
-    modifier: Modifier = Modifier
-) {
-    AsyncImage(
-        modifier = modifier
-            .size(64.dp),
-        model = ImageRequest.Builder(context = LocalContext.current)
-            .data("https:$iconUrl")
-            .crossfade(true)
-            .build(),
-        error = painterResource(R.drawable.ic_broken_image),
-        placeholder = painterResource(R.drawable.loading_img),
-        contentDescription = stringResource(R.string.weather_condition_icon),
-        contentScale = ContentScale.FillBounds,
-    )
 }
 
 

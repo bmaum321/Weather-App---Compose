@@ -115,6 +115,7 @@ fun WeatherContainer.asDomainModel(
 
     /**
      * Country formatting
+     * */
 
     when (location.country) {
         resources.getString(R.string.USA) -> location.country =
@@ -124,7 +125,7 @@ fun WeatherContainer.asDomainModel(
         resources.getString(R.string.UK) -> location.country =
             resources.getString(R.string.UK_Acronym)
     }
-     */
+
     return WeatherDomainObject(
         time = location.localtime,
         location = location.name,

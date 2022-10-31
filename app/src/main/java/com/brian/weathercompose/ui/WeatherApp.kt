@@ -21,31 +21,21 @@ import androidx.navigation.navArgument
 import androidx.preference.PreferenceManager
 import com.brian.weathercompose.R
 import com.brian.weathercompose.ui.screens.AddWeatherScreen
-import com.brian.weathercompose.ui.screens.ForecastScreen
+import com.brian.weathercompose.ui.screens.DailyForecastScreen
+import com.brian.weathercompose.ui.screens.HourlyForecastScreen
 import com.brian.weathercompose.ui.screens.MainWeatherListScreen
 import com.brian.weathercompose.ui.viewmodels.WeatherListState
 import com.brian.weathercompose.ui.viewmodels.WeatherListViewModel
 
 /**
- * Enum class that holds all the screens
+ * Sealed class that holds all the screens
  */
-/*
-enum class Screens {
-    WeatherList,
-    AddLocation,
-    DailyForecast,
-    HourlyForecast,
-    SettingsMenu
-}
-
- */
-
 
 sealed class Screens(val route: String){
     object WeatherList: Screens("weatherList")
     object AddLocation: Screens("addLocation")
     object DailyForecast: Screens("dailyForecast/{location}")
-    object HourlyForecast: Screens("hourlyForecast")
+    object HourlyForecast: Screens("hourlyForecast/{location}/{date}")
     object SettingsMenu: Screens("settingsMenu")
 }
 
@@ -100,7 +90,6 @@ fun WeatherAppBar(
  */
 
 
-//TODO pass all viewmodels here? and pass along the composables? or create viewmodel in the composable itself
 @Composable
 fun WeatherApp(
     weatherListViewModel: WeatherListViewModel,
@@ -155,8 +144,10 @@ fun WeatherApp(
             modifier = modifier.padding(innerPadding)
         ) {
             composable(route = Screens.WeatherList.route,
-                arguments = listOf(navArgument("location") {type = NavType.StringType})) {
-                val location = it.arguments?.getString("location")
+                arguments = listOf(navArgument("location") {type = NavType.StringType},
+                navArgument("date") {type = NavType.StringType}
+                )) {
+
                     Surface(
                         modifier = Modifier
                             .fillMaxSize(),
@@ -166,7 +157,7 @@ fun WeatherApp(
                             weatherUiState = weatherListViewModel.weatherUiState,
                             retryAction = { weatherListViewModel.refresh() },
                             modifier = modifier,
-                            onClick = { navController.navigate(Screens.DailyForecast.route) },
+                            onClick = { location -> navController.navigate("dailyForecast/$location") }, //TODO figure this shit out
                             addWeatherFabAction = { navController.navigate(Screens.AddLocation.route) },
                             weatherListViewModel = weatherListViewModel
                         )
@@ -181,20 +172,34 @@ fun WeatherApp(
                 )
             }
 
-            composable(route = Screens.DailyForecast.route) {
+            composable(route = Screens.DailyForecast.route,
+                ) {
                 Surface(
                     modifier = Modifier
                         .fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    ForecastScreen(
-                        modifier = modifier,
-                        onClick = { navController.navigate(Screens.HourlyForecast.route) },
-                    )
+                    val location = it.arguments?.getString("location")
+                    if (location != null) {
+                        DailyForecastScreen(
+                            modifier = modifier,
+                            onClick = { date -> navController.navigate("hourlyForecast/$location/$date") },
+                            location = location
+                        )
+                    }
                 }
             }
 
             composable(route = Screens.HourlyForecast.route) {
+                val location = it.arguments?.getString("location")
+                val date = it.arguments?.getString("date")
+                if (date != null && location != null) {
+                    HourlyForecastScreen(
+                        modifier = modifier,
+                        date = date,
+                        location = location
+                    )
+                }
 
             }
 

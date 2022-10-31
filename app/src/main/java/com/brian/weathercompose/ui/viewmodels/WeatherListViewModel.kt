@@ -42,6 +42,7 @@ class WeatherListViewModel(
     // Turn this into a flow?
     var weatherUiState: WeatherListState by mutableStateOf(WeatherListState.Empty)
 
+
     private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST).apply {
         tryEmit(Unit)
     }
@@ -58,6 +59,10 @@ class WeatherListViewModel(
             zipCode = "13088",
             sortOrder = 0)
         )
+    }
+
+    fun getWeatherByZipcode(location: String): WeatherEntity {
+        return weatherDao.getWeatherByLocation(location)
     }
 
     fun deleteWeather(weatherEntity: WeatherEntity) {

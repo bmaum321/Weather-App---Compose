@@ -18,13 +18,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.preference.PreferenceManager
 import com.brian.weathercompose.data.BaseApplication
 import com.brian.weathercompose.model.Day
+import com.brian.weathercompose.ui.screens.reusablecomposables.ErrorScreen
+import com.brian.weathercompose.ui.screens.reusablecomposables.LoadingScreen
+import com.brian.weathercompose.ui.screens.reusablecomposables.WeatherConditionIcon
 import com.brian.weathercompose.ui.viewmodels.*
 import kotlinx.coroutines.launch
 
 @Composable
-fun ForecastScreen(
+fun DailyForecastScreen(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: (String) -> Unit,
+    location: String
 ) {
     val application = BaseApplication()
     val viewModel: DailyForecastViewModel =
@@ -37,23 +41,22 @@ fun ForecastScreen(
         )
     val context = LocalContext.current
     val pref = PreferenceManager.getDefaultSharedPreferences(context)
-
     LaunchedEffect(key1 = true) {
-        viewModel.getForecastForZipcode("13088",pref, context.resources).collect{ //need to pass zipcode from nav args here
+        viewModel.getForecastForZipcode(location,pref, context.resources).collect{ //need to pass zipcode from nav args here
             when(it) {
-                is ForecastViewData.Done -> viewModel.weatherUiState = ForecastViewData.Done(it.forecastDomainObject)
-                is ForecastViewData.Loading -> viewModel.weatherUiState = ForecastViewData.Loading
-                is ForecastViewData.Error -> viewModel.weatherUiState = ForecastViewData.Error(it.code, it.message)
+                is ForecastViewData.Done -> viewModel.dailyForecastUiState = ForecastViewData.Done(it.forecastDomainObject)
+                is ForecastViewData.Loading -> viewModel.dailyForecastUiState = ForecastViewData.Loading
+                is ForecastViewData.Error -> viewModel.dailyForecastUiState = ForecastViewData.Error(it.code, it.message)
 
             }
         }
 
     }
 
-    when (viewModel.weatherUiState) {
+    when (viewModel.dailyForecastUiState) {
         is ForecastViewData.Loading -> LoadingScreen(modifier)
         is ForecastViewData.Done -> ForecastList(
-            (viewModel.weatherUiState as ForecastViewData.Done).forecastDomainObject.days, //TODO need to pass a list of days here
+            (viewModel.dailyForecastUiState as ForecastViewData.Done).forecastDomainObject.days, //TODO need to pass a list of days here
             modifier,
             onClick,
             viewModel
@@ -71,7 +74,7 @@ fun ForecastScreen(
 fun ForecastList(
     dayList: List<Day>,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit,
+    onClick: (String) -> Unit,
     viewModel: DailyForecastViewModel
 ) {
     val refreshScope = rememberCoroutineScope()
@@ -114,12 +117,13 @@ fun ForecastList(
 fun ForecastListItem(
     day: Day,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: (String) -> Unit
 ) {
+    val date = day.date
     Card(
         modifier = Modifier.padding(8.dp),
         elevation = 4.dp,
-        onClick = onClick
+        onClick = { onClick(date) }
     ) {
         Row(
             modifier = Modifier
@@ -137,14 +141,20 @@ fun ForecastListItem(
                     fontSize = 18.sp
                 )
             }
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(.5f))
 
-            Column {
+            Row {
                 Text(
-                    text = "${day.day.maxtemp_f}\u00B0",
+                    text = "${day.day.mintemp_f.toInt()}\u00B0 \\",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
+                Text(
+                    text = "  ${day.day.maxtemp_f.toInt()}\u00B0",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
 
             }
             Spacer(modifier = Modifier.weight(1f))

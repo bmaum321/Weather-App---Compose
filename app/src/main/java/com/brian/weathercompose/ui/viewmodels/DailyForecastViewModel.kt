@@ -34,7 +34,7 @@ sealed class ForecastViewData {
 class DailyForecastViewModel(private val weatherDao: WeatherDao, application: Application) :
     AndroidViewModel(application) {
 
-    var weatherUiState: ForecastViewData by mutableStateOf(ForecastViewData.Loading)
+    var dailyForecastUiState: ForecastViewData by mutableStateOf(ForecastViewData.Loading)
 
     //The data source this viewmodel will fetch results from
     private val weatherRepository = WeatherRepository()

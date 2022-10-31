@@ -45,7 +45,7 @@ fun AddWeatherScreen(
 
     Column(
         modifier = Modifier.padding(32.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextField(

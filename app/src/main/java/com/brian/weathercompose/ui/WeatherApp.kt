@@ -28,6 +28,7 @@ import com.brian.weathercompose.ui.screens.HourlyForecastScreen
 import com.brian.weathercompose.ui.screens.MainWeatherListScreen
 import com.brian.weathercompose.ui.viewmodels.WeatherListState
 import com.brian.weathercompose.ui.viewmodels.WeatherListViewModel
+import androidx.compose.runtime.*
 
 /**
  * Sealed class that holds all the screens
@@ -64,7 +65,8 @@ fun WeatherAppBar(
 ) {
     TopAppBar(
         title = { Text(stringResource(id = R.string.app_name)) },
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
             .background(color = MaterialTheme.colors.primary),
 
         actions = {
@@ -116,17 +118,9 @@ fun WeatherApp(
 
 
     // Get weather on compose
-    LaunchedEffect(key1 = true) {
-        weatherListViewModel.getAllWeather(pref, context.resources).collect{
-            when(it) {
-                is WeatherListState.Success -> weatherListViewModel.weatherUiState = WeatherListState.Success(it.weatherDomainObjects)
-                is WeatherListState.Empty -> weatherListViewModel.weatherUiState = WeatherListState.Empty
-                is WeatherListState.Error -> weatherListViewModel.weatherUiState = WeatherListState.Error
-                is WeatherListState.Loading -> weatherListViewModel.weatherUiState = WeatherListState.Loading
-            }
-        }
 
-    }
+
+
 
     Scaffold(
         topBar = {
@@ -157,8 +151,12 @@ fun WeatherApp(
                             .fillMaxSize(),
                         color = MaterialTheme.colors.background
                     ) {
+                        val data = remember {
+                            weatherListViewModel.getAllWeather(pref, resources = context.resources)
+                        }.collectAsState()
+
                         MainWeatherListScreen(
-                            weatherUiState = weatherListViewModel.weatherUiState,
+                            weatherUiState = data.value,
                             retryAction = { weatherListViewModel.refresh() },
                             modifier = modifier,
                             onClick = { location -> navController.navigate("dailyForecast/$location") }, //TODO figure this shit out

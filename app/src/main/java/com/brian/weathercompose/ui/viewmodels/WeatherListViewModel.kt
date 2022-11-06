@@ -17,10 +17,7 @@ import com.brian.weathercompose.network.ApiResponse
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 /**
@@ -77,20 +74,19 @@ class WeatherListViewModel(
     }
 
     /**
-     * Gets Mars photos information from the Mars API Retrofit service and updates the
-     * [MarsPhoto] [List] [MutableList].
+     * Gets Weather info for a list of zipcodes
      */
     fun getAllWeather(
         sharedPreferences: SharedPreferences,
         resources: Resources
-    ): Flow<WeatherListState> {
+    ): StateFlow<WeatherListState> {
         return refreshFlow
             .flatMapLatest {
                 getZipCodesFromDatabase()
                     .flatMapLatest { zipcodes ->
                         flow {
                             if (zipcodes.isNotEmpty()) {
-                                weatherUiState = WeatherListState.Loading
+                                //weatherUiState = WeatherListState.Loading
                                 emit(WeatherListState.Loading)
                                 when (weatherRepository.getWeatherWithErrorHandling(zipcodes.first())) {
                                     is ApiResponse.Success -> emit(
@@ -109,7 +105,7 @@ class WeatherListViewModel(
                         }
 
                     }
-            }
+            }.stateIn(viewModelScope, SharingStarted.Lazily, WeatherListState.Loading)
     }
 
     /*

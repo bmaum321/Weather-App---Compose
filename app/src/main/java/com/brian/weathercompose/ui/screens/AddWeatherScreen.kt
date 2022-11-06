@@ -35,6 +35,8 @@ fun AddWeatherScreen(
     navAction: () -> Unit
 ) {
     val application = BaseApplication()
+
+
     val viewModel: AddWeatherLocationViewModel =
         viewModel(
             factory = AddWeatherLocationViewModel
@@ -43,31 +45,42 @@ fun AddWeatherScreen(
                     application
                 )
         )
+
+
     var location by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
+
+
     Column(
         modifier = Modifier.padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         TextField(
             value = location,
             onValueChange = { location = it },
             label = { Text(text = stringResource(id = R.string.search_for_places)) },
-            singleLine = true
+            singleLine = true,
+            // modifier = modifier.align(Alignment.CenterHorizontally)
         )
         Spacer(modifier = modifier.size(120.dp))
 
 
-        Button(onClick = {
-            coroutineScope.launch(Dispatchers.IO) {
-                addWeather(navAction, viewModel, location, context)
-            }
-        }) {
+        Button(
+            onClick = {
+                coroutineScope.launch(Dispatchers.IO) {
+                    addWeather(navAction, viewModel, location, context)
+                }
+            },
+            modifier
+        ) {
             Text(stringResource(R.string.save))
         }
     }
+
 
 }
 

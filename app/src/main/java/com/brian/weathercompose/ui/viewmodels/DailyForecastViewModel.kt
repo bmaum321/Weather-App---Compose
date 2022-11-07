@@ -15,10 +15,7 @@ import com.brian.weathercompose.network.ApiResponse
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 
 sealed class ForecastViewData {
     object Loading : ForecastViewData()
@@ -33,8 +30,6 @@ sealed class ForecastViewData {
 // Pass an application as a parameter to the viewmodel constructor which is the contect passed to the singleton database object
 class DailyForecastViewModel(private val weatherDao: WeatherDao, application: Application) :
     AndroidViewModel(application) {
-
-    var dailyForecastUiState: ForecastViewData by mutableStateOf(ForecastViewData.Loading)
 
     //The data source this viewmodel will fetch results from
     private val weatherRepository = WeatherRepository()
@@ -57,7 +52,7 @@ class DailyForecastViewModel(private val weatherDao: WeatherDao, application: Ap
     fun getForecastForZipcode(zipcode: String,
                               sharedPreferences: SharedPreferences,
                               resources: Resources)
-    : Flow<ForecastViewData> {
+    : StateFlow<ForecastViewData> {
         return refreshFlow
             .flatMapLatest {
                 flow {
@@ -82,7 +77,7 @@ class DailyForecastViewModel(private val weatherDao: WeatherDao, application: Ap
                         )
                     }
                 }
-            }
+            }.stateIn(viewModelScope, SharingStarted.Lazily, ForecastViewData.Loading)
     }
 
 

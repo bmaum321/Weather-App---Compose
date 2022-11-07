@@ -50,27 +50,12 @@ fun HourlyForecastScreen(
         )
     val context = LocalContext.current
     val pref = PreferenceManager.getDefaultSharedPreferences(context)
-    LaunchedEffect(key1 = true) {
-        // should this ui state be a private set so only the viewmodel can change the state?
-        viewModel.getHourlyForecast(location, pref, context.resources)
-            .collect { //need to pass zipcode from nav args here
-                when (it) {
-                    is HourlyForecastViewData.Done -> viewModel.hourlyForecastUiState =
-                        HourlyForecastViewData.Done(it.forecastDomainObject)
-                    is HourlyForecastViewData.Loading -> viewModel.hourlyForecastUiState =
-                        HourlyForecastViewData.Loading
-                    is HourlyForecastViewData.Error -> viewModel.hourlyForecastUiState =
-                        HourlyForecastViewData.Error(it.code, it.message)
+    val uiState = remember { viewModel.getHourlyForecast(location, pref, context.resources) }.collectAsState()
 
-                }
-            }
-
-    }
-
-    when (viewModel.hourlyForecastUiState) {  //TODO same here new viewmodel with new state
+    when (uiState.value) {  //TODO same here new viewmodel with new state
         is HourlyForecastViewData.Loading -> LoadingScreen(modifier)
         is HourlyForecastViewData.Done -> HourlyForecastList(
-            (viewModel.hourlyForecastUiState as HourlyForecastViewData.Done).forecastDomainObject.days.first { it.date == date }.hour, //TODO need to pass a list of days here
+            (uiState.value as HourlyForecastViewData.Done).forecastDomainObject.days.first { it.date == date }.hour, //TODO need to pass a list of days here
             modifier,
             viewModel
         )
@@ -191,12 +176,13 @@ fun HourlyForecastDetails(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.padding(
-            start = 16.dp,
-            top = 8.dp,
-            bottom = 16.dp,
-            end = 16.dp
-        )
+        modifier = modifier
+            .padding(
+                start = 16.dp,
+                top = 8.dp,
+                bottom = 16.dp,
+                end = 16.dp
+            )
             .fillMaxWidth()
     ) {
         Spacer(modifier = modifier.weight(1f))

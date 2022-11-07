@@ -24,6 +24,7 @@ import com.brian.weathercompose.ui.screens.reusablecomposables.WeatherConditionI
 import com.brian.weathercompose.ui.viewmodels.*
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun DailyForecastScreen(
     modifier: Modifier = Modifier,
@@ -41,22 +42,12 @@ fun DailyForecastScreen(
         )
     val context = LocalContext.current
     val pref = PreferenceManager.getDefaultSharedPreferences(context)
-    LaunchedEffect(key1 = true) {
-        viewModel.getForecastForZipcode(location,pref, context.resources).collect{ //need to pass zipcode from nav args here
-            when(it) {
-                is ForecastViewData.Done -> viewModel.dailyForecastUiState = ForecastViewData.Done(it.forecastDomainObject)
-                is ForecastViewData.Loading -> viewModel.dailyForecastUiState = ForecastViewData.Loading
-                is ForecastViewData.Error -> viewModel.dailyForecastUiState = ForecastViewData.Error(it.code, it.message)
+    val state by remember {viewModel.getForecastForZipcode(location, pref, context.resources) }.collectAsState()
 
-            }
-        }
-
-    }
-
-    when (viewModel.dailyForecastUiState) {
+    when (state) {
         is ForecastViewData.Loading -> LoadingScreen(modifier)
         is ForecastViewData.Done -> ForecastList(
-            (viewModel.dailyForecastUiState as ForecastViewData.Done).forecastDomainObject.days, //TODO need to pass a list of days here
+            (state as ForecastViewData.Done).forecastDomainObject.days, //TODO need to pass a list of days here
             modifier,
             onClick,
             viewModel

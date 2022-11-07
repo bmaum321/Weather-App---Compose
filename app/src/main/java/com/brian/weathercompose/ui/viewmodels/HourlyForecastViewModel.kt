@@ -15,10 +15,7 @@ import com.brian.weathercompose.model.WeatherEntity
 import com.brian.weathercompose.network.ApiResponse
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 
 
 sealed class HourlyForecastViewData {
@@ -55,7 +52,7 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
         zipcode: String,
         sharedPreferences: SharedPreferences,
         resources: Resources
-    ): Flow<HourlyForecastViewData> {
+    ): StateFlow<HourlyForecastViewData> {
         return refreshFlow
             .flatMapLatest {
                 flow {
@@ -74,7 +71,7 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
                         )
                     }
                 }
-            }
+            }.stateIn(viewModelScope, SharingStarted.Lazily, HourlyForecastViewData.Loading)
     }
 
 // create a view model factory that takes a WeatherDao as a property and

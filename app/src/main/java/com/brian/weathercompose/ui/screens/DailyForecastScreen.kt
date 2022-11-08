@@ -40,6 +40,11 @@ fun DailyForecastScreen(
                     application
                 )
         )
+    val mainViewModel: MainViewModel = viewModel()
+    // update title bar
+    LaunchedEffect(key1 = true) {
+        mainViewModel.updateActionBarTitle(location)
+    }
     val context = LocalContext.current
     val pref = PreferenceManager.getDefaultSharedPreferences(context)
     val state by remember {viewModel.getForecastForZipcode(location, pref, context.resources) }.collectAsState()

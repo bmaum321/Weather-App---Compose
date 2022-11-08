@@ -10,10 +10,13 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,6 +26,7 @@ import androidx.preference.PreferenceManager
 import com.brian.weathercompose.R
 import com.brian.weathercompose.ui.navigation.*
 import com.brian.weathercompose.ui.screens.*
+import com.brian.weathercompose.ui.viewmodels.MainViewModel
 import com.brian.weathercompose.ui.viewmodels.WeatherListViewModel
 
 sealed class MenuAction(
@@ -42,10 +46,11 @@ fun WeatherAppBar(
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     currentScreen: NavDestinations,
-    actionBarOnClick: () -> Unit
+    actionBarOnClick: () -> Unit,
+    title: String
 ) {
     TopAppBar(
-        title = { Text(stringResource(id = R.string.app_name)) },
+        title = { Text(text = title) },
         modifier = modifier
             .fillMaxWidth()
             .background(color = MaterialTheme.colors.primary),
@@ -89,7 +94,9 @@ fun WeatherApp(
     val backStackEntry by navController.currentBackStackEntryAsState()
 
     val currentScreen = screens.find { it.route == backStackEntry?.destination?.route } ?: MainWeatherList
-
+    val mainViewModel: MainViewModel = viewModel()
+    //val topBarTitle = mainViewModel.title.collectAsState()
+    val topBarTitle = mainViewModel.title.observeAsState()
     Scaffold(
         topBar = {
             WeatherAppBar(
@@ -100,7 +107,8 @@ fun WeatherApp(
                     navController.navigate(
                        SettingsMenu.route
                     )
-                }
+                },
+                title = topBarTitle.value ?: ""
             )
         }
     ) { innerPadding ->

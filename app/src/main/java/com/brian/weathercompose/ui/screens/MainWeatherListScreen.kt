@@ -2,11 +2,13 @@ package com.brian.weathercompose.ui.screens
 
 import android.graphics.drawable.AnimatedImageDrawable
 import android.graphics.drawable.AnimatedVectorDrawable
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -93,6 +95,9 @@ fun WeatherListScreen(
         refreshing = refreshing,
         onRefresh = { refresh() }
     )
+
+    val listState = rememberLazyListState()
+    val showButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0} }
     Scaffold(
         floatingActionButton = {
             AddWeatherFab(
@@ -107,7 +112,8 @@ fun WeatherListScreen(
                     .fillMaxWidth()
                     .background(MaterialTheme.colors.background)
                     .padding(innerPadding),
-                contentPadding = PaddingValues(4.dp)
+                contentPadding = PaddingValues(4.dp),
+                state = listState
             ) {
                 items(weatherDomainObjectList) { item ->
                     WeatherListItem(item, onClick = onClick)
@@ -118,6 +124,12 @@ fun WeatherListScreen(
                 state = state,
                 Modifier.align(Alignment.TopCenter)
             )
+
+            AnimatedVisibility(visible = showButton) {
+                Button(onClick = { /*TODO*/ }) {
+                    Text(text = "Animated Button")
+                }
+            }
         }
     }
 

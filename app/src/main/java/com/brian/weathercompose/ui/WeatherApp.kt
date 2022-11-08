@@ -21,23 +21,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.preference.PreferenceManager
 import com.brian.weathercompose.R
+import com.brian.weathercompose.ui.navigation.*
 import com.brian.weathercompose.ui.screens.*
 import com.brian.weathercompose.ui.viewmodels.WeatherListViewModel
-
-
-/**
- * Sealed class that holds all the screens
- */
-
-sealed class Screens(val route: String){
-    object WeatherList: Screens("weatherList")
-    object AddLocation: Screens("addLocation")
-    object DailyForecast: Screens("dailyForecast/{location}")
-    object HourlyForecast: Screens("hourlyForecast/{location}/{date}")
-    object SettingsMenu: Screens("settingsMenu")
-}
-
-
 
 sealed class MenuAction(
     @StringRes val label: Int,
@@ -55,7 +41,7 @@ fun WeatherAppBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    currentScreen: Screens,
+    currentScreen: NavDestinations,
     actionBarOnClick: () -> Unit
 ) {
     TopAppBar(
@@ -102,11 +88,7 @@ fun WeatherApp(
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
 
-    val screens = listOf(Screens.WeatherList, Screens.AddLocation, Screens.DailyForecast, Screens.HourlyForecast, Screens.SettingsMenu)
-    val currentScreen = screens.find { it.route == backStackEntry?.destination?.route } ?: Screens.WeatherList
-
-    val context = LocalContext.current
-    val pref = PreferenceManager.getDefaultSharedPreferences(context)
+    val currentScreen = screens.find { it.route == backStackEntry?.destination?.route } ?: MainWeatherList
 
     Scaffold(
         topBar = {
@@ -116,92 +98,18 @@ fun WeatherApp(
                 currentScreen = currentScreen,
                 actionBarOnClick = {
                     navController.navigate(
-                        Screens.SettingsMenu.route
+                       SettingsMenu.route
                     )
                 }
             )
         }
     ) { innerPadding ->
-        NavHost(
+        WeatherNavHost(
             navController = navController,
-            startDestination = MainWeatherList.route,
-            modifier = modifier.padding(innerPadding)
-        ) {
-            composable(route = MainWeatherList.route,
-                arguments = MainWeatherList.arguments) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        color = MaterialTheme.colors.background
-                    ) {
-                        val weatherUiState by remember {
-                            weatherListViewModel.getAllWeather(pref, resources = context.resources)
-                        }.collectAsState()
-
-                        MainWeatherListScreen(
-                            weatherUiState = weatherUiState,
-                            retryAction = { weatherListViewModel.refresh() },
-                            modifier = modifier,
-                            onClick = { location -> navController.navigateToDailyForecast(location) }, //TODO figure this shit out
-                            addWeatherFabAction = { navController.navigate(AddLocation.route) },
-                            weatherListViewModel = weatherListViewModel
-                        )
-                    }
-            }
-
-            composable(route = AddLocation.route) {
-                AddWeatherScreen(
-                    value = "",
-                    onValueChange = { },
-                    navAction = { navController.popBackStack() }
-                )
-            }
-
-            composable(route = DailyForecast.routeWithArgs,
-                ) { navBackStackEntry ->
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    val location = navBackStackEntry.arguments?.getString("location")
-                    if (location != null) {
-                        DailyForecastScreen(
-                            modifier = modifier,
-                            onClick = { date -> navController.navigateToHourlyForecast(location, date) },
-                            location = location
-                        )
-                    }
-                }
-            }
-
-            composable(route = HourlyForecast.routeWithArgs) { navBackStackEntry ->
-                val location = navBackStackEntry.arguments?.getString("location")
-                val date = navBackStackEntry.arguments?.getString("date")
-                if (date != null && location != null) {
-                    HourlyForecastScreen(
-                        modifier = modifier,
-                        date = date,
-                        location = location
-                    )
-                }
-
-            }
-
-            composable(route = SettingsMenu.route) {
-
-            }
-
-        }
-
+            modifier = Modifier.padding(innerPadding),
+            weatherListViewModel = weatherListViewModel
+        )
     }
 }
 
-private fun NavHostController.navigateToDailyForecast(location: String) {
-    this.navigate("${DailyForecast.route}/$location")
-}
-
-private fun NavHostController.navigateToHourlyForecast(location: String, date:String) {
-    this.navigate("${HourlyForecast.route}/$location/$date")
-}
 

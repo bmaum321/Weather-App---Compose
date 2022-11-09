@@ -13,8 +13,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.brian.weathercompose.R
+import com.brian.weathercompose.ui.screens.reusablecomposables.AutoCompleteTextView
 import com.brian.weathercompose.ui.viewmodels.AddWeatherLocationViewModel
 import com.brian.weathercompose.util.Constants
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +54,27 @@ fun AddWeatherScreen(
             )
             Spacer(modifier = modifier.size(120.dp))
 
+            AutoCompleteTextView(
+                modifier = Modifier.fillMaxWidth(),
+                query = location,
+                queryLabel = context.getString(R.string.search_for_places),
+                predictions = listOf("Test", "asdasd", "Asdasd", "Asdasd"),
+                onClearClick = { location = ""},
+                onDoneActionClick = {},
+                onItemClick = { place ->
+
+                },
+
+                onQueryChanged = { updatedSearch ->
+                    // call the viewmodel to run the search
+
+                }
+
+            ) {
+                Text(text = it, fontSize = 14.sp)
+            }
+
+            Spacer(modifier = modifier.size(120.dp))
 
             Button(
                 onClick = {

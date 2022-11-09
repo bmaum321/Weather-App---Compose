@@ -79,7 +79,7 @@ dependencies {
 
     // Google Play Service
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
-    implementation 'com.google.android.gms:play-services-location:21.0.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
 
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
@@ -95,6 +95,11 @@ dependencies {
 
     //Preferences
     implementation "androidx.preference:preference-ktx:1.2.0"
+
+    //Koin DI
+    implementation "io.insert-koin:koin-android:$koin_version"
+    implementation "io.insert-koin:koin-androidx-navigation:$koin_version"
+    implementation "io.insert-koin:koin-androidx-compose:$koin_version"
 
 
     testImplementation 'junit:junit:4.13.2'

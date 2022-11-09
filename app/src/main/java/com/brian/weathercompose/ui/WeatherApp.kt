@@ -1,5 +1,6 @@
 package com.brian.weathercompose.ui
 
+import android.content.Context
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -16,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -28,6 +30,8 @@ import com.brian.weathercompose.ui.navigation.*
 import com.brian.weathercompose.ui.screens.*
 import com.brian.weathercompose.ui.viewmodels.MainViewModel
 import com.brian.weathercompose.ui.viewmodels.WeatherListViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 
 sealed class MenuAction(
     @StringRes val label: Int,
@@ -75,6 +79,7 @@ fun WeatherAppBar(
         },
 
         )
+    //println("New title from top app bar ${topBarTitle.value}")
 }
 
 /**
@@ -85,6 +90,7 @@ fun WeatherAppBar(
 @Composable
 fun WeatherApp(
     weatherListViewModel: WeatherListViewModel,
+    mainViewModel: MainViewModel,
     modifier: Modifier = Modifier
 ) {
     // Create nav controller
@@ -92,11 +98,11 @@ fun WeatherApp(
 
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
-
     val currentScreen = screens.find { it.route == backStackEntry?.destination?.route } ?: MainWeatherList
-    val mainViewModel: MainViewModel = viewModel()
-    //val topBarTitle = mainViewModel.title.collectAsState()
-    val topBarTitle = mainViewModel.title.observeAsState()
+
+    // Get the app bar title from the main view model
+    val title by mainViewModel.title.collectAsState()
+
     Scaffold(
         topBar = {
             WeatherAppBar(
@@ -108,16 +114,19 @@ fun WeatherApp(
                        SettingsMenu.route
                     )
                 },
-                title = topBarTitle.value ?: ""
+                title = title
             )
         }
     ) { innerPadding ->
         WeatherNavHost(
             navController = navController,
             modifier = Modifier.padding(innerPadding),
-            weatherListViewModel = weatherListViewModel
+            weatherListViewModel = weatherListViewModel,
+            mainViewModel = mainViewModel
         )
     }
 }
+
+
 
 

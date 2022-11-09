@@ -18,13 +18,13 @@ import retrofit2.http.Query
  * A retrofit service to fetch the weather data from the API
  */
 
-private const val BASE_URL = "https://api.weatherapi.com/v1/"
+const val BASE_URL = "https://api.weatherapi.com/v1/"
 private const val CURRENT = "current.json?key=${Constants.APIKEY}"
 private const val FORECAST = "forecast.json?key=${Constants.APIKEY}"
 private const val SEARCH = "search.json?key=${Constants.APIKEY}"
 
 
-private val json = Json {
+val json = Json {
     ignoreUnknownKeys = true
 }
 

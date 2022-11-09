@@ -19,13 +19,15 @@ import com.brian.weathercompose.ui.screens.AddWeatherScreen
 import com.brian.weathercompose.ui.screens.DailyForecastScreen
 import com.brian.weathercompose.ui.screens.HourlyForecastScreen
 import com.brian.weathercompose.ui.screens.MainWeatherListScreen
+import com.brian.weathercompose.ui.viewmodels.MainViewModel
 import com.brian.weathercompose.ui.viewmodels.WeatherListViewModel
 
 @Composable
 fun WeatherNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    weatherListViewModel: WeatherListViewModel
+    weatherListViewModel: WeatherListViewModel,
+    mainViewModel: MainViewModel
 ) {
 
     val context = LocalContext.current
@@ -52,7 +54,8 @@ fun WeatherNavHost(
                     modifier = modifier,
                     onClick = { location -> navController.navigateToDailyForecast(location) },
                     addWeatherFabAction = { navController.navigate(AddLocation.route) },
-                    weatherListViewModel = weatherListViewModel
+                    weatherListViewModel = weatherListViewModel,
+                    mainViewModel = mainViewModel
                 )
             }
         }
@@ -77,7 +80,8 @@ fun WeatherNavHost(
                     DailyForecastScreen(
                         modifier = modifier,
                         onClick = { date -> navController.navigateToHourlyForecast(location, date) },
-                        location = location
+                        location = location,
+                        mainViewModel = mainViewModel
                     )
                 }
             }
@@ -90,7 +94,8 @@ fun WeatherNavHost(
                 HourlyForecastScreen(
                     modifier = modifier,
                     date = date,
-                    location = location
+                    location = location,
+                    mainViewModel = mainViewModel
                 )
             }
 

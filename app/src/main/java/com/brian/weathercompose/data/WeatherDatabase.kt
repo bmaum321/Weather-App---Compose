@@ -14,7 +14,8 @@ import com.brian.weathercompose.model.WeatherEntity
 @Database(entities = [WeatherEntity::class], version = 1, exportSchema = false)
 abstract class WeatherDatabase : RoomDatabase() {
 
-    abstract fun weatherDao(): WeatherDao
+    // Abstract function to provide instance of the database access object
+    abstract fun getWeatherDao(): WeatherDao
 
     companion object {
         @Volatile

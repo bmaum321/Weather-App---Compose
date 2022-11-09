@@ -9,7 +9,7 @@ import com.brian.weathercompose.model.ForecastContainer
 import com.brian.weathercompose.model.Search
 import com.brian.weathercompose.network.*
 
-class WeatherRepository() {
+class WeatherRepository() { //Do we inject to WeatherApi object into constructor here?
 
     // The only thing we should be storing into the database is zipcode and city name, everything
     // else is dynamic
@@ -26,15 +26,11 @@ class WeatherRepository() {
         WeatherApi.retrofitService.locationSearch(location)
     }
 
-
     suspend fun getWeather(zipcode: String, resources: Resources, sharedPreferences: SharedPreferences): WeatherDomainObject {
         val weatherData: WeatherContainer = WeatherApi.retrofitService.getWeather(zipcode)
         return weatherData
             .asDomainModel(zipcode, resources, sharedPreferences)
     }
-
-
-
 
     suspend fun getWeatherListForZipCodes(zipcodes: List<String>, resources: Resources, sharedPreferences: SharedPreferences): List<WeatherDomainObject> {
         val weatherDomainObjects = mutableListOf<WeatherDomainObject>()
@@ -43,6 +39,5 @@ class WeatherRepository() {
         }
         return weatherDomainObjects
     }
-
 
 }

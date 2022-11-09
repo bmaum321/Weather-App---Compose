@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -23,43 +22,41 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.preference.PreferenceManager
-import coil.decode.ImageSource
 import com.brian.weathercompose.R
 import com.brian.weathercompose.data.BaseApplication
 import com.brian.weathercompose.model.Hours
+import com.brian.weathercompose.repository.WeatherRepository
 import com.brian.weathercompose.ui.screens.reusablecomposables.ErrorScreen
 import com.brian.weathercompose.ui.screens.reusablecomposables.LoadingScreen
 import com.brian.weathercompose.ui.screens.reusablecomposables.WeatherConditionIcon
 import com.brian.weathercompose.ui.viewmodels.*
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun HourlyForecastScreen(
     modifier: Modifier = Modifier,
     location: String,
-    date: String
+    date: String,
+    mainViewModel: MainViewModel
 ) {
-    val application = BaseApplication()
-    val viewModel: HourlyForecastViewModel = //TODO needs to be another viewmodel for hourly screen
-        viewModel(
-            factory = HourlyForecastViewModel
-                .HourlyForecastViewModelFactory(
-                    application.database.weatherDao(),
-                    application
-                )
-        )
+    val hourlyForecastViewModel = getViewModel<HourlyForecastViewModel>()
+    // update title bar
+    LaunchedEffect(Unit) {
+        mainViewModel.updateActionBarTitle(date)
+    }
     val context = LocalContext.current
     val pref = PreferenceManager.getDefaultSharedPreferences(context)
-    val uiState = remember { viewModel.getHourlyForecast(location, pref, context.resources) }.collectAsState()
+    val uiState = remember { hourlyForecastViewModel.getHourlyForecast(location, pref, context.resources) }.collectAsState()
 
     when (uiState.value) {  //TODO same here new viewmodel with new state
         is HourlyForecastViewData.Loading -> LoadingScreen(modifier)
         is HourlyForecastViewData.Done -> HourlyForecastList(
             (uiState.value as HourlyForecastViewData.Done).forecastDomainObject.days.first { it.date == date }.hour, //TODO need to pass a list of days here
             modifier,
-            viewModel
+            hourlyForecastViewModel
         )
-        is HourlyForecastViewData.Error -> ErrorScreen({ viewModel.refresh() }, modifier)
+        is HourlyForecastViewData.Error -> ErrorScreen({ hourlyForecastViewModel.refresh() }, modifier)
     }
 }
 

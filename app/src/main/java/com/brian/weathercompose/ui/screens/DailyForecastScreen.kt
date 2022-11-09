@@ -18,36 +18,38 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.preference.PreferenceManager
 import com.brian.weathercompose.data.BaseApplication
 import com.brian.weathercompose.model.Day
+import com.brian.weathercompose.repository.WeatherRepository
 import com.brian.weathercompose.ui.screens.reusablecomposables.ErrorScreen
 import com.brian.weathercompose.ui.screens.reusablecomposables.LoadingScreen
 import com.brian.weathercompose.ui.screens.reusablecomposables.WeatherConditionIcon
 import com.brian.weathercompose.ui.viewmodels.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.viewmodel.ext.android.getViewModel
 
 
 @Composable
 fun DailyForecastScreen(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
-    location: String
+    location: String,
+    mainViewModel: MainViewModel
 ) {
-    val application = BaseApplication()
-    val viewModel: DailyForecastViewModel =
-        viewModel(
-            factory = DailyForecastViewModel
-                .DailyForecastViewModelFactory(
-                    application.database.weatherDao(),
-                    application
-                )
-        )
-    val mainViewModel: MainViewModel = viewModel()
+    val dailyForecastViewModel = getViewModel<DailyForecastViewModel>()
     // update title bar
-    LaunchedEffect(key1 = true) {
-        mainViewModel.updateActionBarTitle(location)
+
+    // This only seems to work if I pass the viewmodel all the way down from main activity and only have one instance of main view model, grabbing it from Koin doesnt work
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            mainViewModel.updateActionBarTitle(dailyForecastViewModel.getWeatherByZipcode(location).cityName)
+        }
+
     }
     val context = LocalContext.current
     val pref = PreferenceManager.getDefaultSharedPreferences(context)
-    val state by remember {viewModel.getForecastForZipcode(location, pref, context.resources) }.collectAsState()
+    val state by remember {dailyForecastViewModel.getForecastForZipcode(location, pref, context.resources) }.collectAsState()
 
     when (state) {
         is ForecastViewData.Loading -> LoadingScreen(modifier)
@@ -55,9 +57,9 @@ fun DailyForecastScreen(
             (state as ForecastViewData.Done).forecastDomainObject.days, //TODO need to pass a list of days here
             modifier,
             onClick,
-            viewModel
+            dailyForecastViewModel
         )
-        is ForecastViewData.Error -> ErrorScreen({ viewModel.refresh() }, modifier)
+        is ForecastViewData.Error -> ErrorScreen({ dailyForecastViewModel.refresh() }, modifier)
     }
 }
 

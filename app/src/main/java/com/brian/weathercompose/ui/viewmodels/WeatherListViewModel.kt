@@ -101,7 +101,7 @@ class WeatherListViewModel(
                                     is ApiResponse.Failure -> emit(WeatherListState.Error)
                                     is ApiResponse.Exception -> emit(WeatherListState.Error)
                                 }
-                            }
+                            } else emit(WeatherListState.Empty)
                         }
 
                     }

@@ -29,12 +29,14 @@ sealed class HourlyForecastViewData {
  */
 
 // Pass an application as a parameter to the viewmodel constructor which is the context passed to the singleton database object
-class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: Application) :
+class HourlyForecastViewModel(
+    private val weatherRepository: WeatherRepository,
+    private val weatherDao: WeatherDao,
+    application: Application
+) :
     AndroidViewModel(application) {
 
     var hourlyForecastUiState: HourlyForecastViewData by mutableStateOf(HourlyForecastViewData.Loading)
-    //The data source this viewmodel will fetch results from
-    private val weatherRepository = WeatherRepository()
 
     private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST).apply {
         tryEmit(Unit)
@@ -44,9 +46,6 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
         refreshFlow.tryEmit(Unit)
     }
 
-    fun getWeatherByZipcode(zipcode: String): LiveData<WeatherEntity> {
-        return weatherDao.getWeatherByZipcode(zipcode).asLiveData()
-    }
 
     fun getHourlyForecast(
         zipcode: String,
@@ -64,10 +63,16 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
                             )
                         )
                         is ApiResponse.Failure -> emit(
-                            HourlyForecastViewData.Error(message = response.message, code = response.code)
+                            HourlyForecastViewData.Error(
+                                message = response.message,
+                                code = response.code
+                            )
                         )
                         is ApiResponse.Exception -> emit(
-                            HourlyForecastViewData.Error(message = response.e.message, code = response.e.hashCode())
+                            HourlyForecastViewData.Error(
+                                message = response.e.message,
+                                code = response.e.hashCode()
+                            )
                         )
                     }
                 }
@@ -78,6 +83,7 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
 //  creates a WeatherViewModel
 
     class HourlyForecastViewModelFactory(
+        private val weatherRepository: WeatherRepository,
         private val weatherDao: WeatherDao,
         val app: Application
     ) :
@@ -85,7 +91,7 @@ class HourlyForecastViewModel(private val weatherDao: WeatherDao, application: A
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(HourlyForecastViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return HourlyForecastViewModel(weatherDao, app) as T
+                return HourlyForecastViewModel(weatherRepository, weatherDao, app) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

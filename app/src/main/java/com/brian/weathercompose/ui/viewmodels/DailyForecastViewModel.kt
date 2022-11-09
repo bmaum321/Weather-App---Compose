@@ -28,11 +28,13 @@ sealed class ForecastViewData {
  */
 
 // Pass an application as a parameter to the viewmodel constructor which is the contect passed to the singleton database object
-class DailyForecastViewModel(private val weatherDao: WeatherDao, application: Application) :
+class DailyForecastViewModel(
+    private val weatherRepository: WeatherRepository,
+    private val weatherDao: WeatherDao,
+    application: Application) :
     AndroidViewModel(application) {
 
     //The data source this viewmodel will fetch results from
-    private val weatherRepository = WeatherRepository()
 
     private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST)
         .apply {
@@ -43,9 +45,8 @@ class DailyForecastViewModel(private val weatherDao: WeatherDao, application: Ap
         refreshFlow.tryEmit(Unit)
     }
 
-    fun getWeatherByZipcode(zipcode: String): LiveData<WeatherEntity> {
+    fun getWeatherByZipcode(zipcode: String): WeatherEntity {
         return weatherDao.getWeatherByZipcode(zipcode)
-            .asLiveData()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -84,12 +85,15 @@ class DailyForecastViewModel(private val weatherDao: WeatherDao, application: Ap
 // create a view model factory that takes a WeatherDao as a property and
 //  creates a WeatherViewModel
 
-    class DailyForecastViewModelFactory(private val weatherDao: WeatherDao, val app: Application) :
+    class DailyForecastViewModelFactory
+        (private val weatherRepository: WeatherRepository,
+         private val weatherDao: WeatherDao,
+         val app: Application) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(DailyForecastViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return DailyForecastViewModel(weatherDao, app) as T
+                return DailyForecastViewModel(weatherRepository, weatherDao, app) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

@@ -36,6 +36,7 @@ import com.brian.weathercompose.ui.screens.reusablecomposables.ErrorScreen
 import com.brian.weathercompose.ui.screens.reusablecomposables.LoadingScreen
 import com.brian.weathercompose.ui.screens.reusablecomposables.WeatherConditionIcon
 import com.brian.weathercompose.ui.theme.WeatherComposeTheme
+import com.brian.weathercompose.ui.viewmodels.MainViewModel
 import com.brian.weathercompose.ui.viewmodels.WeatherListState
 import com.brian.weathercompose.ui.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.launch
@@ -48,7 +49,13 @@ fun MainWeatherListScreen(
     onClick: (String) -> Unit,
     addWeatherFabAction: () -> Unit,
     weatherListViewModel: WeatherListViewModel, //Should I be passing around a viewmodel like this to subcomposables?
+    mainViewModel: MainViewModel
 ) {
+
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        mainViewModel.updateActionBarTitle(context.getString(R.string.places))
+    }
     when (weatherUiState) {
         is WeatherListState.Empty -> WeatherListScreen(
             emptyList(),

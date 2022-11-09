@@ -29,6 +29,7 @@ import retrofit2.Retrofit
 class BaseApplication : Application() {
 
     // provide a WeatherDatabase value by lazy here
+    // could we create a sinleton below in Koin? doesnt really maatter I think
     val database: WeatherDatabase by lazy { WeatherDatabase.getDatabase(this) }
 
     override fun onCreate() {

@@ -1,9 +1,6 @@
 package com.brian.weathercompose.ui.screens
 
-import android.graphics.drawable.AnimatedImageDrawable
-import android.graphics.drawable.AnimatedVectorDrawable
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,8 +14,6 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -26,10 +21,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.brian.weathercompose.R
 import com.brian.weathercompose.domain.WeatherDomainObject
 import com.brian.weathercompose.ui.screens.reusablecomposables.ErrorScreen
@@ -40,6 +31,7 @@ import com.brian.weathercompose.ui.viewmodels.MainViewModel
 import com.brian.weathercompose.ui.viewmodels.WeatherListState
 import com.brian.weathercompose.ui.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun MainWeatherListScreen(
@@ -231,7 +223,7 @@ fun ErrorScreenPreview() {
 // TODO how do I show a preview if I need to pass a viewmodel?
 @Preview(showBackground = true)
 @Composable
-fun PhotosGridScreenPreview() {
+fun WeatherListScreenPreview() {
     WeatherComposeTheme {
         val mockData = List(10) {
             WeatherDomainObject(
@@ -239,6 +231,6 @@ fun PhotosGridScreenPreview() {
                 "SSW", "", 1, 1000, 1, "USA", "32"
             )
         }
-        //   WeatherListScreen(mockData, onClick = {}, navAction = {}, weatherListViewModel = )
+           WeatherListScreen(mockData, onClick = {}, weatherListViewModel = getViewModel<WeatherListViewModel>(), modifier = Modifier, addWeatherFabAction = {})
     }
 }

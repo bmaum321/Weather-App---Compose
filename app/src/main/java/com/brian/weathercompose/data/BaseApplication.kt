@@ -62,7 +62,7 @@ class BaseApplication : Application() {
                 HourlyForecastViewModel(get(), get(), get())
             }
             viewModel {
-                AddWeatherLocationViewModel(get(), get())
+                AddWeatherLocationViewModel(get(), get(), get())
             }
         }
 

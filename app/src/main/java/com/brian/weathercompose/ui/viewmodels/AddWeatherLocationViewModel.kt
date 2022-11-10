@@ -19,8 +19,12 @@ import kotlinx.coroutines.launch
  */
 
 // Pass an application as a parameter to the viewmodel constructor which is the contect passed to the singleton database object
-class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, application: Application) :
-    AndroidViewModel(application) {
+class AddWeatherLocationViewModel(
+    private val weatherRepository: WeatherRepository,
+    private val weatherDao: WeatherDao,
+    application: Application) :
+    AndroidViewModel(application
+    ) {
 
     private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST)
         .apply {
@@ -44,9 +48,6 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         return dbSortOrderValue
     }
 
-    //The data source this viewmodel will fetch results from
-    private val weatherRepository = WeatherRepository()
-
     // Method that takes id: Long as a parameter and retrieve a Weather from the
     //  database by id via the DAO.
     // fun getWeatherById(id: Long): LiveData<WeatherEntity> {
@@ -56,7 +57,6 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val getSearchResults: StateFlow<SearchViewData> =
-
         queryFlow
             .flatMapLatest { location ->
                 flow {
@@ -158,13 +158,14 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
 //  creates a WeatherViewModel
 
     class AddWeatherLocationViewModelFactory(
+        private val weatherRepository: WeatherRepository,
         private val weatherDao: WeatherDao,
         val app: Application
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(AddWeatherLocationViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return AddWeatherLocationViewModel(weatherDao, app) as T
+                return AddWeatherLocationViewModel(weatherRepository, weatherDao, app) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

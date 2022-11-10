@@ -1,9 +1,8 @@
 package com.brian.weathercompose.ui.screens
 
 import android.content.Context
-import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -50,27 +49,14 @@ fun AddWeatherScreen(
 
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.TopCenter
     ) {
         Column(
             modifier = Modifier.padding(32.dp),
 
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
-            /*
-            TextField(
-                modifier = modifier.fillMaxWidth(),
-                value = location,
-                onValueChange = { location = it },
-                label = { Text(text = stringResource(id = R.string.search_for_places)) },
-                singleLine = true,
-                // modifier = modifier.align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = modifier.size(120.dp))
-
-             */
-
 
 
             AutoCompleteTextView(
@@ -83,24 +69,27 @@ fun AddWeatherScreen(
                     is SearchViewData.Loading -> emptyList()
                     is SearchViewData.Error -> emptyList()
                 },
-                onClearClick = { location = "" },
+                onClearClick = {
+                    location = ""
+                    addWeatherLocationViewModel.clearQueryResults()
+                },
                 onDoneActionClick = { keyboardController?.hide() },
                 onItemClick = {
                     location = it
-                    //keyboardController?.hide()
                     addWeatherLocationViewModel.clearQueryResults()
                 },
                 onQueryChanged = { updatedSearch ->
-                    addWeatherLocationViewModel.setQuery(updatedSearch)
+                    if (updatedSearch.length >= 5 ) {
+                        addWeatherLocationViewModel.setQuery(updatedSearch)
+                    }
                     location = updatedSearch
                 }
 
             ) {
-                Text(text = it, fontSize = 14.sp)
+                Text(text = it, fontSize = 14.sp, modifier = Modifier.animateContentSize())
             }
 
             Spacer(modifier = modifier.size(120.dp))
-
 
             Button(
                 onClick = {
@@ -112,11 +101,8 @@ fun AddWeatherScreen(
             ) {
                 Text(stringResource(R.string.save))
             }
-
-
         }
     }
-
 }
 
 

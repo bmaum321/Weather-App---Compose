@@ -1,6 +1,8 @@
 package com.brian.weathercompose.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,19 +10,22 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import com.brian.weathercompose.R
 import com.brian.weathercompose.domain.WeatherDomainObject
 import com.brian.weathercompose.ui.screens.reusablecomposables.ErrorScreen
@@ -30,7 +35,7 @@ import com.brian.weathercompose.ui.theme.WeatherComposeTheme
 import com.brian.weathercompose.ui.viewmodels.MainViewModel
 import com.brian.weathercompose.ui.viewmodels.WeatherListState
 import com.brian.weathercompose.ui.viewmodels.WeatherListViewModel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -72,7 +77,7 @@ fun MainWeatherListScreen(
 /**
  * The home screen displaying list of weather objects
  */
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalUnitApi::class)
 @Composable
 fun WeatherListScreen(
     weatherDomainObjectList: List<WeatherDomainObject>,
@@ -90,14 +95,18 @@ fun WeatherListScreen(
         refreshing = false
     }
 
-    val state = rememberPullRefreshState(
+    val refreshState = rememberPullRefreshState(
         refreshing = refreshing,
         onRefresh = { refresh() }
     )
 
+    val coroutineScope = rememberCoroutineScope()
+
     val listState = rememberLazyListState()
-    val showButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0} }
+    val showButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+    val scaffoldState = rememberScaffoldState()
     Scaffold(
+        scaffoldState = scaffoldState,
         floatingActionButton = {
             AddWeatherFab(
                 onClick = addWeatherFabAction
@@ -105,7 +114,7 @@ fun WeatherListScreen(
         }
     ) { innerPadding ->
 
-        Box(modifier = Modifier.pullRefresh(state)) {
+        Box(modifier = Modifier.pullRefresh(refreshState)) {
             LazyColumn(
                 modifier = modifier
                     .fillMaxWidth()
@@ -115,12 +124,89 @@ fun WeatherListScreen(
                 state = listState
             ) {
                 items(weatherDomainObjectList) { item ->
-                    WeatherListItem(item, onClick = onClick)
+                    // WeatherListItem(item, onClick = onClick)
+                    val dismissState = rememberDismissState()
+                    var placeDeleted = ""
+                    if (dismissState.isDismissed(DismissDirection.EndToStart) ||
+                        dismissState.isDismissed(DismissDirection.StartToEnd)
+                    ) {
+                        LaunchedEffect(Unit) {
+                            val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                                message = "${item.zipcode} will be deleted",
+                                actionLabel = "Cancel",
+                                duration = SnackbarDuration.Short
+                            )
+                            when (snackbarResult) {
+                                SnackbarResult.Dismissed -> {}
+                                SnackbarResult.ActionPerformed -> {
+                                    cancel()
+                                    weatherListViewModel.refresh()
+                                }
+                            }
+                            withContext(Dispatchers.IO) {
+                                val weatherEntity =
+                                    weatherListViewModel.getWeatherByZipcode(item.zipcode)
+                                weatherListViewModel.deleteWeather(weatherEntity)
+                                placeDeleted = weatherEntity.cityName
+                            }
+                        }
+                    }
+
+                    SwipeToDismiss(
+                        state = dismissState,
+                        modifier = Modifier
+                            .padding(vertical = Dp(1f)),
+                        directions = setOf(
+                            DismissDirection.EndToStart,
+                            DismissDirection.StartToEnd
+                        ),
+                        dismissThresholds = { direction ->
+                            FractionalThreshold(if (direction == DismissDirection.EndToStart) 0.1f else 0.1f)
+                        },
+
+                        background = {
+                            val color by animateColorAsState(
+                                when (dismissState.targetValue) {
+                                    DismissValue.Default -> Color.White
+                                    else -> Color.Red
+                                }
+                            )
+                            val alignment = Alignment.CenterEnd
+                            val icon = Icons.Default.Delete
+                            val scale by animateFloatAsState(
+                                if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
+                            )
+
+                            Card(
+                                Modifier
+                                    .padding(8.dp)
+                                    .height(100.dp)
+                                    .fillMaxWidth(),
+                                backgroundColor = color
+                            ) {
+                                Box(
+                                    contentAlignment = alignment
+                                ) {
+                                    Icon(
+                                        icon,
+                                        contentDescription = "Delete Icon",
+                                        modifier = Modifier.scale(scale)
+                                    )
+                                }
+                            }
+                        },
+
+                        dismissContent = {
+                            WeatherListItem(weatherDomainObject = item, onClick = onClick)
+                        }
+
+                    )
+
                 }
             }
             PullRefreshIndicator(
                 refreshing = refreshing,
-                state = state,
+                state = refreshState,
                 Modifier.align(Alignment.TopCenter)
             )
 
@@ -164,10 +250,13 @@ fun WeatherListItem(
 ) {
     val location = weatherDomainObject.zipcode
     Card(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier
+            .padding(8.dp)
+            .height(100.dp)
+            .fillMaxWidth(),
         elevation = 4.dp,
         onClick = { onClick(location) },
-       // backgroundColor = MaterialTheme.colors.background
+        // backgroundColor = MaterialTheme.colors.background
     ) {
         Row(
             modifier = Modifier
@@ -231,6 +320,11 @@ fun WeatherListScreenPreview() {
                 "SSW", "", 1, 1000, 1, "USA", "32"
             )
         }
-           WeatherListScreen(mockData, onClick = {}, weatherListViewModel = getViewModel<WeatherListViewModel>(), modifier = Modifier, addWeatherFabAction = {})
+        WeatherListScreen(
+            mockData,
+            onClick = {},
+            weatherListViewModel = getViewModel<WeatherListViewModel>(),
+            modifier = Modifier,
+            addWeatherFabAction = {})
     }
 }

@@ -79,7 +79,6 @@ fun WeatherAppBar(
         },
 
         )
-    //println("New title from top app bar ${topBarTitle.value}")
 }
 
 /**

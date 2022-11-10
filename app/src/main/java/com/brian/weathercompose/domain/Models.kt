@@ -8,6 +8,7 @@ import com.brian.weathercompose.network.WeatherContainer
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Build
+import androidx.compose.ui.graphics.Color
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -32,9 +33,9 @@ data class WeatherDomainObject(
     val windSpeed: Double,
     val windDirection: String,
     val time: String,
-    val backgroundColor: Int,
+    val backgroundColor: Color,
     val code: Int,
-    val textColor: Int,
+    val textColor: Color,
     val country: String,
     val feelsLikeTemp: String
 )
@@ -70,13 +71,13 @@ fun WeatherContainer.asDomainModel(
     //var backgroundColor: Int = R.color.material_dynamic_neutral_variant30
     //var textColor: Int = R.color.material_dynamic_neutral_variant80
 
-    var backgroundColor: Int = R.color.white
-    var textColor: Int = R.color.black
+    var backgroundColor = Color.White
+    var textColor = Color.Black
 
     // Dynamic Material colors not supported on < API 31
     if(Build.VERSION.SDK_INT <= 31) {
-        textColor = R.color.black
-        backgroundColor = R.color.transparent
+        textColor = Color.Black
+        backgroundColor = Color.Transparent
     }
 //    if (sharedPreferences.getBoolean(
 //            resources.getString(R.string.show_current_condition_color),
@@ -86,28 +87,28 @@ fun WeatherContainer.asDomainModel(
         backgroundColor = when (current.condition.code) {
             1000 -> {
                 if (current.condition.text == resources.getString(R.string.Sunny)) {
-                    R.drawable.sungradient// sunny
-                } else R.color.purple_night // clear night
+                    Color.Yellow// sunny
+                } else Color.Transparent // clear night
             }
             1003 -> if (current.is_day == 1) {
-                R.drawable.day_partly_cloudy_gradient // partly cloudy day
+                Color.LightGray // partly cloudy day
             } else {
-                R.drawable.night_partly_cloudy
+                Color.LightGray // partly cloud night
             } // partly cloudy night
-            in 1006..1030 -> R.color.gray // clouds/overcast
-            in 1063..1117 -> R.drawable.raingradient // rain
-            in 1150..1207 -> R.drawable.raingradient // rain
-            in 1210..1237 -> R.color.white //snow
-            in 1240..1282 -> R.drawable.raingradient // rain
-            else -> R.color.white
+            in 1006..1030 -> Color.Gray // clouds/overcast
+            in 1063..1117 -> Color.Blue // rain
+            in 1150..1207 -> Color.Blue // rain
+            in 1210..1237 -> Color.White //snow
+            in 1240..1282 -> Color.Blue // rain
+            else -> Color.White
         }
 
         // Change text color to black for certain gradients for easier reading
-        if (backgroundColor == R.color.white ||
-            backgroundColor == R.drawable.sungradient ||
-            backgroundColor == R.drawable.day_partly_cloudy_gradient
+        if (backgroundColor == Color.White ||
+            backgroundColor == Color.Yellow ||
+            backgroundColor == Color.White
         ) {
-            textColor = R.color.light_black
+            textColor = Color.Black
         }
   //  }
 

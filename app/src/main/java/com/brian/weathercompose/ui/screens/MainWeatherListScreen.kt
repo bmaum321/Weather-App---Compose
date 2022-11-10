@@ -171,7 +171,12 @@ fun WeatherListScreen(
                                     else -> Color.Red
                                 }
                             )
-                            val alignment = Alignment.CenterEnd
+                            val alignment =
+                                if(dismissState.dismissDirection == DismissDirection.EndToStart)
+                                    Alignment.CenterEnd
+                                 else
+                                    Alignment.CenterStart
+
                             val icon = Icons.Default.Delete
                             val scale by animateFloatAsState(
                                 if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
@@ -190,7 +195,7 @@ fun WeatherListScreen(
                                     Icon(
                                         icon,
                                         contentDescription = "Delete Icon",
-                                        modifier = Modifier.scale(scale)
+                                        modifier = Modifier.scale(scale).padding(8.dp)
                                     )
                                 }
                             }
@@ -249,6 +254,7 @@ fun WeatherListItem(
     onClick: (String) -> Unit,
 ) {
     val location = weatherDomainObject.zipcode
+    val fontColor = weatherDomainObject.textColor
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -256,7 +262,7 @@ fun WeatherListItem(
             .fillMaxWidth(),
         elevation = 4.dp,
         onClick = { onClick(location) },
-        // backgroundColor = MaterialTheme.colors.background
+       // backgroundColor = weatherDomainObject.backgroundColor
     ) {
         Row(
             modifier = Modifier
@@ -267,7 +273,9 @@ fun WeatherListItem(
                 Text(
                     text = weatherDomainObject.location,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp
+                    fontSize = 24.sp,
+                   // color = fontColor
+
                 )
                 Text(text = weatherDomainObject.country)
                 Text(
@@ -317,7 +325,7 @@ fun WeatherListScreenPreview() {
         val mockData = List(10) {
             WeatherDomainObject(
                 "Liverpool", "32", "13088", "", "Sunny", 12.0,
-                "SSW", "", 1, 1000, 1, "USA", "32"
+                "SSW", "", Color.White, 1000, Color.Black, "USA", "32"
             )
         }
         WeatherListScreen(

@@ -34,17 +34,16 @@ fun <T> AutoCompleteTextView(
     modifier: Modifier,
     query: String,
     queryLabel: String,
-    onQueryChanged: (String) -> Unit = {},
+    onQueryChanged: (String) -> Unit,
     searchResults: List<T>,
-    onDoneActionClick: () -> Unit = {},
-    onClearClick: () -> Unit = {},
-    onItemClick: (T) -> Unit = {},
-    itemContent: @Composable (T) -> Unit = {}
+    onDoneActionClick: () -> Unit,
+    onClearClick: () -> Unit,
+    onItemClick: (T) -> Unit,
+    itemContent: @Composable (T) -> Unit
 ) {
 
     val view = LocalView.current
     val lazyListState = rememberLazyListState()
-    val keyboardController = LocalSoftwareKeyboardController.current
     QuerySearch(
         query = query,
         label = queryLabel,

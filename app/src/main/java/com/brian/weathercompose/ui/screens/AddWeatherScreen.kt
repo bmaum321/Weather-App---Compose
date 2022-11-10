@@ -40,11 +40,7 @@ fun AddWeatherScreen(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-
     val searchResults by addWeatherLocationViewModel.getSearchResults.collectAsState()
-    // val searchResults by remember {
-    //      addWeatherLocationViewModel.getSearchResults(location)
-    // }.collectAsState()
 
 
     Box(
@@ -58,7 +54,6 @@ fun AddWeatherScreen(
             verticalArrangement = Arrangement.Top
         ) {
 
-
             AutoCompleteTextView(
                 modifier = Modifier.fillMaxWidth(),
                 query = location,
@@ -67,7 +62,7 @@ fun AddWeatherScreen(
                 when (searchResults) {
                     is SearchViewData.Done -> (searchResults as SearchViewData.Done).searchResults
                     is SearchViewData.Loading -> emptyList()
-                    is SearchViewData.Error -> emptyList()
+                    is SearchViewData.Error -> listOf("Check network connection")
                 },
                 onClearClick = {
                     location = ""
@@ -79,15 +74,17 @@ fun AddWeatherScreen(
                     addWeatherLocationViewModel.clearQueryResults()
                 },
                 onQueryChanged = { updatedSearch ->
-                    if (updatedSearch.length >= 5 ) {
+                    if (updatedSearch.length >= 3) {
                         addWeatherLocationViewModel.setQuery(updatedSearch)
+                    } else if (updatedSearch.isBlank()) {
+                        addWeatherLocationViewModel.clearQueryResults()
                     }
                     location = updatedSearch
-                }
+                },
+                itemContent = { Text(text = it, fontSize = 14.sp, modifier = Modifier.animateContentSize()) }
 
-            ) {
-                Text(text = it, fontSize = 14.sp, modifier = Modifier.animateContentSize())
-            }
+            )
+
 
             Spacer(modifier = modifier.size(120.dp))
 

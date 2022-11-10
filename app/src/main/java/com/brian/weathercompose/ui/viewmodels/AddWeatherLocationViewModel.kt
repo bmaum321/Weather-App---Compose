@@ -10,10 +10,7 @@ import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 
@@ -29,6 +26,9 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
         .apply {
             tryEmit(Unit)
         }
+
+    private val queryFlow = MutableSharedFlow<String>(1, 1, BufferOverflow.DROP_OLDEST)
+
 
     // sort counter for database entries
 
@@ -49,23 +49,23 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
 
     // Method that takes id: Long as a parameter and retrieve a Weather from the
     //  database by id via the DAO.
-   // fun getWeatherById(id: Long): LiveData<WeatherEntity> {
-     //   return weatherDao.getWeatherById(id).asLiveData()
-  //  }
+    // fun getWeatherById(id: Long): LiveData<WeatherEntity> {
+    //   return weatherDao.getWeatherById(id).asLiveData()
+    //  }
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun getSearchResults(location: String): Flow<SearchViewData> {
-        val searchResults = mutableListOf<String>()
-        return refreshFlow
-            .flatMapLatest {
+    val getSearchResults: StateFlow<SearchViewData> =
+
+        queryFlow
+            .flatMapLatest { location ->
                 flow {
                     when (val response = weatherRepository.getSearchResults(location)) {
                         is ApiResponse.Success -> {
-                            response.data.forEach { search ->
-                                searchResults.add(search.name + "," + " " + search.region) // Grab from the API and emit if success
-                            }
-                            emit(SearchViewData.Done(searchResults))
+                            val newSearchResults =
+                                response.data.map { search -> search.name + "," + " " + search.region }
+
+                            emit(SearchViewData.Done(newSearchResults))
                         }
                         is ApiResponse.Failure -> {
                             emit(
@@ -85,7 +85,19 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
                         }
                     }
                 }
-            }
+            }.stateIn(viewModelScope, SharingStarted.Lazily, SearchViewData.Loading)
+
+
+    fun setQuery(string: String) {
+        queryFlow.tryEmit(string)
+    }
+
+    fun clearQueryResults() {
+        queryFlow.tryEmit("")
+    }
+
+    fun refreshFlow() {
+        refreshFlow.tryEmit(Unit)
     }
 
     suspend fun storeNetworkDataInDatabase(zipcode: String): Boolean {
@@ -94,14 +106,20 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
          * be returned outside of the scope
          */
 
-        val networkError: Boolean = when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
-            is ApiResponse.Success -> {
-                weatherDao.insert(response.data.asDatabaseModel(zipcode, getLastEntrySortValue()))
-                true
+        val networkError: Boolean =
+            when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
+                is ApiResponse.Success -> {
+                    weatherDao.insert(
+                        response.data.asDatabaseModel(
+                            zipcode,
+                            getLastEntrySortValue()
+                        )
+                    )
+                    true
+                }
+                is ApiResponse.Failure -> false
+                is ApiResponse.Exception -> false
             }
-            is ApiResponse.Failure -> false
-            is ApiResponse.Exception -> false
-        }
         return networkError
 
     }
@@ -155,7 +173,8 @@ class AddWeatherLocationViewModel(private val weatherDao: WeatherDao, applicatio
 }
 
 sealed class SearchViewData {
-    class Loading : SearchViewData()
+    object Loading : SearchViewData()
     class Error(val code: Int, val message: String?) : SearchViewData()
-    class Done(val searchDomainObject: List<String>) : SearchViewData() // TODO this is a response directly from the API, need to copy into domain data class
+    class Done(val searchResults: List<String>) :
+        SearchViewData() // TODO this is a response directly from the API, need to copy into domain data class
 }

@@ -1,29 +1,33 @@
 package com.brian.weathercompose.ui.screens
 
 import android.content.Context
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.brian.weathercompose.R
 import com.brian.weathercompose.ui.screens.reusablecomposables.AutoCompleteTextView
 import com.brian.weathercompose.ui.viewmodels.AddWeatherLocationViewModel
+import com.brian.weathercompose.ui.viewmodels.SearchViewData
 import com.brian.weathercompose.util.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.getViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddWeatherScreen(
     value: String,
@@ -36,16 +40,27 @@ fun AddWeatherScreen(
     var location by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
-    Box(modifier = Modifier.fillMaxSize(),
-    contentAlignment = Alignment.Center) {
+    val searchResults by addWeatherLocationViewModel.getSearchResults.collectAsState()
+    // val searchResults by remember {
+    //      addWeatherLocationViewModel.getSearchResults(location)
+    // }.collectAsState()
+
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
         Column(
             modifier = Modifier.padding(32.dp),
 
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            /*
             TextField(
+                modifier = modifier.fillMaxWidth(),
                 value = location,
                 onValueChange = { location = it },
                 label = { Text(text = stringResource(id = R.string.search_for_places)) },
@@ -54,20 +69,30 @@ fun AddWeatherScreen(
             )
             Spacer(modifier = modifier.size(120.dp))
 
+             */
+
+
+
             AutoCompleteTextView(
                 modifier = Modifier.fillMaxWidth(),
                 query = location,
                 queryLabel = context.getString(R.string.search_for_places),
-                predictions = listOf("Test", "asdasd", "Asdasd", "Asdasd"),
-                onClearClick = { location = ""},
-                onDoneActionClick = {},
-                onItemClick = { place ->
-
+                searchResults =
+                when (searchResults) {
+                    is SearchViewData.Done -> (searchResults as SearchViewData.Done).searchResults
+                    is SearchViewData.Loading -> emptyList()
+                    is SearchViewData.Error -> emptyList()
                 },
-
+                onClearClick = { location = "" },
+                onDoneActionClick = { keyboardController?.hide() },
+                onItemClick = {
+                    location = it
+                    //keyboardController?.hide()
+                    addWeatherLocationViewModel.clearQueryResults()
+                },
                 onQueryChanged = { updatedSearch ->
-                    // call the viewmodel to run the search
-
+                    addWeatherLocationViewModel.setQuery(updatedSearch)
+                    location = updatedSearch
                 }
 
             ) {
@@ -75,6 +100,7 @@ fun AddWeatherScreen(
             }
 
             Spacer(modifier = modifier.size(120.dp))
+
 
             Button(
                 onClick = {
@@ -86,6 +112,8 @@ fun AddWeatherScreen(
             ) {
                 Text(stringResource(R.string.save))
             }
+
+
         }
     }
 

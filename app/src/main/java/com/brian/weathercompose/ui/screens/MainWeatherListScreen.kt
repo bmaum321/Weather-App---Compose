@@ -195,7 +195,9 @@ fun WeatherListScreen(
                                     Icon(
                                         icon,
                                         contentDescription = "Delete Icon",
-                                        modifier = Modifier.scale(scale).padding(8.dp)
+                                        modifier = Modifier
+                                            .scale(scale)
+                                            .padding(8.dp)
                                     )
                                 }
                             }
@@ -215,9 +217,16 @@ fun WeatherListScreen(
                 Modifier.align(Alignment.TopCenter)
             )
 
-            AnimatedVisibility(visible = showButton) {
-                Button(onClick = { /*TODO*/ }) {
-                    Text(text = "Animated Button")
+            AnimatedVisibility(
+                visible = showButton,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                Button(onClick = {
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(0, 0)
+                    }
+                }) {
+                    Icon(painter = painterResource(id = R.drawable.ic_baseline_expand_less_24), contentDescription = "" )
                 }
             }
         }

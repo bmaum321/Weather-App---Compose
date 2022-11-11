@@ -62,7 +62,7 @@ fun AddWeatherScreen(
                 when (searchResults) {
                     is SearchViewData.Done -> (searchResults as SearchViewData.Done).searchResults
                     is SearchViewData.Loading -> emptyList()
-                    is SearchViewData.Error -> listOf("Check network connection")
+                    is SearchViewData.Error -> emptyList()
                 },
                 onClearClick = {
                     location = ""

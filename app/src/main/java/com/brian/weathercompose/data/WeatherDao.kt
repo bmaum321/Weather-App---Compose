@@ -1,7 +1,6 @@
 package com.brian.weathercompose.data
 
 import androidx.room.*
-import com.brian.weathercompose.model.WeatherEntity
 import kotlinx.coroutines.flow.Flow
 
 /**

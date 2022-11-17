@@ -3,7 +3,7 @@ package com.brian.weathercompose.ui.viewmodels
 import android.app.Application
 import androidx.lifecycle.*
 import com.brian.weathercompose.data.WeatherDao
-import com.brian.weathercompose.model.WeatherEntity
+import com.brian.weathercompose.data.WeatherEntity
 import com.brian.weathercompose.network.ApiResponse
 import com.brian.weathercompose.network.asDatabaseModel
 import com.brian.weathercompose.repository.WeatherRepository

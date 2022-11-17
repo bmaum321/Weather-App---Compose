@@ -2,7 +2,7 @@ package com.brian.weathercompose.network
 
 import com.brian.weathercompose.model.CurrentWeatherData
 import com.brian.weathercompose.model.LocationData
-import com.brian.weathercompose.model.WeatherEntity
+import com.brian.weathercompose.data.WeatherEntity
 import kotlinx.serialization.Serializable
 
 

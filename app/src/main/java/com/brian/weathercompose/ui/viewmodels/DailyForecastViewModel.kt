@@ -10,7 +10,7 @@ import androidx.lifecycle.*
 import com.brian.weathercompose.data.WeatherDao
 import com.brian.weathercompose.domain.ForecastDomainObject
 import com.brian.weathercompose.domain.asDomainModel
-import com.brian.weathercompose.model.WeatherEntity
+import com.brian.weathercompose.data.WeatherEntity
 import com.brian.weathercompose.network.ApiResponse
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi

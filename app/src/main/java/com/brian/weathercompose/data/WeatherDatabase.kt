@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.brian.weathercompose.model.WeatherEntity
+
 
 /**
  * Room database to persist data for the Weather app.

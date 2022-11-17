@@ -3,9 +3,11 @@ package com.brian.weathercompose.data
 import android.app.Application
 import androidx.room.Room
 import com.brian.weathercompose.network.BASE_URL
+import com.brian.weathercompose.network.WeatherApi
 import com.brian.weathercompose.network.WeatherApiService
 import com.brian.weathercompose.network.json
 import com.brian.weathercompose.repository.WeatherRepository
+import com.brian.weathercompose.repository.WeatherRepositoryImpl
 import com.brian.weathercompose.ui.viewmodels.*
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import okhttp3.MediaType.Companion.toMediaType
@@ -42,13 +44,19 @@ class BaseApplication : Application() {
                 .build()
                 .create(WeatherApiService::class.java)
             }
-            single { // Use factory to create multiple instances for each viewmodel
-                WeatherRepository()
+            single <WeatherRepository>{
+                WeatherRepositoryImpl(get())
+            }
+
+            single {
+                WeatherApi
             }
 
             single<WeatherDao> {
                 database.getWeatherDao()
             }
+
+            // Use factory to create multiple instances for each viewmodel
             viewModel {
                 MainViewModel()
             }

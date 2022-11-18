@@ -2,11 +2,10 @@ package com.brian.weathercompose.repository
 
 import android.content.SharedPreferences
 import android.content.res.Resources
-import com.brian.weathercompose.data.WeatherDatabase
 import com.brian.weathercompose.domain.WeatherDomainObject
-import com.brian.weathercompose.domain.asDomainModel
-import com.brian.weathercompose.model.ForecastContainer
-import com.brian.weathercompose.model.Search
+import com.brian.weathercompose.data.remote.dto.ForecastContainer
+import com.brian.weathercompose.data.remote.dto.Search
+import com.brian.weathercompose.data.remote.dto.WeatherContainer
 import com.brian.weathercompose.network.*
 
 interface WeatherRepository {
@@ -20,8 +19,17 @@ interface WeatherRepository {
 
     suspend fun getSearchResults(location: String): ApiResponse<List<Search>>
 
-    suspend fun getWeather(zipcode: String, resources: Resources, sharedPreferences: SharedPreferences): WeatherDomainObject
+    suspend fun getWeather(
+        zipcode: String,
+        resources: Resources,
+        sharedPreferences: SharedPreferences
+    ): WeatherDomainObject
 
-    suspend fun getWeatherListForZipCodes(zipcodes: List<String>, resources: Resources, sharedPreferences: SharedPreferences): List<WeatherDomainObject>
+
+    suspend fun getWeatherListForZipCodes(
+        zipcodes: List<String>,
+        resources: Resources,
+        sharedPreferences: SharedPreferences
+    ): List<WeatherDomainObject>
 
 }

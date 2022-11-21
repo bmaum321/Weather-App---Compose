@@ -3,6 +3,7 @@ package com.brian.weathercompose.presentation
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
@@ -10,12 +11,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.preference.PreferenceManager
 import com.brian.weathercompose.R
 import com.brian.weathercompose.presentation.navigation.*
+import com.brian.weathercompose.presentation.screens.AddWeatherScreen
+import com.brian.weathercompose.presentation.screens.DailyForecastScreen
+import com.brian.weathercompose.presentation.screens.HourlyForecastScreen
+import com.brian.weathercompose.presentation.screens.MainWeatherListScreen
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
 
@@ -76,10 +87,11 @@ fun WeatherAppBar(
 fun WeatherApp(
     weatherListViewModel: WeatherListViewModel,
     mainViewModel: MainViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController()
 ) {
     // Create nav controller
-    val navController = rememberNavController()
+   // val navController = rememberNavController()
 
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -103,14 +115,86 @@ fun WeatherApp(
             )
         }
     ) { innerPadding ->
-        WeatherNavHost(
+
+        val context = LocalContext.current
+        val pref = PreferenceManager.getDefaultSharedPreferences(context)
+        NavHost(
             navController = navController,
-            modifier = Modifier.padding(innerPadding),
-            weatherListViewModel = weatherListViewModel,
-            mainViewModel = mainViewModel
-        )
+            startDestination = MainWeatherList.route,
+            modifier = modifier
+        ) {
+            composable(route = MainWeatherList.route,
+                arguments = MainWeatherList.arguments) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    color = MaterialTheme.colors.background
+                ) {
+                    val weatherUiState by remember {
+                        weatherListViewModel.getAllWeather(pref, resources = context.resources)
+                    }.collectAsState()
+
+                    MainWeatherListScreen(
+                        weatherUiState = weatherUiState,
+                        retryAction = { weatherListViewModel.refresh() },
+                        modifier = modifier,
+                        onClick = { location -> navController.navigateToDailyForecast(location) },
+                        addWeatherFabAction = { navController.navigate(AddLocation.route) },
+                        weatherListViewModel = weatherListViewModel,
+                        mainViewModel = mainViewModel
+                    )
+                }
+            }
+
+            composable(route = AddLocation.route) {
+                AddWeatherScreen(
+                    value = "",
+                    onValueChange = { },
+                    navAction = { navController.popBackStack() }
+                )
+            }
+
+            composable(route = DailyForecast.routeWithArgs,
+            ) { navBackStackEntry ->
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    color = MaterialTheme.colors.background
+                ) {
+                    val location = navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
+                    if (location != null) {
+                        DailyForecastScreen(
+                            modifier = modifier,
+                            onClick = { date -> navController.navigateToHourlyForecast(location, date) },
+                            location = location,
+                            mainViewModel = mainViewModel
+                        )
+                    }
+                }
+            }
+
+            composable(route = HourlyForecast.routeWithArgs) { navBackStackEntry ->
+                val location = navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
+                val date = navBackStackEntry.arguments?.getString(MainWeatherList.dateArg)
+                if (date != null && location != null) {
+                    HourlyForecastScreen(
+                        modifier = modifier,
+                        date = date,
+                        location = location,
+                        mainViewModel = mainViewModel
+                    )
+                }
+
+            }
+
+            composable(route = SettingsMenu.route) {
+
+            }
+
+        }
     }
 }
+
 
 
 

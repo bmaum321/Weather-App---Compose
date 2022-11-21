@@ -106,10 +106,10 @@ fun WeatherNavHost(
     }
 }
 
-private fun NavHostController.navigateToDailyForecast(location: String) {
+fun NavHostController.navigateToDailyForecast(location: String) {
     this.navigate("${DailyForecast.route}/$location")
 }
 
-private fun NavHostController.navigateToHourlyForecast(location: String, date:String) {
+fun NavHostController.navigateToHourlyForecast(location: String, date:String) {
     this.navigate("${HourlyForecast.route}/$location/$date")
 }

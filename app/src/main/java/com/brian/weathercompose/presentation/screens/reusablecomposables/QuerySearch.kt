@@ -40,14 +40,21 @@ fun QuerySearch(
         singleLine = true,
         trailingIcon = {
             if (showClearButton) {
-                IconButton(onClick = { onClearClick() }) {
+                IconButton(
+                    onClick = {
+                        onClearClick()
+                    }
+                ) {
                     Icon(imageVector = Icons.Filled.Close, contentDescription = "Clear")
                 }
             }
 
         },
-        keyboardActions = KeyboardActions(onDone = {onDoneActionClick()
-        }),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                onDoneActionClick()
+            }
+        ),
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Done,
             keyboardType = KeyboardType.Text

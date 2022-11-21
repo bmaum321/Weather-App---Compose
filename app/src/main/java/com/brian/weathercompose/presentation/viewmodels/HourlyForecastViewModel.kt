@@ -8,9 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
 import com.brian.weathercompose.data.local.WeatherDao
-import com.brian.weathercompose.domain.ForecastDomainObject
-import com.brian.weathercompose.domain.asDomainModel
-import com.brian.weathercompose.data.remote.dto.Hours
+import com.brian.weathercompose.domain.model.ForecastDomainObject
+import com.brian.weathercompose.data.mapper.asDomainModel
+import com.brian.weathercompose.data.remote.dto.Hour
 import com.brian.weathercompose.data.remote.ApiResponse
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.channels.BufferOverflow
@@ -99,7 +99,7 @@ class HourlyForecastViewModel(
 
 
 data class HourlyForecastItemViewData(
-    val hour: Hours,
+    val hour: Hour,
     val hoursViewData: HoursViewData
 )
 
@@ -124,7 +124,7 @@ fun HourlyForecastItemViewData.withPreferenceConversion(
     val isIn = true
 
     return HourlyForecastItemViewData(
-        hour = Hours(
+        hour = Hour(
             time_epoch = hour.time_epoch,
             time = hour.time,
             temp_f = hour.temp_f,

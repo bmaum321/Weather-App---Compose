@@ -30,14 +30,14 @@ data class Alert(
     val event: String,
     val effective: String,
     val expires: String,
-    var desc: String
+    val desc: String
 )
 
 @Serializable
 data class Day(
-    var date: String,
+    val date: String,
     val day: ForecastForDay,
-    val hour: MutableList<Hours> //needed to delete hours in past in Models.kt
+    val hour: List<Hour>
 )
 
 @Serializable
@@ -53,9 +53,9 @@ data class ForecastForDay(
 )
 
 @Serializable
-data class Hours(
+data class Hour(
     val time_epoch: Int,
-    var time: String, //TODO clean this up
+    val time: String,
     val temp_f: Double,
     val temp_c: Double,
     val is_day: Int,

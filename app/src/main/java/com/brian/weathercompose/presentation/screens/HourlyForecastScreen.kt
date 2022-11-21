@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.preference.PreferenceManager
 import com.brian.weathercompose.R
-import com.brian.weathercompose.data.remote.dto.Hours
+import com.brian.weathercompose.domain.model.HoursDomainObject
 import com.brian.weathercompose.presentation.screens.reusablecomposables.ErrorScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LoadingScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.WeatherConditionIcon
@@ -49,7 +49,7 @@ fun HourlyForecastScreen(
     when (uiState.value) {  //TODO same here new viewmodel with new state
         is HourlyForecastViewData.Loading -> LoadingScreen(modifier)
         is HourlyForecastViewData.Done -> HourlyForecastList(
-            (uiState.value as HourlyForecastViewData.Done).forecastDomainObject.days.first { it.date == date }.hour, //TODO need to pass a list of days here
+            (uiState.value as HourlyForecastViewData.Done).forecastDomainObject.days.first { it.date == date }.hours, //TODO need to pass a list of days here
             modifier,
             hourlyForecastViewModel
         )
@@ -64,7 +64,7 @@ fun HourlyForecastScreen(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HourlyForecastList(
-    hoursList: List<Hours>,
+    hoursList: List<HoursDomainObject>,
     modifier: Modifier = Modifier,
     viewModel: HourlyForecastViewModel
 ) {
@@ -105,7 +105,7 @@ fun HourlyForecastList(
 
 @Composable
 fun HourlyForecastListItem(
-    hour: Hours,
+    hour: HoursDomainObject,
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -166,7 +166,7 @@ fun HourlyForecastListItem(
 
 @Composable
 fun HourlyForecastDetails(
-    hour: Hours,
+    hour: HoursDomainObject,
     modifier: Modifier = Modifier
 ) {
     Row(

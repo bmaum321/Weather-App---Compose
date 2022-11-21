@@ -22,7 +22,10 @@ data class WeatherContainer(
 /**
  * Convert Network results to database objects
  */
-fun WeatherContainer.asDatabaseModel(zipcode: String, dbSortOrder: Int): WeatherEntity {
+fun WeatherContainer.asDatabaseModel(
+    zipcode: String,
+    dbSortOrder: Int
+): WeatherEntity {
     return WeatherEntity(
         zipCode = zipcode,
         cityName = location.name,

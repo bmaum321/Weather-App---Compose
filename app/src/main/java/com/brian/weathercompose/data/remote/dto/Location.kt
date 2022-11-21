@@ -9,10 +9,10 @@ data class Location(val location: LocationData)
 data class LocationData(
     val name: String,
     val region: String,
-    var country: String,
+    val country: String,
     val lat: Double,
     val lon: Double,
     val tz_id: String,
     val localtime_epoch: Long,
-    var localtime: String
+    val localtime: String
 )

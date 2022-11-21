@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.brian.weathercompose.data.local.WeatherDao
-import com.brian.weathercompose.domain.WeatherDomainObject
+import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.data.local.WeatherEntity
 import com.brian.weathercompose.data.remote.ApiResponse
 import com.brian.weathercompose.repository.WeatherRepository

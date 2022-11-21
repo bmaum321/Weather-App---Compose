@@ -27,7 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import com.brian.weathercompose.R
-import com.brian.weathercompose.domain.WeatherDomainObject
+import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.presentation.screens.reusablecomposables.ErrorScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LoadingScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.WeatherConditionIcon

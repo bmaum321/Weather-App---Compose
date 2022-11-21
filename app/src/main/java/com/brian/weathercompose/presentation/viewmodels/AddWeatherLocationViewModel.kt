@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.data.local.WeatherEntity
+import com.brian.weathercompose.data.mapper.toDomainModel
 import com.brian.weathercompose.data.remote.dto.asDatabaseModel
 import com.brian.weathercompose.data.remote.ApiResponse
 import com.brian.weathercompose.repository.WeatherRepository
@@ -18,13 +19,12 @@ import kotlinx.coroutines.launch
  * [ViewModel] to provide data to the  [AddWeatherLocationFragment] and allow for interaction the the [WeatherDao]
  */
 
-// Pass an application as a parameter to the viewmodel constructor which is the contect passed to the singleton database object
+// Pass an application as a parameter to the viewmodel constructor which is the context passed to the singleton database object
 class AddWeatherLocationViewModel(
     private val weatherRepository: WeatherRepository,
     private val weatherDao: WeatherDao,
     application: Application) :
-    AndroidViewModel(application
-    ) {
+    AndroidViewModel(application) {
 
     private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST)
         .apply {
@@ -48,13 +48,6 @@ class AddWeatherLocationViewModel(
         return dbSortOrderValue
     }
 
-    // Method that takes id: Long as a parameter and retrieve a Weather from the
-    //  database by id via the DAO.
-    // fun getWeatherById(id: Long): LiveData<WeatherEntity> {
-    //   return weatherDao.getWeatherById(id).asLiveData()
-    //  }
-
-
     @OptIn(ExperimentalCoroutinesApi::class)
     val getSearchResults: StateFlow<SearchViewData> =
         queryFlow
@@ -63,8 +56,14 @@ class AddWeatherLocationViewModel(
                     when (val response = weatherRepository.getSearchResults(location)) {
                         is ApiResponse.Success -> {
                             val newSearchResults =
-                                response.data.map { search -> search.name + "," + " " + search.region }
-
+                                response.data
+                                    .map { it.toDomainModel() }
+                                    .map { searchDomainObject ->
+                                        searchDomainObject.name + "," + " " + searchDomainObject.region
+                                    }
+                               // response.data.map { search ->
+                               //     search.name + "," + " " + search.region
+                              //  }
                             emit(SearchViewData.Done(newSearchResults))
                         }
                         is ApiResponse.Failure -> {
@@ -175,7 +174,7 @@ class AddWeatherLocationViewModel(
 
 sealed class SearchViewData {
     object Loading : SearchViewData()
-    class Error(val code: Int, val message: String?) : SearchViewData()
-    class Done(val searchResults: List<String>) :
-        SearchViewData() // TODO this is a response directly from the API, need to copy into domain data class
+    data class Error(val code: Int, val message: String?) : SearchViewData()
+    data class Done(val searchResults: List<String>) : SearchViewData()
+// TODO this is a response directly from the API, need to copy into domain data class
 }

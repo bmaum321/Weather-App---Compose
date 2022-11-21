@@ -5,8 +5,8 @@ import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.lifecycle.*
 import com.brian.weathercompose.data.local.WeatherDao
-import com.brian.weathercompose.domain.ForecastDomainObject
-import com.brian.weathercompose.domain.asDomainModel
+import com.brian.weathercompose.domain.model.ForecastDomainObject
+import com.brian.weathercompose.data.mapper.asDomainModel
 import com.brian.weathercompose.data.local.WeatherEntity
 import com.brian.weathercompose.data.remote.dto.Day
 import com.brian.weathercompose.data.remote.ApiResponse

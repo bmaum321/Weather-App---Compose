@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.preference.PreferenceManager
 import com.brian.weathercompose.data.remote.dto.Day
+import com.brian.weathercompose.domain.model.DayDomainObject
 import com.brian.weathercompose.presentation.screens.reusablecomposables.ErrorScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LoadingScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.WeatherConditionIcon
@@ -50,7 +51,7 @@ fun DailyForecastScreen(
     when (state) {
         is ForecastViewData.Loading -> LoadingScreen(modifier)
         is ForecastViewData.Done -> ForecastList(
-            (state as ForecastViewData.Done).forecastDomainObject.days, //TODO need to pass a list of days here
+            (state as ForecastViewData.Done).forecastDomainObject.days,
             modifier,
             onClick,
             dailyForecastViewModel
@@ -66,7 +67,7 @@ fun DailyForecastScreen(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ForecastList(
-    dayList: List<Day>,
+    dayList: List<DayDomainObject>,
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
     viewModel: DailyForecastViewModel
@@ -109,7 +110,7 @@ fun ForecastList(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ForecastListItem(
-    day: Day,
+    day: DayDomainObject,
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit
 ) {

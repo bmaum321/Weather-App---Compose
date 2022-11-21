@@ -26,15 +26,13 @@ fun ForecastContainer.asDomainModel(
     val forecastDayDomainObjectList = forecast.forecastday.map { it.toDomainModel() }
     val currentEpochTime = System
         .currentTimeMillis() / 1000 - 3600
-    forecastDayDomainObjectList
-        .forEach { day ->
+    forecastDayDomainObjectList.forEach { day ->
 
             /**
              * Remove all method is used to avoid concurrent modification error on collections. Lets you
              * delete items from a collection as you iterate through it
              */
-            day.hours
-                .removeAll { hours ->
+            day.hours.removeAll { hours ->
                     hours.time_epoch < currentEpochTime
                 }
             day.date = LocalDate
@@ -44,21 +42,12 @@ fun ForecastContainer.asDomainModel(
                     TextStyle.FULL,
                     Locale.ENGLISH
                 ) // Convert to day of week
-            forecastDayDomainObjectList
-                .first().date = resources.getString(R.string.today)
-            day.hours
-                .forEach { hour ->
+            forecastDayDomainObjectList.first().date = resources.getString(R.string.today)
+            day.hours.forEach { hour ->
                     hour.time = LocalTime.parse(
-                        hour.time
-                            .substring(11) // Remove date from time
-                    ) // Remove date stamp
-                        .format(
-                            DateTimeFormatter
-                                .ofPattern(
-                                    "hh:mm a"
-                                )
-                            // Add AM/PM postfix
-                        )
+                        hour.time.substring(11) // Remove date from time
+                    )
+                        .format(DateTimeFormatter.ofPattern("hh:mm a"))// Add AM/PM postfix
                         .removePrefix("0") // Remove 0 prefix, Ex: Turn 01:00 PM into 1:00PM
                 }
         }

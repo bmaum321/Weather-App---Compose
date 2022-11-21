@@ -44,16 +44,25 @@ fun HourlyForecastScreen(
     }
     val context = LocalContext.current
     val pref = PreferenceManager.getDefaultSharedPreferences(context)
-    val uiState = remember { hourlyForecastViewModel.getHourlyForecast(location, pref, context.resources) }.collectAsState()
+    val uiState = remember {
+        hourlyForecastViewModel.getHourlyForecast(
+            location,
+            pref,
+            context.resources
+        )
+    }.collectAsState()
 
     when (uiState.value) {  //TODO same here new viewmodel with new state
         is HourlyForecastViewData.Loading -> LoadingScreen(modifier)
         is HourlyForecastViewData.Done -> HourlyForecastList(
-            (uiState.value as HourlyForecastViewData.Done).forecastDomainObject.days.first { it.date == date }.hours, //TODO need to pass a list of days here
+            (uiState.value as HourlyForecastViewData.Done).forecastDomainObject.days.first { it.date == date }.hours,
             modifier,
             hourlyForecastViewModel
         )
-        is HourlyForecastViewData.Error -> ErrorScreen({ hourlyForecastViewModel.refresh() }, modifier)
+        is HourlyForecastViewData.Error -> ErrorScreen(
+            { hourlyForecastViewModel.refresh() },
+            modifier
+        )
     }
 }
 
@@ -156,12 +165,12 @@ fun HourlyForecastListItem(
                 ExpandCardButton(expanded = expanded, onClick = { expanded = !expanded })
             }
 
-            if(expanded){
+            if (expanded) {
                 HourlyForecastDetails(hour = hour)
             }
         }
     }
-    
+
 }
 
 @Composable
@@ -180,13 +189,24 @@ fun HourlyForecastDetails(
             .fillMaxWidth()
     ) {
         Spacer(modifier = modifier.weight(1f))
-        WeatherStatistic(iconId = R.drawable.ic_wind, value = hour.wind_mph.toString())
+        WeatherStatistic(
+            iconId = R.drawable.ic_wind,
+            value = hour.wind_mph.toString()
+        )
         Spacer(modifier = modifier.weight(1f))
-        WeatherStatistic(iconId = R.drawable.barometer_svgrepo_com, value = hour.pressure_in.toString())
+        WeatherStatistic(
+            iconId = R.drawable.barometer_svgrepo_com,
+            value = hour.pressure_in.toString()
+        )
         Spacer(modifier = modifier.weight(1f))
-        WeatherStatistic(iconId = R.drawable.ic_rain_svgrepo_com, value = hour.precip_in.toString())
+        WeatherStatistic(
+            iconId = R.drawable.ic_rain_svgrepo_com,
+            value = hour.precip_in.toString())
         Spacer(modifier = modifier.weight(1f))
-        WeatherStatistic(iconId = R.drawable.ic_wind_sock, value = hour.wind_dir)
+        WeatherStatistic(
+            iconId = R.drawable.ic_wind_sock,
+            value = hour.wind_dir
+        )
         Spacer(modifier = modifier.weight(1f))
     }
 }
@@ -207,9 +227,8 @@ private fun ExpandCardButton(
 ) {
     IconButton(onClick = onClick) {
         Icon(
-            painter = if (expanded) painterResource(id = R.drawable.ic_baseline_expand_less_24) else painterResource(
-                id = R.drawable.ic_baseline_expand_more_24
-            ),
+            painter = if (expanded) painterResource(id = R.drawable.ic_baseline_expand_less_24)
+            else painterResource(id = R.drawable.ic_baseline_expand_more_24),
             contentDescription = stringResource(R.string.expand_button_content_description),
         )
     }

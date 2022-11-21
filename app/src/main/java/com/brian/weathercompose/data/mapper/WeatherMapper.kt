@@ -79,11 +79,9 @@ fun WeatherContainer.asDomainModel(
     //  }
 
 
-
     /**
      * Country formatting
      * */
-
 
     when (locationDataDomainModel.country) {
         resources.getString(R.string.USA) -> locationDataDomainModel.country =

@@ -56,14 +56,10 @@ class AddWeatherLocationViewModel(
                     when (val response = weatherRepository.getSearchResults(location)) {
                         is ApiResponse.Success -> {
                             val newSearchResults =
-                                response.data
-                                    .map { it.toDomainModel() }
+                                response.data.map { it.toDomainModel() }
                                     .map { searchDomainObject ->
                                         searchDomainObject.name + "," + " " + searchDomainObject.region
                                     }
-                               // response.data.map { search ->
-                               //     search.name + "," + " " + search.region
-                              //  }
                             emit(SearchViewData.Done(newSearchResults))
                         }
                         is ApiResponse.Failure -> {
@@ -176,5 +172,4 @@ sealed class SearchViewData {
     object Loading : SearchViewData()
     data class Error(val code: Int, val message: String?) : SearchViewData()
     data class Done(val searchResults: List<String>) : SearchViewData()
-// TODO this is a response directly from the API, need to copy into domain data class
 }

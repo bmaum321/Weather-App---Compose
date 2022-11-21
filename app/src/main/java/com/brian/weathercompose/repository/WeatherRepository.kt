@@ -2,11 +2,11 @@ package com.brian.weathercompose.repository
 
 import android.content.SharedPreferences
 import android.content.res.Resources
+import com.brian.weathercompose.data.remote.ApiResponse
 import com.brian.weathercompose.domain.WeatherDomainObject
 import com.brian.weathercompose.data.remote.dto.ForecastContainer
 import com.brian.weathercompose.data.remote.dto.Search
 import com.brian.weathercompose.data.remote.dto.WeatherContainer
-import com.brian.weathercompose.network.*
 
 interface WeatherRepository {
 

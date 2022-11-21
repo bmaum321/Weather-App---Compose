@@ -12,7 +12,7 @@ import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.brian.weathercompose.data.local.WeatherDatabase
-import com.brian.weathercompose.network.WeatherApi
+import com.brian.weathercompose.data.remote.WeatherApi
 import com.brian.weathercompose.presentation.navigation.MainWeatherList
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
@@ -60,6 +60,15 @@ class NavigationTests {
     @Test
     fun weatherNavHost_verifyStartDestination() {
         navController.assertCurrentRouteName(MainWeatherList.route)
+    }
+
+
+    /**
+     * Verify the start destination title
+     */
+    @Test
+    fun weatherNavHost_verifyStartDestinationTitle() {
+        composeTestRule.onNodeWithStringId(R.string.places).assertExists()
     }
 
     /**

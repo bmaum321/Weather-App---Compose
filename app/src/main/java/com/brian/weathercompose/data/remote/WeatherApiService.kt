@@ -1,9 +1,12 @@
-package com.brian.weathercompose.network
+package com.brian.weathercompose.data.remote
 
 import com.brian.weathercompose.data.remote.dto.WeatherContainer
 import com.brian.weathercompose.data.remote.dto.ForecastContainer
 import com.brian.weathercompose.data.remote.dto.Search
-import com.brian.weathercompose.util.Constants
+import com.brian.weathercompose.util.Constants.BASE_URL
+import com.brian.weathercompose.util.Constants.CURRENT
+import com.brian.weathercompose.util.Constants.FORECAST
+import com.brian.weathercompose.util.Constants.SEARCH
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -18,19 +21,13 @@ import retrofit2.http.Query
  * A retrofit service to fetch the weather data from the API
  */
 
-const val BASE_URL = "https://api.weatherapi.com/v1/"
-private const val CURRENT = "current.json?key=${Constants.APIKEY}"
-private const val FORECAST = "forecast.json?key=${Constants.APIKEY}"
-private const val SEARCH = "search.json?key=${Constants.APIKEY}"
-
-
 val json = Json {
     ignoreUnknownKeys = true
 }
 
 // Configure retrofit to parse JSON and use coroutines
 @OptIn(ExperimentalSerializationApi::class)
-private val retrofit: Retrofit = Retrofit.Builder()
+val retrofit: Retrofit = Retrofit.Builder()
     .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
     .baseUrl(BASE_URL)
     .build()

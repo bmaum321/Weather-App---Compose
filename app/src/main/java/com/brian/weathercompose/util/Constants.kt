@@ -8,5 +8,9 @@ object Constants {
     const val TAG_OUTPUT = "Daily worker ran"
     const val rainIconUrl = "//cdn.weatherapi.com/weather/64x64/night/308.png"
     const val snowIconUrl = "//cdn.weatherapi.com/weather/64x64/night/338.png"
+    const val BASE_URL = "https://api.weatherapi.com/v1/"
+    const val CURRENT = "current.json?key=$APIKEY"
+    const val FORECAST = "forecast.json?key=$APIKEY"
+    const val SEARCH = "search.json?key=$APIKEY"
 
 }

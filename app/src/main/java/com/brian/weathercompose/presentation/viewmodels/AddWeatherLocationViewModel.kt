@@ -5,7 +5,7 @@ import androidx.lifecycle.*
 import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.data.local.WeatherEntity
 import com.brian.weathercompose.data.remote.dto.asDatabaseModel
-import com.brian.weathercompose.network.ApiResponse
+import com.brian.weathercompose.data.remote.ApiResponse
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

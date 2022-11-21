@@ -9,7 +9,7 @@ import com.brian.weathercompose.domain.ForecastDomainObject
 import com.brian.weathercompose.domain.asDomainModel
 import com.brian.weathercompose.data.local.WeatherEntity
 import com.brian.weathercompose.data.remote.dto.Day
-import com.brian.weathercompose.network.ApiResponse
+import com.brian.weathercompose.data.remote.ApiResponse
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow

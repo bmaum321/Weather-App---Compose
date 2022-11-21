@@ -7,9 +7,9 @@ import com.brian.weathercompose.domain.asDomainModel
 import com.brian.weathercompose.data.remote.dto.ForecastContainer
 import com.brian.weathercompose.data.remote.dto.Search
 import com.brian.weathercompose.data.remote.dto.WeatherContainer
-import com.brian.weathercompose.network.ApiResponse
-import com.brian.weathercompose.network.WeatherApi
-import com.brian.weathercompose.network.handleApi
+import com.brian.weathercompose.data.remote.ApiResponse
+import com.brian.weathercompose.data.remote.WeatherApi
+import com.brian.weathercompose.data.remote.handleApi
 
 
 class WeatherRepositoryImpl(private val weatherApi: WeatherApi) : WeatherRepository {

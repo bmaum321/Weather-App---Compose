@@ -37,13 +37,13 @@ fun WeatherContainer.asDomainModel(
     //var backgroundColor: Int = R.color.material_dynamic_neutral_variant30
     //var textColor: Int = R.color.material_dynamic_neutral_variant80
 
-    var backgroundColor = Color.White
-    var textColor = Color.Black
+    var backgroundColor = listOf<Color>()
+    var textColor = Color.White
 
     // Dynamic Material colors not supported on < API 31
     if(Build.VERSION.SDK_INT <= 31) {
         textColor = Color.Black
-        backgroundColor = Color.Transparent
+       // backgroundColor = Color.Transparent
     }
 //    if (sharedPreferences.getBoolean(
 //            resources.getString(R.string.show_current_condition_color),
@@ -53,26 +53,27 @@ fun WeatherContainer.asDomainModel(
     backgroundColor = when (current.condition.code) {
         1000 -> {
             if (current.condition.text == resources.getString(R.string.Sunny)) {
-                Color.Yellow// sunny
-            } else Color.Transparent // clear night
+                listOf(Color(0xfff5f242),Color(0xffff9100))// sunny
+            } else listOf(Color(0xff000000),Color(0x472761CC)) // clear night
         }
         1003 -> if (current.is_day == 1) {
-            Color.LightGray // partly cloudy day
+            listOf(Color(0xffffffff),Color(0xffffbb00)) // partly cloudy day
         } else {
-            Color.LightGray // partly cloud night
+            listOf(Color(0xff575757),Color(0x472761CC)) // partly cloud night
         } // partly cloudy night
-        in 1006..1030 -> Color.Gray // clouds/overcast
-        in 1063..1117 -> Color.Blue // rain
-        in 1150..1207 -> Color.Blue // rain
-        in 1210..1237 -> Color.White //snow
-        in 1240..1282 -> Color.Blue // rain
-        else -> Color.White
+        in 1006..1030 -> listOf(Color.Gray, Color.DarkGray) // clouds/overcast
+        in 1063..1117 -> listOf(Color(0xff575757),Color(0xff1976d2)) // rain
+        in 1150..1207 -> listOf(Color(0xff575757),Color(0xff1976d2))// rain
+        in 1210..1237 -> listOf(Color.White, Color.Gray) //snow
+        in 1240..1282 -> listOf(Color(0xff575757),Color(0xff1976d2)) // rain
+        else -> listOf(Color(0xfff5f242),Color(0xffff9100))
     }
 
     // Change text color to black for certain gradients for easier reading
-    if (backgroundColor == Color.White ||
-        backgroundColor == Color.Yellow ||
-        backgroundColor == Color.White
+    if (backgroundColor == listOf(Color(0xfff5f242),Color(0xffff9100)) ||
+        backgroundColor == listOf(Color.Gray, Color.DarkGray) ||
+        backgroundColor == listOf(Color.White, Color.Gray) ||
+        backgroundColor == listOf(Color(0xffffffff),Color(0xffffbb00))
     ) {
         textColor = Color.Black
     }
@@ -101,7 +102,7 @@ fun WeatherContainer.asDomainModel(
         conditionText = current.condition.text,
         windSpeed = current.wind_mph,
         windDirection = current.wind_dir,
-        backgroundColor = backgroundColor,
+        backgroundColors = backgroundColor,
         code = current.condition.code,
         textColor = textColor,
         country = locationDataDomainModel.country,

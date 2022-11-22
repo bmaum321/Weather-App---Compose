@@ -64,9 +64,11 @@
     <string name="retry">Retry</string>
     <string name="loading">Loading</string>
     <string name="add_weather_fab_description">Add Weather Location</string>
+    <string name="alert_fab_description">Weather Alerts</string>
     <string name="back_button">Back</string>
     <string name="action_menu">Action Menu</string>
     <string name="weather_condition_icon">weather condition icon</string>
     <string name="expand_button_content_description">See detailed hourly forecast.</string>
     <string name="places">Places</string>
+    <string name="scroll_to_top">Scroll To Top</string>
 </resources>

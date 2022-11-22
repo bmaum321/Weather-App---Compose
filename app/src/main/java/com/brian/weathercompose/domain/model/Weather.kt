@@ -1,6 +1,5 @@
 package com.brian.weathercompose.domain.model
 
-import com.brian.weathercompose.data.remote.dto.Day
 import androidx.compose.ui.graphics.Color
 
 /**
@@ -19,7 +18,7 @@ data class WeatherDomainObject(
     val windSpeed: Double,
     val windDirection: String,
     val time: String,
-    val backgroundColor: Color,
+    val backgroundColors: List<Color>,
     val code: Int,
     val textColor: Color,
     val country: String,

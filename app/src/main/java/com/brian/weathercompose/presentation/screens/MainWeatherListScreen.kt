@@ -19,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -185,7 +186,7 @@ fun WeatherListScreen(
                             Card(
                                 Modifier
                                     .padding(8.dp)
-                                    .height(100.dp)
+                                    .height(125.dp)
                                     .fillMaxWidth(),
                                 backgroundColor = color
                             ) {
@@ -221,12 +222,16 @@ fun WeatherListScreen(
                 visible = showButton,
                 modifier = Modifier.align(Alignment.BottomCenter)
             ) {
-                Button(onClick = {
+
+                IconButton(onClick = {
                     coroutineScope.launch {
                         listState.animateScrollToItem(0, 0)
                     }
                 }) {
-                    Icon(painter = painterResource(id = R.drawable.ic_baseline_expand_less_24), contentDescription = "" )
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_expand_less_24),
+                        contentDescription = stringResource(R.string.scroll_to_top)
+                    )
                 }
             }
         }
@@ -264,47 +269,50 @@ fun WeatherListItem(
 ) {
     val location = weatherDomainObject.zipcode
     val fontColor = weatherDomainObject.textColor
+    val gradient = Brush.linearGradient(weatherDomainObject.backgroundColors)
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .height(100.dp)
+            .height(125.dp)
             .fillMaxWidth(),
         elevation = 4.dp,
         onClick = { onClick(location) },
-       // backgroundColor = weatherDomainObject.backgroundColor
+        contentColor = weatherDomainObject.textColor
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Column(modifier = modifier.weight(3f)) {
-                Text(
-                    text = weatherDomainObject.location,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
-                   // color = fontColor
+        Box(modifier = Modifier.background(gradient)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .align(Alignment.Center)
+            ) {
+                Column(modifier = modifier.weight(3f)) {
+                    Text(
+                        text = weatherDomainObject.location,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp,
+                    )
+                    Text(text = weatherDomainObject.country)
+                    Text(
+                        text = weatherDomainObject.conditionText,
+                        fontSize = 18.sp
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
 
-                )
-                Text(text = weatherDomainObject.country)
-                Text(
-                    text = weatherDomainObject.conditionText,
-                    fontSize = 18.sp
-                )
+                Column {
+                    Text(
+                        text = "${weatherDomainObject.temp}\u00B0",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(text = weatherDomainObject.time)
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                WeatherConditionIcon(iconUrl = weatherDomainObject.imgSrcUrl)
             }
-            Spacer(modifier = Modifier.weight(1f))
-
-            Column {
-                Text(
-                    text = "${weatherDomainObject.temp}\u00B0",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(text = weatherDomainObject.time)
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            WeatherConditionIcon(iconUrl = weatherDomainObject.imgSrcUrl)
         }
+
 
     }
 }
@@ -334,7 +342,7 @@ fun WeatherListScreenPreview() {
         val mockData = List(10) {
             WeatherDomainObject(
                 "Liverpool", "32", "13088", "", "Sunny", 12.0,
-                "SSW", "", Color.White, 1000, Color.Black, "USA", "32"
+                "SSW", "", emptyList(), 1000, Color.Black, "USA", "32"
             )
         }
         WeatherListScreen(

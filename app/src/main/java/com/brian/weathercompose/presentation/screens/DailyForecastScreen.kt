@@ -3,6 +3,7 @@ package com.brian.weathercompose.presentation.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -10,13 +11,18 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.preference.PreferenceManager
+import com.brian.weathercompose.R
 import com.brian.weathercompose.data.remote.dto.Day
 import com.brian.weathercompose.domain.model.DayDomainObject
+import com.brian.weathercompose.domain.model.ForecastDomainObject
 import com.brian.weathercompose.presentation.screens.reusablecomposables.ErrorScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LoadingScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.WeatherConditionIcon
@@ -32,7 +38,8 @@ fun DailyForecastScreen(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
     location: String,
-    mainViewModel: MainViewModel
+    mainViewModel: MainViewModel,
+    alertFabOnClick: () -> Unit
 ) {
     val dailyForecastViewModel = getViewModel<DailyForecastViewModel>()
     // update title bar
@@ -51,10 +58,11 @@ fun DailyForecastScreen(
     when (state) {
         is ForecastViewData.Loading -> LoadingScreen(modifier)
         is ForecastViewData.Done -> ForecastList(
-            (state as ForecastViewData.Done).forecastDomainObject.days,
+            (state as ForecastViewData.Done).forecastDomainObject,
             modifier,
             onClick,
-            dailyForecastViewModel
+            dailyForecastViewModel,
+            alertFabOnClick
         )
         is ForecastViewData.Error -> ErrorScreen({ dailyForecastViewModel.refresh() }, modifier)
     }
@@ -67,10 +75,12 @@ fun DailyForecastScreen(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ForecastList(
-    dayList: List<DayDomainObject>,
+    forecast: ForecastDomainObject,
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
-    viewModel: DailyForecastViewModel
+    viewModel: DailyForecastViewModel,
+    alertFabOnClick: () -> Unit
+
 ) {
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
@@ -85,22 +95,35 @@ fun ForecastList(
         refreshing = refreshing,
         onRefresh = { refresh() }
     )
-
-    Box(modifier = Modifier.pullRefresh(state)) {
-        LazyColumn(
-            modifier = modifier
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(4.dp)
-        ) {
-            items(dayList) {
-                ForecastListItem(it, onClick = onClick)
+    val scaffoldState = rememberScaffoldState()
+    val fabVisible by remember { mutableStateOf(forecast.alerts.isNotEmpty()) }
+    Scaffold(
+        scaffoldState = scaffoldState,
+        floatingActionButton = {
+            if(fabVisible) {
+                AlertFab(
+                    onClick = alertFabOnClick
+                )
             }
         }
-        PullRefreshIndicator(
-            refreshing = refreshing,
-            state = state,
-            Modifier.align(Alignment.TopCenter)
-        )
+    ) { innerPadding ->
+
+        Box(modifier = Modifier.pullRefresh(state)) {
+            LazyColumn(
+                modifier = modifier
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(4.dp)
+            ) {
+                items(forecast.days) {
+                    ForecastListItem(it, onClick = onClick)
+                }
+            }
+            PullRefreshIndicator(
+                refreshing = refreshing,
+                state = state,
+                Modifier.align(Alignment.TopCenter)
+            )
+        }
     }
 
 
@@ -155,6 +178,26 @@ fun ForecastListItem(
             Spacer(modifier = Modifier.weight(1f))
             WeatherConditionIcon(iconUrl = day.day.condition.icon)
         }
+
+    }
+}
+
+// FAB for add weather
+@Composable
+fun AlertFab(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    FloatingActionButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(size = 18.dp),
+        modifier = modifier.size(64.dp),
+        backgroundColor = Color.Red
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_baseline_crisis_alert_24),
+            contentDescription = stringResource(R.string.alert_fab_description)
+        )
 
     }
 }

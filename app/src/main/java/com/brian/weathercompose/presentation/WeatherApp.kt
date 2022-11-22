@@ -23,10 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.preference.PreferenceManager
 import com.brian.weathercompose.R
 import com.brian.weathercompose.presentation.navigation.*
-import com.brian.weathercompose.presentation.screens.AddWeatherScreen
-import com.brian.weathercompose.presentation.screens.DailyForecastScreen
-import com.brian.weathercompose.presentation.screens.HourlyForecastScreen
-import com.brian.weathercompose.presentation.screens.MainWeatherListScreen
+import com.brian.weathercompose.presentation.screens.*
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
 
@@ -167,7 +164,8 @@ fun WeatherApp(
                             modifier = modifier,
                             onClick = { date -> navController.navigateToHourlyForecast(location, date) },
                             location = location,
-                            mainViewModel = mainViewModel
+                            mainViewModel = mainViewModel,
+                            alertFabOnClick = { navController.navigateToAlertsScreen(location) }
                         )
                     }
                 }
@@ -191,9 +189,30 @@ fun WeatherApp(
 
             }
 
+            composable(route = Alerts.routeWithArgs) { navBackStackEntry ->
+                val location = navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
+                if (location != null) {
+                    AlertsScreen(mainViewModel = mainViewModel, location = location)
+                }
+            }
+
         }
     }
 }
+
+fun NavHostController.navigateToDailyForecast(location: String) {
+    this.navigate("${DailyForecast.route}/$location")
+}
+
+fun NavHostController.navigateToHourlyForecast(location: String, date:String) {
+    this.navigate("${HourlyForecast.route}/$location/$date")
+}
+
+fun NavHostController.navigateToAlertsScreen(location: String) {
+    this.navigate("${Alerts.route}/$location")
+}
+
+
 
 
 

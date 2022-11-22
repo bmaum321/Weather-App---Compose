@@ -2,14 +2,14 @@ package com.example.weathercompose.repository
 
 import android.content.SharedPreferences
 import android.content.res.Resources
+import androidx.compose.ui.graphics.Color
+import com.brian.weathercompose.data.mapper.asDomainModel
 import com.brian.weathercompose.data.remote.ApiResponse
 import com.brian.weathercompose.data.remote.dto.*
 import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.repository.WeatherRepository
 
 class FakeWeatherRepository: WeatherRepository {
-    private val weatherItems = mutableListOf<WeatherDomainObject>()
-
     private var shouldReturnNetworkError = false
 
     private val locationData = LocationData(
@@ -37,6 +37,22 @@ class FakeWeatherRepository: WeatherRepository {
         wind_mph = 12.2
     )
 
+    private val weatherItems = mutableListOf(WeatherDomainObject(
+        zipcode = "",
+        time = "",
+        country = "",
+        windDirection = "",
+        code = 1,
+        backgroundColors = emptyList(),
+        conditionText = "",
+        feelsLikeTemp = "",
+        imgSrcUrl = "",
+        location = "",
+        temp = "",
+        textColor = Color.Black,
+        windSpeed = 12.2
+    ))
+
     private val forecastDay = ForecastDay(
         emptyList()
     )
@@ -51,7 +67,7 @@ class FakeWeatherRepository: WeatherRepository {
 
     override suspend fun getWeatherWithErrorHandling(zipcode: String): ApiResponse<WeatherContainer> {
         return if(shouldReturnNetworkError) {
-            ApiResponse.Failure(code = 400, message = null)
+            ApiResponse.Failure(code = 400, message = "Error")
         } else {
             ApiResponse.Success(data = WeatherContainer(locationData, currentWeatherData))
         }
@@ -59,7 +75,7 @@ class FakeWeatherRepository: WeatherRepository {
 
     override suspend fun getForecast(zipcode: String): ApiResponse<ForecastContainer> {
         return if(shouldReturnNetworkError) {
-            ApiResponse.Failure(code = 400, message = null)
+            ApiResponse.Failure(code = 400, message = "Error")
         } else {
             ApiResponse.Success(data = ForecastContainer(locationData, forecastDay, alertList))
         }
@@ -68,7 +84,7 @@ class FakeWeatherRepository: WeatherRepository {
 
     override suspend fun getSearchResults(location: String): ApiResponse<List<Search>> {
         return if(shouldReturnNetworkError) {
-            ApiResponse.Failure(code = 400, message = null)
+            ApiResponse.Failure(code = 400, message = "Error")
         } else {
             ApiResponse.Success(data = emptyList())
         }

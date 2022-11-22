@@ -104,14 +104,17 @@ fun WeatherListScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val listState = rememberLazyListState()
-    val showButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+    val showScrollToTopButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+    val showAddWeatherFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
     val scaffoldState = rememberScaffoldState()
     Scaffold(
         scaffoldState = scaffoldState,
         floatingActionButton = {
-            AddWeatherFab(
-                onClick = addWeatherFabAction
-            )
+            AnimatedVisibility(visible = showAddWeatherFab) {
+                AddWeatherFab(
+                    onClick = addWeatherFabAction
+                )
+            }
         }
     ) { innerPadding ->
 
@@ -122,7 +125,8 @@ fun WeatherListScreen(
                     .background(MaterialTheme.colors.background)
                     .padding(innerPadding),
                 contentPadding = PaddingValues(4.dp),
-                state = listState
+                state = listState,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(weatherDomainObjectList) { item ->
                     // WeatherListItem(item, onClick = onClick)
@@ -219,15 +223,16 @@ fun WeatherListScreen(
             )
 
             AnimatedVisibility(
-                visible = showButton,
+                visible = showScrollToTopButton,
                 modifier = Modifier.align(Alignment.BottomCenter)
             ) {
 
-                IconButton(onClick = {
-                    coroutineScope.launch {
-                        listState.animateScrollToItem(0, 0)
-                    }
-                }) {
+                FloatingActionButton(
+                    onClick = {   coroutineScope.launch {
+                    listState.animateScrollToItem(0, 0)
+                } },
+                    modifier = Modifier.size(32.dp)
+                ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_baseline_expand_less_24),
                         contentDescription = stringResource(R.string.scroll_to_top)
@@ -286,16 +291,19 @@ fun WeatherListItem(
                     .padding(8.dp)
                     .align(Alignment.Center)
             ) {
-                Column(modifier = modifier.weight(3f)) {
+                Column(modifier = modifier.weight(4f)) {
                     Text(
                         text = weatherDomainObject.location,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp,
+                        fontSize = 28.sp,
                     )
-                    Text(text = weatherDomainObject.country)
+                    Text(
+                        text = weatherDomainObject.country,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp)
                     Text(
                         text = weatherDomainObject.conditionText,
-                        fontSize = 18.sp
+                        fontSize = 24.sp
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
@@ -303,10 +311,13 @@ fun WeatherListItem(
                 Column {
                     Text(
                         text = "${weatherDomainObject.temp}\u00B0",
-                        fontSize = 24.sp,
+                        fontSize = 32.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Text(text = weatherDomainObject.time)
+                    Text(
+                        text = weatherDomainObject.time,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp)
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 WeatherConditionIcon(iconUrl = weatherDomainObject.imgSrcUrl)

@@ -112,11 +112,11 @@ fun AlertsList(
                 visible = showButton,
                 modifier = Modifier.align(Alignment.BottomCenter)
             ) {
-                IconButton(onClick = {
-                    coroutineScope.launch {
+                FloatingActionButton(
+                    onClick = {   coroutineScope.launch {
                         listState.animateScrollToItem(0, 0)
-                    }
-                }
+                    } },
+                    modifier = Modifier.size(32.dp)
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_baseline_expand_less_24),

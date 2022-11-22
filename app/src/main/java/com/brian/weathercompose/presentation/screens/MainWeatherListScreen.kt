@@ -130,7 +130,7 @@ fun WeatherListScreen(
                     if (dismissState.isDismissed(DismissDirection.EndToStart) ||
                         dismissState.isDismissed(DismissDirection.StartToEnd)
                     ) {
-                        LaunchedEffect(Unit) {
+                        coroutineScope.launch {
                             val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
                                 message = "${item.zipcode} will be deleted",
                                 actionLabel = "Cancel",

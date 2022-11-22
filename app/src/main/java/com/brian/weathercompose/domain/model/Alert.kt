@@ -7,5 +7,5 @@ data class AlertDomainObject(
     val event: String,
     val effective: String,
     val expires: String,
-    var desc: String
+    val desc: String
 )

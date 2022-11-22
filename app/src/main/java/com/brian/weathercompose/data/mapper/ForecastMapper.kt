@@ -54,9 +54,6 @@ fun ForecastContainer.asDomainModel(
 
     // Format the alert text from API
     val alertsAsDomainObjectList = alerts.alert.map { it.asDomainModel() }
-    alertsAsDomainObjectList.forEach { alert ->
-        alert.desc = alert.desc.replace("\n", " ").replace("*", "\n**")
-    }
 
 
     return ForecastDomainObject(

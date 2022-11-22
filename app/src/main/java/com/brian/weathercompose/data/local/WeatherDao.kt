@@ -32,7 +32,7 @@ interface WeatherDao {
 
     // method to retrieve a Weather from the database by location and return as object
     @Query("SELECT * FROM weather_database WHERE zipCode = :location")
-    fun getWeatherByLocation(location: String): WeatherEntity
+    fun getWeatherByLocation(location: String): WeatherEntity //TODO should be nullable
 
     // method to insert a Weather into the database
     @Insert(onConflict = OnConflictStrategy.REPLACE)

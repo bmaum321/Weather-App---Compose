@@ -6,7 +6,7 @@ import com.brian.weathercompose.domain.model.AlertDomainObject
 fun Alert.asDomainModel(): AlertDomainObject {
     return AlertDomainObject(
         category = category,
-        desc = desc,
+        desc = desc.replace("\n", " ").replace("*", "\n**"),
         effective = effective,
         event = event,
         expires = expires,

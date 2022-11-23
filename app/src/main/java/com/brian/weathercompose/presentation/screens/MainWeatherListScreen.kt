@@ -190,7 +190,7 @@ fun WeatherListScreen(
                             Card(
                                 Modifier
                                     .padding(8.dp)
-                                    .height(125.dp)
+                                    .height(175.dp)
                                     .fillMaxWidth(),
                                 backgroundColor = color
                             ) {
@@ -278,7 +278,7 @@ fun WeatherListItem(
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .height(125.dp)
+            .height(175.dp)
             .fillMaxWidth(),
         elevation = 4.dp,
         onClick = { onClick(location) },

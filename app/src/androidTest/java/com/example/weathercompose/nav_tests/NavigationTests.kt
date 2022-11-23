@@ -20,6 +20,7 @@ import com.brian.weathercompose.repository.WeatherRepositoryImpl
 import com.brian.weathercompose.R
 import com.brian.weathercompose.presentation.WeatherApp
 import com.brian.weathercompose.presentation.navigation.AddLocation
+import com.brian.weathercompose.presentation.navigation.Alerts
 import com.brian.weathercompose.presentation.navigation.DailyForecast
 import com.brian.weathercompose.presentation.screens.AddWeatherScreen
 import org.junit.Before
@@ -89,6 +90,22 @@ class NavigationTests {
         Thread.sleep(2000)
         navigateToAddWeatherScreen()
         navController.assertCurrentRouteName(AddLocation.route)
+    }
+
+    /**
+     * Verify navigation to [AlertsScreen]
+     *  A good naming convention for test methods is the following: thingUnderTest_TriggerOfTest_ResultOfTest
+     */
+    @Test
+    fun weatherNavHost_clickAlertFab_navigatesToAlertsScreen() {
+        Thread.sleep(2000)
+        navigateToDailyForecastScreen()
+        Thread.sleep(2000)
+        val buttonDescription = composeTestRule.activity.getString(R.string.alert_fab_description)
+        composeTestRule.onNodeWithContentDescription(buttonDescription)
+            .performClick()
+        Thread.sleep(2000)
+        navController.assertCurrentRouteName(Alerts.route)
     }
 
     /**
@@ -195,7 +212,7 @@ class NavigationTests {
     }
 
     private fun navigateToDailyForecastScreen() {
-        composeTestRule.onNodeWithText("Syracuse" , ignoreCase = true)
+        composeTestRule.onNodeWithText("Miami" , ignoreCase = true)
             .performClick()
     }
 

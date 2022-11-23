@@ -66,7 +66,7 @@ fun WeatherContainer.asDomainModel(
         in 1150..1207 -> listOf(Color(0xff575757),Color(0xff1976d2))// rain
         in 1210..1237 -> listOf(Color.White, Color.Gray) //snow
         in 1240..1282 -> listOf(Color(0xff575757),Color(0xff1976d2)) // rain
-        else -> listOf(Color(0xfff5f242),Color(0xffff9100))
+        else -> listOf(Color.White, Color.Gray)
     }
 
     // Change text color to black for certain gradients for easier reading

@@ -139,45 +139,54 @@ fun ForecastListItem(
 ) {
     val date = day.date
     Card(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier
+            .padding(8.dp)
+            .height(100.dp),
         elevation = 4.dp,
         onClick = { onClick(date) }
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Column(modifier = modifier.weight(3f)) {
-                Text(
-                    text = day.date,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp
-                )
-                Text(
-                    text = day.day.condition.text,
-                    fontSize = 18.sp
-                )
+        Box(modifier = modifier) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .align(Alignment.Center)
+            ) {
+                Column(modifier = modifier.weight(3f)) {
+                    Text(
+                        text = day.date,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp
+                    )
+                    Text(
+                        text = day.day.condition.text,
+                        fontSize = 18.sp
+                    )
+                }
+                Spacer(modifier = Modifier.weight(.5f))
+
+                Row(
+                    modifier = modifier.padding(top=10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${day.day.mintemp_f.toInt()}\u00B0 \\",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "  ${day.day.maxtemp_f.toInt()}\u00B0",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                WeatherConditionIcon(iconUrl = day.day.condition.icon)
             }
-            Spacer(modifier = Modifier.weight(.5f))
-
-            Row {
-                Text(
-                    text = "${day.day.mintemp_f.toInt()}\u00B0 \\",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "  ${day.day.maxtemp_f.toInt()}\u00B0",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            WeatherConditionIcon(iconUrl = day.day.condition.icon)
         }
+
 
     }
 }

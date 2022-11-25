@@ -105,7 +105,9 @@ class NavigationTests {
         composeTestRule.onNodeWithContentDescription(buttonDescription)
             .performClick()
         Thread.sleep(2000)
-        navController.assertCurrentRouteName(Alerts.route)
+        navController.assertCurrentRouteName(Alerts.routeWithArgs)
+        val backText = composeTestRule.activity.getString(R.string.back_button)
+        composeTestRule.onNodeWithContentDescription(backText).assertExists()
     }
 
     /**

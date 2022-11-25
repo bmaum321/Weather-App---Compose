@@ -6,7 +6,7 @@ import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.data.local.WeatherEntity
 import com.brian.weathercompose.data.mapper.toDomainModel
 import com.brian.weathercompose.data.remote.dto.asDatabaseModel
-import com.brian.weathercompose.data.remote.ApiResponse
+import com.brian.weathercompose.data.remote.NetworkResult
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,7 +54,7 @@ class AddWeatherLocationViewModel(
             .flatMapLatest { location ->
                 flow {
                     when (val response = weatherRepository.getSearchResults(location)) {
-                        is ApiResponse.Success -> {
+                        is NetworkResult.Success -> {
                             val newSearchResults =
                                 response.data.map { it.toDomainModel() }
                                     .map { searchDomainObject ->
@@ -62,7 +62,7 @@ class AddWeatherLocationViewModel(
                                     }
                             emit(SearchViewData.Done(newSearchResults))
                         }
-                        is ApiResponse.Failure -> {
+                        is NetworkResult.Failure -> {
                             emit(
                                 SearchViewData.Error(
                                     code = response.code,
@@ -70,7 +70,7 @@ class AddWeatherLocationViewModel(
                                 )
                             )
                         }
-                        is ApiResponse.Exception -> {
+                        is NetworkResult.Exception -> {
                             emit(
                                 SearchViewData.Error(
                                     code = response.e.hashCode(),
@@ -102,8 +102,8 @@ class AddWeatherLocationViewModel(
          */
 
         val networkError: Boolean =
-            when (val response = weatherRepository.getWeatherWithErrorHandling(zipcode)) {
-                is ApiResponse.Success -> {
+            when (val response = weatherRepository.getWeather(zipcode)) {
+                is NetworkResult.Success -> {
                     weatherDao.insert(
                         response.data.asDatabaseModel(
                             zipcode,
@@ -112,8 +112,8 @@ class AddWeatherLocationViewModel(
                     )
                     true
                 }
-                is ApiResponse.Failure -> false
-                is ApiResponse.Exception -> false
+                is NetworkResult.Failure -> false
+                is NetworkResult.Exception -> false
             }
         return networkError
 

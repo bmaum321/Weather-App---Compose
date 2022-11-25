@@ -4,40 +4,23 @@ import android.content.SharedPreferences
 import android.content.res.Resources
 import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.data.mapper.asDomainModel
+import com.brian.weathercompose.data.remote.*
 import com.brian.weathercompose.data.remote.dto.ForecastContainer
 import com.brian.weathercompose.data.remote.dto.Search
 import com.brian.weathercompose.data.remote.dto.WeatherContainer
-import com.brian.weathercompose.data.remote.ApiResponse
-import com.brian.weathercompose.data.remote.WeatherApi
-import com.brian.weathercompose.data.remote.handleApi
 
 
 class WeatherRepositoryImpl(private val weatherApi: WeatherApi) : WeatherRepository {
 
-    override suspend fun getWeatherWithErrorHandling(zipcode: String): ApiResponse<WeatherContainer> =
-        handleApi {
-            weatherApi.retrofitService.getWeatherWithErrorHandling(zipcode)
-        }
+    override suspend fun getWeather(zipcode: String): NetworkResult<WeatherContainer> =
+            weatherApi.retrofitService.getWeather(zipcode)
 
-    override suspend fun getForecast(zipcode: String): ApiResponse<ForecastContainer> =
-        handleApi {
+    override suspend fun getForecast(zipcode: String): NetworkResult<ForecastContainer> =
             weatherApi.retrofitService.getForecast(zipcode)
-        }
 
-    override suspend fun getSearchResults(location: String): ApiResponse<List<Search>> =
-        handleApi {
+    override suspend fun getSearchResults(location: String): NetworkResult<List<Search>> =
             weatherApi.retrofitService.locationSearch(location)
-        }
 
-    override suspend fun getWeather(
-        zipcode: String,
-        resources: Resources,
-        sharedPreferences: SharedPreferences
-    ): WeatherDomainObject {
-        val weatherData = weatherApi.retrofitService.getWeather(zipcode)
-        return weatherData
-            .asDomainModel(zipcode, resources, sharedPreferences)
-    }
 
     override suspend fun getWeatherListForZipCodes(
         zipcodes: List<String>,
@@ -46,9 +29,17 @@ class WeatherRepositoryImpl(private val weatherApi: WeatherApi) : WeatherReposit
     ): List<WeatherDomainObject> {
         val weatherDomainObjects = mutableListOf<WeatherDomainObject>()
         zipcodes.forEach { zipcode ->
-            weatherDomainObjects.add(getWeather(zipcode, resources, sharedPreferences)) // this should use error handling and do the when block here
+            val response = getWeather(zipcode)
+            response.onSuccess {
+                weatherDomainObjects.add(it.asDomainModel(zipcode, resources, sharedPreferences))
+            }.onError { code, message ->
+                println(message)
+            }.onException {
+                println(it.message)
+            }
         }
         return weatherDomainObjects
+
     }
 
 }

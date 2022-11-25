@@ -9,7 +9,7 @@ import com.brian.weathercompose.domain.model.ForecastDomainObject
 import com.brian.weathercompose.data.mapper.asDomainModel
 import com.brian.weathercompose.data.local.WeatherEntity
 import com.brian.weathercompose.data.remote.dto.Day
-import com.brian.weathercompose.data.remote.ApiResponse
+import com.brian.weathercompose.data.remote.NetworkResult
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
@@ -57,18 +57,18 @@ class DailyForecastViewModel(
                 flow {
                     emit(ForecastViewData.Loading)
                     when (val response = weatherRepository.getForecast(zipcode)) {
-                        is ApiResponse.Success -> emit(
+                        is NetworkResult.Success -> emit(
                             ForecastViewData.Done(
                                 response.data.asDomainModel(sharedPreferences, resources)
                             )
                         )
-                        is ApiResponse.Failure -> emit(
+                        is NetworkResult.Failure -> emit(
                             ForecastViewData.Error(
                                 code = response.code,
                                 message = response.message
                             )
                         )
-                        is ApiResponse.Exception -> emit(
+                        is NetworkResult.Exception -> emit(
                             ForecastViewData.Error(
                                 code = 0,
                                 message = response.e.message

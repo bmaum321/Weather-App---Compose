@@ -13,7 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.data.local.WeatherEntity
-import com.brian.weathercompose.data.remote.ApiResponse
+import com.brian.weathercompose.data.remote.NetworkResult
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -88,18 +88,18 @@ class WeatherListViewModel(
                             if (zipcodes.isNotEmpty()) {
                                 //weatherUiState = WeatherListState.Loading
                                 emit(WeatherListState.Loading)
-                                when (weatherRepository.getWeatherWithErrorHandling(zipcodes.first())) {
-                                    is ApiResponse.Success -> emit(
+                                when (weatherRepository.getWeather(zipcodes.first())) {
+                                    is NetworkResult.Success -> emit(
                                         WeatherListState.Success(
                                             weatherRepository.getWeatherListForZipCodes(
                                                 zipcodes,
                                                 resources,
                                                 sharedPreferences
-                                            )
+                                            ) 
                                         )
                                     )
-                                    is ApiResponse.Failure -> emit(WeatherListState.Error)
-                                    is ApiResponse.Exception -> emit(WeatherListState.Error)
+                                    is NetworkResult.Failure -> emit(WeatherListState.Error)
+                                    is NetworkResult.Exception -> emit(WeatherListState.Error)
                                 }
                             } else emit(WeatherListState.Empty)
                         }

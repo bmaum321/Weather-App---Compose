@@ -11,7 +11,7 @@ import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.domain.model.ForecastDomainObject
 import com.brian.weathercompose.data.mapper.asDomainModel
 import com.brian.weathercompose.data.remote.dto.Hour
-import com.brian.weathercompose.data.remote.ApiResponse
+import com.brian.weathercompose.data.remote.NetworkResult
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
@@ -56,18 +56,18 @@ class HourlyForecastViewModel(
                 flow {
                     emit(HourlyForecastViewData.Loading)
                     when (val response = weatherRepository.getForecast(zipcode)) {
-                        is ApiResponse.Success -> emit(
+                        is NetworkResult.Success -> emit(
                             HourlyForecastViewData.Done(
                                 response.data.asDomainModel(sharedPreferences, resources)
                             )
                         )
-                        is ApiResponse.Failure -> emit(
+                        is NetworkResult.Failure -> emit(
                             HourlyForecastViewData.Error(
                                 message = response.message,
                                 code = response.code
                             )
                         )
-                        is ApiResponse.Exception -> emit(
+                        is NetworkResult.Exception -> emit(
                             HourlyForecastViewData.Error(
                                 message = response.e.message,
                                 code = response.e.hashCode()

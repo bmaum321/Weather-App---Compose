@@ -11,7 +11,7 @@ class RetrofitClientTest {
     @Test
     fun weatherApi_testGetWeather_successfulHttpResponse() = runBlocking{
         val service = WeatherApi.retrofitService
-        val response = service.getWeatherWithErrorHandling("13088")
+        val response = service.getWeather("13088")
         assertTrue(response.errorBody() == null)
         assertTrue(response.code() == 200)
         assertTrue(response.body() != null)
@@ -21,7 +21,7 @@ class RetrofitClientTest {
     @Test
     fun weatherApi_testGetWeather_unSuccessfulHttpResponse() = runBlocking{
         val service = WeatherApi.retrofitService
-        val response = service.getWeatherWithErrorHandling("xxxx")
+        val response = service.getWeather("xxxx")
         assertTrue(response.errorBody() != null)
         assertTrue(response.code() == 400)
         assertTrue(response.body() == null)

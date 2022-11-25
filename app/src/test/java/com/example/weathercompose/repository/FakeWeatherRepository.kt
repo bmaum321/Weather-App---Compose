@@ -3,8 +3,7 @@ package com.example.weathercompose.repository
 import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.compose.ui.graphics.Color
-import com.brian.weathercompose.data.mapper.asDomainModel
-import com.brian.weathercompose.data.remote.ApiResponse
+import com.brian.weathercompose.data.remote.NetworkResult
 import com.brian.weathercompose.data.remote.dto.*
 import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.repository.WeatherRepository
@@ -65,28 +64,28 @@ class FakeWeatherRepository: WeatherRepository {
         shouldReturnNetworkError = value
     }
 
-    override suspend fun getWeatherWithErrorHandling(zipcode: String): ApiResponse<WeatherContainer> {
+    override suspend fun getWeather(zipcode: String): NetworkResult<WeatherContainer> {
         return if(shouldReturnNetworkError) {
-            ApiResponse.Failure(code = 400, message = "Error")
+            NetworkResult.Failure(code = 400, message = "Error")
         } else {
-            ApiResponse.Success(data = WeatherContainer(locationData, currentWeatherData))
+            NetworkResult.Success(data = WeatherContainer(locationData, currentWeatherData))
         }
     }
 
-    override suspend fun getForecast(zipcode: String): ApiResponse<ForecastContainer> {
+    override suspend fun getForecast(zipcode: String): NetworkResult<ForecastContainer> {
         return if(shouldReturnNetworkError) {
-            ApiResponse.Failure(code = 400, message = "Error")
+            NetworkResult.Failure(code = 400, message = "Error")
         } else {
-            ApiResponse.Success(data = ForecastContainer(locationData, forecastDay, alertList))
+            NetworkResult.Success(data = ForecastContainer(locationData, forecastDay, alertList))
         }
     }
 
 
-    override suspend fun getSearchResults(location: String): ApiResponse<List<Search>> {
+    override suspend fun getSearchResults(location: String): NetworkResult<List<Search>> {
         return if(shouldReturnNetworkError) {
-            ApiResponse.Failure(code = 400, message = "Error")
+            NetworkResult.Failure(code = 400, message = "Error")
         } else {
-            ApiResponse.Success(data = emptyList())
+            NetworkResult.Success(data = emptyList())
         }
     }
 

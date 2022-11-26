@@ -48,16 +48,6 @@ class WeatherListViewModel(
         return weatherDao.getZipcodesFlow()
     }
 
-    suspend fun insertWeather() {
-        weatherDao.insert(
-            WeatherEntity
-            (id= 0,
-            cityName = "Liverpool",
-            zipCode = "13088",
-            sortOrder = 0)
-        )
-    }
-
     fun getWeatherByZipcode(location: String): WeatherEntity {
         return weatherDao.getWeatherByLocation(location)
     }
@@ -95,7 +85,7 @@ class WeatherListViewModel(
                                                 zipcodes,
                                                 resources,
                                                 sharedPreferences
-                                            ) 
+                                            )
                                         )
                                     )
                                     is NetworkResult.Failure -> emit(WeatherListState.Error)
@@ -108,37 +98,4 @@ class WeatherListViewModel(
             }.stateIn(viewModelScope, SharingStarted.Lazily, WeatherListState.Loading)
     }
 
-    /*
-    /**
-     * Factory for [WeatherListViewModel] that takes repository as a dependency
-     */
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as BaseApplication)
-                val weatherRepository = WeatherRepository()
-                WeatherListViewModel(
-                    weatherRepository = weatherRepository,
-                    application = application,
-                    weatherDao = WeatherDao
-                )
-            }
-        }
-    }
-
-     */
-
-    class WeatherViewModelFactory(
-        private val weatherDao: WeatherDao,
-        val app: Application,
-        private val weatherRepository: WeatherRepository) :
-        ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(WeatherListViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return WeatherListViewModel(weatherRepository, weatherDao, app) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
 }

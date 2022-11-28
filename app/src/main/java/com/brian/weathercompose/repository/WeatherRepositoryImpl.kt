@@ -8,6 +8,7 @@ import com.brian.weathercompose.data.remote.*
 import com.brian.weathercompose.data.remote.dto.ForecastContainer
 import com.brian.weathercompose.data.remote.dto.Search
 import com.brian.weathercompose.data.remote.dto.WeatherContainer
+import com.brian.weathercompose.presentation.screens.settings.SettingsDatastore
 
 
 class WeatherRepositoryImpl(private val weatherApi: WeatherApi) : WeatherRepository {
@@ -25,13 +26,14 @@ class WeatherRepositoryImpl(private val weatherApi: WeatherApi) : WeatherReposit
     override suspend fun getWeatherListForZipCodes(
         zipcodes: List<String>,
         resources: Resources,
-        sharedPreferences: SharedPreferences
+        sharedPreferences: SharedPreferences,
+        settingsDatastore: SettingsDatastore
     ): List<WeatherDomainObject> {
         val weatherDomainObjects = mutableListOf<WeatherDomainObject>()
         zipcodes.forEach { zipcode ->
             val response = getWeather(zipcode)
             response.onSuccess {
-                weatherDomainObjects.add(it.asDomainModel(zipcode, resources, sharedPreferences))
+                weatherDomainObjects.add(it.asDomainModel(zipcode, resources, sharedPreferences, settingsDatastore))
             }.onError { code, message ->
                 println(message)
             }.onException {

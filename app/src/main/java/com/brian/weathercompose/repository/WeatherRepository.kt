@@ -7,6 +7,7 @@ import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.data.remote.dto.ForecastContainer
 import com.brian.weathercompose.data.remote.dto.Search
 import com.brian.weathercompose.data.remote.dto.WeatherContainer
+import com.brian.weathercompose.presentation.screens.settings.SettingsDatastore
 
 interface WeatherRepository {
 
@@ -22,7 +23,8 @@ interface WeatherRepository {
     suspend fun getWeatherListForZipCodes(
         zipcodes: List<String>,
         resources: Resources,
-        sharedPreferences: SharedPreferences
+        sharedPreferences: SharedPreferences,
+        settingsDatastore: SettingsDatastore
     ): List<WeatherDomainObject>
 
 }

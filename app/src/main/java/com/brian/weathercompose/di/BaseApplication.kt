@@ -1,9 +1,12 @@
 package com.brian.weathercompose.di
 
 import android.app.Application
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontVariation
 import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.data.local.WeatherDatabase
 import com.brian.weathercompose.data.remote.WeatherApi
+import com.brian.weathercompose.presentation.screens.settings.SettingsDatastore
 import com.brian.weathercompose.repository.WeatherRepository
 import com.brian.weathercompose.repository.WeatherRepositoryImpl
 import com.brian.weathercompose.presentation.viewmodels.*
@@ -46,6 +49,10 @@ class BaseApplication : Application() {
 
             single<WeatherDao> {
                 database.getWeatherDao()
+            }
+
+            single<SettingsDatastore> {
+                SettingsDatastore(androidContext())
             }
 
             // Use factory to create multiple instances for each viewmodel

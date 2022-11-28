@@ -5,11 +5,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -19,6 +18,8 @@ import com.brian.weathercompose.presentation.SettingsDrawerItem
 import com.brian.weathercompose.presentation.SettingsListItem
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LabeledRadioButton
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
+import kotlinx.coroutines.launch
+
 
 @Composable
 fun UnitSettingsScreen(
@@ -28,8 +29,11 @@ fun UnitSettingsScreen(
     itemClick: (String) -> Unit,
     onDismissRequest: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val datastore = SettingsDatastore(LocalContext.current)
     viewModel.updateActionBarTitle("Units")
     val itemsList = prepareUnitSettings()
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
@@ -46,15 +50,20 @@ fun UnitSettingsScreen(
         }
     }
 
+    val temperatureUnit = datastore.getTemperatureUnit.collectAsState(initial = "")
+    println("Latest temp unit in preferences is $temperatureUnit")
+
     if (openTemperatureDialog.value) {
         TemperatureUnitDialog(
             modifier = modifier,
             onDismissRequest = onDismissRequest,
-            initialSelectedOption = "Fahrenheit",
+            initialSelectedOption = temperatureUnit.value ?: "",
             optionNames = listOf("Fahrenheit", "Celsius"),
-            onConfirmed = { index ->
-                // TODO set option in viewmodel here
-
+            onConfirmed = { selectedOption ->
+                coroutineScope.launch {
+                    datastore.saveTempSetting(selectedOption)
+                    openTemperatureDialog.value = false
+                }
             }
         )
     }
@@ -101,7 +110,7 @@ fun TemperatureUnitDialog(
     initialSelectedOption: String,
     modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit,
-    onConfirmed: (Int) -> Unit
+    onConfirmed: (String) -> Unit
 ) {
 
     val selectedOption = rememberSaveable { mutableStateOf(initialSelectedOption) }
@@ -131,9 +140,8 @@ fun TemperatureUnitDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { 
-                onConfirmed(optionNames.indexOf(selectedOption.value))
-                onDismissRequest
+            TextButton(onClick = {
+                onConfirmed(selectedOption.value)
             }) {
                 Text(text = "Ok")
             }

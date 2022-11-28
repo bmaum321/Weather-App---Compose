@@ -13,6 +13,7 @@ import com.brian.weathercompose.data.mapper.asDomainModel
 import com.brian.weathercompose.data.remote.dto.Hour
 import com.brian.weathercompose.data.remote.NetworkResult
 import com.brian.weathercompose.repository.WeatherRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 
@@ -46,6 +47,7 @@ class HourlyForecastViewModel(
     }
 
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getHourlyForecast(
         zipcode: String,
         sharedPreferences: SharedPreferences,

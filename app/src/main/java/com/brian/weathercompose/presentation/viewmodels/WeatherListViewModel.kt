@@ -14,6 +14,7 @@ import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.data.local.WeatherEntity
 import com.brian.weathercompose.data.remote.NetworkResult
+import com.brian.weathercompose.presentation.screens.settings.SettingsDatastore
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -68,6 +69,7 @@ class WeatherListViewModel(
      */
     fun getAllWeather(
         sharedPreferences: SharedPreferences,
+        settingsDatastore: SettingsDatastore,
         resources: Resources
     ): StateFlow<WeatherListState> {
         return refreshFlow
@@ -84,7 +86,8 @@ class WeatherListViewModel(
                                             weatherRepository.getWeatherListForZipCodes(
                                                 zipcodes,
                                                 resources,
-                                                sharedPreferences
+                                                sharedPreferences,
+                                                settingsDatastore
                                             )
                                         )
                                     )

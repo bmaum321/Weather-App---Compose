@@ -13,7 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brian.weathercompose.R
-import com.brian.weathercompose.data.settings.SettingsRepository
+import com.brian.weathercompose.data.settings.PreferencesRepository
 import com.brian.weathercompose.presentation.SettingsDrawerItem
 import com.brian.weathercompose.presentation.SettingsListItem
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LabeledRadioButton
@@ -33,7 +33,7 @@ fun UnitSettingsScreen(
     itemClick: (String) -> Unit,
     onDismissRequest: () -> Unit,
     coroutineScope: CoroutineScope,
-    settingsRepository: SettingsRepository,
+    preferencesRepository: PreferencesRepository,
 ) {
     viewModel.updateActionBarTitle("Units")
     val itemsList = prepareUnitSettings()
@@ -54,7 +54,7 @@ fun UnitSettingsScreen(
         }
     }
 
-    val temperatureUnit = settingsRepository.getTemperatureUnit.collectAsState(initial = "")
+    val temperatureUnit = preferencesRepository.getTemperatureUnit.collectAsState(initial = "")
     if (openTemperatureDialog.value) {
         TemperatureUnitDialog(
             modifier = modifier,
@@ -63,7 +63,7 @@ fun UnitSettingsScreen(
             optionNames = listOf("Fahrenheit", "Celsius"),
             onConfirmed = { selectedOption ->
                 coroutineScope.launch {
-                    settingsRepository.saveTemperatureSetting(selectedOption)
+                    preferencesRepository.saveTemperatureSetting(selectedOption)
                     openTemperatureDialog.value = false
                 }
             }
@@ -71,7 +71,7 @@ fun UnitSettingsScreen(
     }
 
 
-    val windSpeedUnit = settingsRepository.getWindspeedUnit.collectAsState(initial = "")
+    val windSpeedUnit = preferencesRepository.getWindspeedUnit.collectAsState(initial = "")
     if (openWindspeedDialog.value) {
         WindSpeedUnitDialog(
             modifier = modifier,
@@ -80,14 +80,14 @@ fun UnitSettingsScreen(
             optionNames = listOf("MPH", "KPH"),
             onConfirmed = { selectedOption ->
                 coroutineScope.launch {
-                    settingsRepository.saveWindspeedSetting(selectedOption)
+                    preferencesRepository.saveWindspeedSetting(selectedOption)
                     openWindspeedDialog.value = false
                 }
             }
         )
     }
 
-    val measurementUnit = settingsRepository.getMeasurementUnit.collectAsState(initial = "")
+    val measurementUnit = preferencesRepository.getMeasurementUnit.collectAsState(initial = "")
     if (openMeasurementDialog.value) {
         MeasurementUnitDialog(
             modifier = modifier,
@@ -96,14 +96,14 @@ fun UnitSettingsScreen(
             optionNames = listOf("IN", "MM"),
             onConfirmed = { selectedOption ->
                 coroutineScope.launch {
-                    settingsRepository.saveMeasurementSetting(selectedOption)
+                    preferencesRepository.saveMeasurementSetting(selectedOption)
                     openMeasurementDialog.value = false
                 }
             }
         )
     }
 
-    val clockFormat = settingsRepository.getClockFormat.collectAsState(initial = "")
+    val clockFormat = preferencesRepository.getClockFormat.collectAsState(initial = "")
     if(openClockFormatDialog.value) {
         ClockFormatDialog(
             optionNames = listOf(Pair("12 hour","hh:mm a"), Pair("24 hour","kk:mm") ),
@@ -111,7 +111,7 @@ fun UnitSettingsScreen(
             onDismissRequest = { openClockFormatDialog.value = false }
         ) { selectedOption ->
             coroutineScope.launch {
-                settingsRepository.saveClockFormatSetting(selectedOption)
+                preferencesRepository.saveClockFormatSetting(selectedOption)
                 openClockFormatDialog.value = false
             }
         }

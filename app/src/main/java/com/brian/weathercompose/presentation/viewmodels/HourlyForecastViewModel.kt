@@ -1,7 +1,6 @@
 package com.brian.weathercompose.presentation.viewmodels
 
 import android.app.Application
-import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,9 +9,8 @@ import androidx.lifecycle.*
 import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.domain.model.ForecastDomainObject
 import com.brian.weathercompose.data.mapper.asDomainModel
-import com.brian.weathercompose.data.remote.dto.Hour
 import com.brian.weathercompose.data.remote.NetworkResult
-import com.brian.weathercompose.data.settings.SettingsRepository
+import com.brian.weathercompose.data.settings.PreferencesRepository
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
@@ -33,7 +31,7 @@ sealed class HourlyForecastViewData {
 // Pass an application as a parameter to the viewmodel constructor which is the context passed to the singleton database object
 class HourlyForecastViewModel(
     private val weatherRepository: WeatherRepository,
-    private val settingsRepository: SettingsRepository,
+    private val preferencesRepository: PreferencesRepository,
     private val weatherDao: WeatherDao,
     application: Application
 ) :
@@ -52,7 +50,7 @@ class HourlyForecastViewModel(
     fun getTempUnit(): String {
         var unit = ""
         viewModelScope.launch {
-            unit = settingsRepository.getTemperatureUnit.first().toString()
+            unit = preferencesRepository.getTemperatureUnit.first().toString()
         }
       return unit
     }
@@ -60,7 +58,7 @@ class HourlyForecastViewModel(
     fun getWindUnit(): String {
         var unit = ""
         viewModelScope.launch {
-            unit = settingsRepository.getWindspeedUnit.first().toString()
+            unit = preferencesRepository.getWindspeedUnit.first().toString()
         }
         return unit
     }
@@ -68,7 +66,7 @@ class HourlyForecastViewModel(
     fun getMeasurement(): String {
         var unit = ""
         viewModelScope.launch {
-            unit = settingsRepository.getMeasurementUnit.first().toString()
+            unit = preferencesRepository.getMeasurementUnit.first().toString()
         }
         return unit
     }
@@ -85,7 +83,7 @@ class HourlyForecastViewModel(
                     when (val response = weatherRepository.getForecast(zipcode)) {
                         is NetworkResult.Success -> emit(
                             HourlyForecastViewData.Done(
-                                response.data.asDomainModel(settingsRepository, resources)
+                                response.data.asDomainModel(preferencesRepository, resources)
                             )
                         )
                         is NetworkResult.Failure -> emit(
@@ -110,7 +108,7 @@ class HourlyForecastViewModel(
 
     class HourlyForecastViewModelFactory(
         private val weatherRepository: WeatherRepository,
-        private val settingsRepository: SettingsRepository,
+        private val preferencesRepository: PreferencesRepository,
         private val weatherDao: WeatherDao,
         val app: Application
     ) :
@@ -118,7 +116,7 @@ class HourlyForecastViewModel(
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(HourlyForecastViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return HourlyForecastViewModel(weatherRepository, settingsRepository, weatherDao, app) as T
+                return HourlyForecastViewModel(weatherRepository, preferencesRepository, weatherDao, app) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

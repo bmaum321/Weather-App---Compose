@@ -41,6 +41,10 @@ object UnitsMenu: NavDestinations {
     override val route = "unitsMenu"
 }
 
+object InterfaceMenu: NavDestinations {
+    override val route = "InterfaceMenu"
+}
+
 object Alerts: NavDestinations {
     override val route = "alerts"
     val routeWithArgs = "$route/{${locationArg}}"
@@ -52,5 +56,6 @@ val screens = listOf(
     HourlyForecast,
     AddLocation,
     UnitsMenu,
+    InterfaceMenu,
     Alerts
 )

@@ -1,18 +1,14 @@
 package com.brian.weathercompose.presentation.viewmodels
 
 import android.app.Application
-import android.content.SharedPreferences
 import android.content.res.Resources
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.*
 import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.domain.model.ForecastDomainObject
 import com.brian.weathercompose.data.mapper.asDomainModel
 import com.brian.weathercompose.data.local.WeatherEntity
-import com.brian.weathercompose.data.remote.dto.Day
 import com.brian.weathercompose.data.remote.NetworkResult
-import com.brian.weathercompose.data.settings.SettingsRepository
+import com.brian.weathercompose.data.settings.PreferencesRepository
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
@@ -32,7 +28,7 @@ sealed class ForecastViewData {
 // Pass an application as a parameter to the viewmodel constructor which is the contect passed to the singleton database object
 class DailyForecastViewModel(
     private val weatherRepository: WeatherRepository,
-    private val settingsRepository: SettingsRepository,
+    private val preferencesRepository: PreferencesRepository,
     private val weatherDao: WeatherDao,
     application: Application) :
     AndroidViewModel(application) {
@@ -55,7 +51,7 @@ class DailyForecastViewModel(
      fun getTemperatureUnit(): String {
          var unit = ""
          viewModelScope.launch {
-            unit = settingsRepository.getTemperatureUnit.first().toString()
+            unit = preferencesRepository.getTemperatureUnit.first().toString()
          }
          return unit
      }
@@ -71,7 +67,7 @@ class DailyForecastViewModel(
                     when (val response = weatherRepository.getForecast(zipcode)) {
                         is NetworkResult.Success -> emit(
                             ForecastViewData.Done(
-                                response.data.asDomainModel(settingsRepository, resources)
+                                response.data.asDomainModel(preferencesRepository, resources)
                             )
                         )
                         is NetworkResult.Failure -> emit(
@@ -97,14 +93,14 @@ class DailyForecastViewModel(
 
     class DailyForecastViewModelFactory
         (private val weatherRepository: WeatherRepository,
-         private val settingsRepository: SettingsRepository,
+         private val preferencesRepository: PreferencesRepository,
          private val weatherDao: WeatherDao,
          val app: Application) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(DailyForecastViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return DailyForecastViewModel(weatherRepository, settingsRepository, weatherDao, app) as T
+                return DailyForecastViewModel(weatherRepository, preferencesRepository, weatherDao, app) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

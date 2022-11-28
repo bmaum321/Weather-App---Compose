@@ -1,12 +1,11 @@
 package com.brian.weathercompose.data.mapper
 
-import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Build
 import androidx.compose.ui.graphics.Color
 import com.brian.weathercompose.R
 import com.brian.weathercompose.data.remote.dto.WeatherContainer
-import com.brian.weathercompose.data.settings.SettingsRepository
+import com.brian.weathercompose.data.settings.PreferencesRepository
 import com.brian.weathercompose.domain.model.WeatherDomainObject
 import kotlinx.coroutines.flow.first
 import java.time.Instant
@@ -16,12 +15,12 @@ import java.time.format.DateTimeFormatter
 suspend fun WeatherContainer.asDomainModel(
     zipcode: String,
     resources: Resources,
-    settingsRepository: SettingsRepository,
+    preferencesRepository: PreferencesRepository,
 ): WeatherDomainObject {
 
-    //val settings = settingsRepository.fetchInitialPreferences()
-    val temperatureUnit = settingsRepository.getTemperatureUnit.first().toString()
-    val clockFormat = settingsRepository.getClockFormat.first().toString()
+    //val settings = preferencesRepository.fetchInitialPreferences()
+    val temperatureUnit = preferencesRepository.getTemperatureUnit.first().toString()
+    val clockFormat = preferencesRepository.getClockFormat.first().toString()
 
 
     val locationDataDomainModel = location.toDomainModel()

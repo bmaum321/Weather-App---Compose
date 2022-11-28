@@ -1,11 +1,10 @@
 package com.brian.weathercompose.data.mapper
 
 import com.brian.weathercompose.data.remote.dto.Hour
-import com.brian.weathercompose.data.settings.SettingsRepository
 import com.brian.weathercompose.domain.model.HoursDomainObject
 
 fun Hour.toDomainModel(
-   // settingsRepository: SettingsRepository,
+   // settingsRepository: PreferencesRepository,
 ): HoursDomainObject {
     return HoursDomainObject(
         time_epoch = time_epoch,

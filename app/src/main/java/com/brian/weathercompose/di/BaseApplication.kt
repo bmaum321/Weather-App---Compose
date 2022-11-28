@@ -9,8 +9,8 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.data.local.WeatherDatabase
 import com.brian.weathercompose.data.remote.WeatherApi
-import com.brian.weathercompose.data.settings.SettingsRepository
-import com.brian.weathercompose.data.settings.SettingsRepositoryImpl
+import com.brian.weathercompose.data.settings.PreferencesRepository
+import com.brian.weathercompose.data.settings.PreferencesRepositoryImpl
 import com.brian.weathercompose.repository.WeatherRepository
 import com.brian.weathercompose.repository.WeatherRepositoryImpl
 import com.brian.weathercompose.presentation.viewmodels.*
@@ -66,8 +66,8 @@ class BaseApplication : Application() {
              * And to the UnitsScreen
              */
 
-            single<SettingsRepository> {
-                SettingsRepositoryImpl(get())
+            single<PreferencesRepository> {
+                PreferencesRepositoryImpl(get())
             }
 
             // Singleton for the preferences data store that is passed to the Settings Repository

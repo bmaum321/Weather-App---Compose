@@ -17,7 +17,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,9 +25,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.preference.PreferenceManager
 import com.brian.weathercompose.BuildConfig
 import com.brian.weathercompose.R
-import com.brian.weathercompose.data.settings.SettingsRepository
 import com.brian.weathercompose.presentation.navigation.*
 import com.brian.weathercompose.presentation.screens.*
+import com.brian.weathercompose.presentation.screens.settings.InterfaceSettingsScreen
 import com.brian.weathercompose.presentation.screens.settings.UnitSettingsScreen
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
@@ -144,6 +143,13 @@ fun WeatherApp(
                             scaffoldState.drawerState.close()
                         }
                         navController.navigate(UnitsMenu.route)
+                    }
+                    "Interface" -> {
+                        coroutineScope.launch {
+                            delay(250)
+                            scaffoldState.drawerState.close()
+                        }
+                        navController.navigate(InterfaceMenu.route)
                     }
                     else -> {
 
@@ -263,7 +269,7 @@ fun WeatherApp(
                     openWindspeedDialog = openWindspeedDialog,
                     viewModel = mainViewModel,
                     coroutineScope = coroutineScope,
-                    settingsRepository = get(),
+                    preferencesRepository = get(),
                     itemClick = { itemlabel ->
                         when(itemlabel) {
                             "Temperature" -> {
@@ -281,6 +287,14 @@ fun WeatherApp(
 
                         }
                     })
+            }
+
+            composable(route = InterfaceMenu.route) {
+                InterfaceSettingsScreen(
+                    viewModel = mainViewModel,
+                    coroutineScope = coroutineScope,
+                    preferencesRepository = get()
+                )
             }
 
             composable(route = Alerts.routeWithArgs) { navBackStackEntry ->

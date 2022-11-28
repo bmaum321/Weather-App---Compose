@@ -5,7 +5,7 @@ import android.os.Build
 import androidx.compose.ui.graphics.Color
 import com.brian.weathercompose.R
 import com.brian.weathercompose.data.remote.dto.ForecastContainer
-import com.brian.weathercompose.data.settings.SettingsRepository
+import com.brian.weathercompose.data.settings.PreferencesRepository
 import com.brian.weathercompose.domain.model.ForecastDomainObject
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
@@ -15,7 +15,7 @@ import java.time.format.TextStyle
 import java.util.*
 
 suspend fun ForecastContainer.asDomainModel(
-    settingsRepository: SettingsRepository,
+    preferencesRepository: PreferencesRepository,
     resources: Resources
 ): ForecastDomainObject {
 
@@ -25,7 +25,7 @@ suspend fun ForecastContainer.asDomainModel(
      * Convert hourly timestamp from API from 24hr format to 12hr format
      */
 
-    val clockFormat = settingsRepository.getClockFormat.first().toString()
+    val clockFormat = preferencesRepository.getClockFormat.first().toString()
 
     // Subtracting an hour from current time to see the current hour in the forecast
     val forecastDayDomainObjectList = forecast.forecastday.map { it.toDomainModel() }

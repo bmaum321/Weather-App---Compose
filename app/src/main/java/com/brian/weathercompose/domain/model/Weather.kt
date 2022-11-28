@@ -26,8 +26,8 @@ data class WeatherDomainObject(
 )
 
 data class ForecastDomainObject(
-    val days: List<DayDomainObject>,
-    val alerts: List<AlertDomainObject>,
+    val days: List<DaysDomainObject>,
+    val alerts: List<AlertDomainObject>
 )
 
 

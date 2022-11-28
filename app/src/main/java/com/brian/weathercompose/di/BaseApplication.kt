@@ -9,6 +9,7 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.data.local.WeatherDatabase
 import com.brian.weathercompose.data.remote.WeatherApi
+import com.brian.weathercompose.data.settings.SettingsRepository
 import com.brian.weathercompose.data.settings.SettingsRepositoryImpl
 import com.brian.weathercompose.repository.WeatherRepository
 import com.brian.weathercompose.repository.WeatherRepositoryImpl
@@ -61,8 +62,11 @@ class BaseApplication : Application() {
                 database.getWeatherDao()
             }
 
-            // Singleton for the Settings Repository passed to the WeatherListViewModel
-            single {
+            /** Singleton for the Settings Repository implementation passed to the WeatherListViewModel
+             * And to the UnitsScreen
+             */
+
+            single<SettingsRepository> {
                 SettingsRepositoryImpl(get())
             }
 
@@ -85,10 +89,10 @@ class BaseApplication : Application() {
                 WeatherListViewModel(get(), get(), get(), get())
             }
             viewModel {
-                DailyForecastViewModel(get(), get(), get())
+                DailyForecastViewModel(get(), get(), get(), get())
             }
             viewModel {
-                HourlyForecastViewModel(get(), get(), get())
+                HourlyForecastViewModel(get(), get(), get(), get())
             }
             viewModel {
                 AddWeatherLocationViewModel(get(), get(), get())

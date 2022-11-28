@@ -6,21 +6,22 @@ import android.os.Build
 import androidx.compose.ui.graphics.Color
 import com.brian.weathercompose.R
 import com.brian.weathercompose.data.remote.dto.WeatherContainer
+import com.brian.weathercompose.data.settings.SettingsRepository
 import com.brian.weathercompose.domain.model.WeatherDomainObject
-import com.brian.weathercompose.data.settings.SettingsRepositoryImpl
+import kotlinx.coroutines.flow.first
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
 suspend fun WeatherContainer.asDomainModel(
     zipcode: String,
     resources: Resources,
-    sharedPreferences: SharedPreferences,
-    settingsRepositoryImpl: SettingsRepositoryImpl,
+    settingsRepository: SettingsRepository,
 ): WeatherDomainObject {
 
-    val settings = settingsRepositoryImpl.fetchInitialPreferences()
-    val temperatureUnit = settings.get(key = settingsRepositoryImpl.TEMPERATURE_UNIT)
-    println("Key retrieved in mapper is $temperatureUnit")
+    //val settings = settingsRepository.fetchInitialPreferences()
+    val temperatureUnit = settingsRepository.getTemperatureUnit.first().toString()
+    val clockFormat = settingsRepository.getClockFormat.first().toString()
 
 
     val locationDataDomainModel = location.toDomainModel()
@@ -30,7 +31,7 @@ suspend fun WeatherContainer.asDomainModel(
         .atZone(ZoneId.of(location.tz_id))
         .format(
             DateTimeFormatter
-                .ofPattern("hh:mm a")
+                .ofPattern(clockFormat)
         )
         .removePrefix("0")
 

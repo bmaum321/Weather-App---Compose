@@ -12,7 +12,7 @@ import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.data.local.WeatherEntity
 import com.brian.weathercompose.data.remote.NetworkResult
-import com.brian.weathercompose.data.settings.SettingsRepositoryImpl
+import com.brian.weathercompose.data.settings.SettingsRepository
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -31,7 +31,7 @@ sealed interface WeatherListState {
 
 class WeatherListViewModel(
     private val weatherRepository: WeatherRepository,
-    private val settingsRepositoryImpl: SettingsRepositoryImpl,
+    private val settingsRepository: SettingsRepository,
     private val weatherDao: WeatherDao,
     application: Application
 ) : AndroidViewModel(application) {
@@ -85,7 +85,7 @@ class WeatherListViewModel(
                                                 zipcodes,
                                                 resources,
                                                 sharedPreferences,
-                                                settingsRepositoryImpl
+                                                settingsRepository
                                             )
                                         )
                                     )

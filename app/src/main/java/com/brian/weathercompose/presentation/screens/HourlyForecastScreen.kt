@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.preference.PreferenceManager
@@ -26,6 +27,7 @@ import com.brian.weathercompose.domain.model.HoursDomainObject
 import com.brian.weathercompose.presentation.screens.reusablecomposables.ErrorScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LoadingScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.WeatherConditionIcon
+import com.brian.weathercompose.presentation.theme.WeatherComposeTheme
 import com.brian.weathercompose.presentation.viewmodels.*
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
@@ -43,11 +45,9 @@ fun HourlyForecastScreen(
         mainViewModel.updateActionBarTitle(date)
     }
     val context = LocalContext.current
-    val pref = PreferenceManager.getDefaultSharedPreferences(context)
     val uiState = remember {
         hourlyForecastViewModel.getHourlyForecast(
             location,
-            pref,
             context.resources
         )
     }.collectAsState()
@@ -75,7 +75,7 @@ fun HourlyForecastScreen(
 fun HourlyForecastList(
     hoursList: List<HoursDomainObject>,
     modifier: Modifier = Modifier,
-    viewModel: HourlyForecastViewModel
+    viewModel: HourlyForecastViewModel,
 ) {
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
@@ -97,8 +97,13 @@ fun HourlyForecastList(
                 .fillMaxWidth(),
             contentPadding = PaddingValues(4.dp)
         ) {
-            items(hoursList) {
-                HourlyForecastListItem(it)
+            items(hoursList) { hourDomainObject ->
+                HourlyForecastListItem(
+                    hourDomainObject,
+                    temperatureUnit = viewModel.getTempUnit(),
+                    windUnit = viewModel.getWindUnit(),
+                    measurementUnit = viewModel.getMeasurement()
+                )
             }
         }
         PullRefreshIndicator(
@@ -107,8 +112,6 @@ fun HourlyForecastList(
             Modifier.align(Alignment.TopCenter)
         )
     }
-
-
 }
 
 
@@ -116,11 +119,14 @@ fun HourlyForecastList(
 fun HourlyForecastListItem(
     hour: HoursDomainObject,
     modifier: Modifier = Modifier,
+    temperatureUnit: String,
+    windUnit: String,
+    measurementUnit: String
 ) {
     var expanded by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier.padding(8.dp),
-        elevation = 4.dp,
+        elevation = 4.dp
     ) {
         Column(
             modifier = Modifier
@@ -153,7 +159,8 @@ fun HourlyForecastListItem(
 
                 Row {
                     Text(
-                        text = "${hour.temp_f.toInt()}\u00B0",
+                        text = if (temperatureUnit == "Fahrenheit") "${hour.temp_f.toInt()}\u00B0"
+                        else "${hour.temp_c.toInt()}\u00B0",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -166,7 +173,11 @@ fun HourlyForecastListItem(
             }
 
             if (expanded) {
-                HourlyForecastDetails(hour = hour)
+                HourlyForecastDetails(
+                    hour = hour,
+                    windUnit = windUnit,
+                    measurementUnit = measurementUnit
+                )
             }
         }
     }
@@ -176,7 +187,10 @@ fun HourlyForecastListItem(
 @Composable
 fun HourlyForecastDetails(
     hour: HoursDomainObject,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    windUnit: String,
+    measurementUnit: String
+
 ) {
     Row(
         modifier = modifier
@@ -191,17 +205,18 @@ fun HourlyForecastDetails(
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(
             iconId = R.drawable.ic_wind,
-            value = hour.wind_mph.toString()
+            value = if(windUnit == "MPH") hour.wind_mph.toString() + " MPH" else hour.wind_kph.toString() + " KPH"
         )
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(
             iconId = R.drawable.barometer_svgrepo_com,
-            value = hour.pressure_in.toString()
+            value = if(measurementUnit == "IN") hour.pressure_in.toString() + " IN" else hour.pressure_mb.toString() +" MB"
         )
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(
             iconId = R.drawable.ic_rain_svgrepo_com,
-            value = hour.precip_in.toString())
+            value = if(measurementUnit == "IN") hour.precip_in.toString() + " IN" else hour.precip_mm.toString() + " MM"
+        )
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(
             iconId = R.drawable.ic_wind_sock,
@@ -241,7 +256,10 @@ private fun WeatherStatistic(
     modifier: Modifier = Modifier
 
 ) {
-    Column(modifier = modifier.wrapContentSize(Alignment.Center)) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.wrapContentSize(Alignment.Center)
+    ) {
         Icon(
             painter = painterResource(id = iconId),
             contentDescription = iconId.toString()
@@ -251,4 +269,11 @@ private fun WeatherStatistic(
     }
 }
 
+@Preview(showSystemUi = true)
+@Composable
+private fun WeatherStatisticPreview() {
+    WeatherComposeTheme() {
+        WeatherStatistic(iconId = R.drawable.barometer_svgrepo_com, value = "12 MPH")
+    }
+}
 

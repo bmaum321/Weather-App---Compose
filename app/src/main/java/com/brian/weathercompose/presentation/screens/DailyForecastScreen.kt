@@ -1,5 +1,6 @@
 package com.brian.weathercompose.presentation.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,6 +12,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -18,10 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.preference.PreferenceManager
 import com.brian.weathercompose.R
-import com.brian.weathercompose.data.remote.dto.Day
-import com.brian.weathercompose.domain.model.DayDomainObject
+import com.brian.weathercompose.domain.model.DaysDomainObject
 import com.brian.weathercompose.domain.model.ForecastDomainObject
 import com.brian.weathercompose.presentation.screens.reusablecomposables.ErrorScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LoadingScreen
@@ -39,7 +39,7 @@ fun DailyForecastScreen(
     onClick: (String) -> Unit,
     location: String,
     mainViewModel: MainViewModel,
-    alertFabOnClick: () -> Unit
+    alertFabOnClick: () -> Unit,
 ) {
     val dailyForecastViewModel = getViewModel<DailyForecastViewModel>()
     // update title bar
@@ -52,8 +52,13 @@ fun DailyForecastScreen(
 
     }
     val context = LocalContext.current
-    val pref = PreferenceManager.getDefaultSharedPreferences(context)
-    val state by remember {dailyForecastViewModel.getForecastForZipcode(location, pref, context.resources) }.collectAsState()
+    val temperatureUnit = dailyForecastViewModel.getTemperatureUnit()
+    val state by remember {
+        dailyForecastViewModel.getForecastForZipcode(
+            location,
+            context.resources
+        )
+    }.collectAsState()
 
     when (state) {
         is ForecastViewData.Loading -> LoadingScreen(modifier)
@@ -62,7 +67,8 @@ fun DailyForecastScreen(
             modifier,
             onClick,
             dailyForecastViewModel,
-            alertFabOnClick
+            alertFabOnClick,
+            temperatureUnit
         )
         is ForecastViewData.Error -> ErrorScreen({ dailyForecastViewModel.refresh() }, modifier)
     }
@@ -79,7 +85,8 @@ fun ForecastList(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
     viewModel: DailyForecastViewModel,
-    alertFabOnClick: () -> Unit
+    alertFabOnClick: () -> Unit,
+    temperatureUnit: String
 
 ) {
     val refreshScope = rememberCoroutineScope()
@@ -100,7 +107,7 @@ fun ForecastList(
     Scaffold(
         scaffoldState = scaffoldState,
         floatingActionButton = {
-            if(fabVisible) {
+            if (fabVisible) {
                 AlertFab(
                     onClick = alertFabOnClick
                 )
@@ -115,7 +122,12 @@ fun ForecastList(
                 contentPadding = PaddingValues(4.dp)
             ) {
                 items(forecast.days) {
-                    ForecastListItem(it, onClick = onClick)
+                    ForecastListItem(
+                        it,
+                        onClick = onClick,
+                        temperatureUnit = temperatureUnit,
+                        gradientColors = it.day.backgroundColors
+                    )
                 }
             }
             PullRefreshIndicator(
@@ -133,19 +145,24 @@ fun ForecastList(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ForecastListItem(
-    day: DayDomainObject,
+    day: DaysDomainObject,
     modifier: Modifier = Modifier,
-    onClick: (String) -> Unit
+    onClick: (String) -> Unit,
+    temperatureUnit: String,
+    gradientColors: List<Color>
 ) {
+
     val date = day.date
+    val gradient = Brush.linearGradient(gradientColors)
     Card(
         modifier = Modifier
             .padding(8.dp)
             .height(100.dp),
         elevation = 4.dp,
-        onClick = { onClick(date) }
+        onClick = { onClick(date) },
+        contentColor = day.day.textColor
     ) {
-        Box(modifier = modifier) {
+        Box(modifier = modifier.background(gradient)) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -166,16 +183,18 @@ fun ForecastListItem(
                 Spacer(modifier = Modifier.weight(.5f))
 
                 Row(
-                    modifier = modifier.padding(top=10.dp),
+                    modifier = modifier.padding(top = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "${day.day.mintemp_f.toInt()}\u00B0 \\",
+                        text = if (temperatureUnit == "Fahrenheit") "${day.day.mintemp_f.toInt()}\u00B0 \\"
+                        else "${day.day.mintemp_c.toInt()}\u00B0 \\",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "  ${day.day.maxtemp_f.toInt()}\u00B0",
+                        text = if (temperatureUnit == "Fahrenheit") " ${day.day.maxtemp_f.toInt()}\u00B0"
+                        else " ${day.day.maxtemp_c.toInt()}\u00B0",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )

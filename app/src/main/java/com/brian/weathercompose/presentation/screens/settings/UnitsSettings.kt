@@ -13,25 +13,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brian.weathercompose.R
-import com.brian.weathercompose.data.settings.SettingsRepositoryImpl
+import com.brian.weathercompose.data.settings.SettingsRepository
 import com.brian.weathercompose.presentation.SettingsDrawerItem
 import com.brian.weathercompose.presentation.SettingsListItem
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LabeledRadioButton
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.get
 
 
 @Composable
 fun UnitSettingsScreen(
     openTemperatureDialog: MutableState<Boolean>,
+    openClockFormatDialog: MutableState<Boolean>,
+    openWindspeedDialog: MutableState<Boolean>,
+    openMeasurementDialog: MutableState<Boolean>,
     viewModel: MainViewModel,
     modifier: Modifier = Modifier,
     itemClick: (String) -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    coroutineScope: CoroutineScope,
+    settingsRepository: SettingsRepository,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val datastore = SettingsRepositoryImpl(get())
     viewModel.updateActionBarTitle("Units")
     val itemsList = prepareUnitSettings()
 
@@ -51,9 +54,7 @@ fun UnitSettingsScreen(
         }
     }
 
-    val temperatureUnit = datastore.getTemperatureUnit.collectAsState(initial = "")
-    println("Latest temp unit in preferences is $temperatureUnit")
-
+    val temperatureUnit = settingsRepository.getTemperatureUnit.collectAsState(initial = "")
     if (openTemperatureDialog.value) {
         TemperatureUnitDialog(
             modifier = modifier,
@@ -62,11 +63,59 @@ fun UnitSettingsScreen(
             optionNames = listOf("Fahrenheit", "Celsius"),
             onConfirmed = { selectedOption ->
                 coroutineScope.launch {
-                    datastore.saveTempSetting(selectedOption)
+                    settingsRepository.saveTemperatureSetting(selectedOption)
                     openTemperatureDialog.value = false
                 }
             }
         )
+    }
+
+
+    val windSpeedUnit = settingsRepository.getWindspeedUnit.collectAsState(initial = "")
+    if (openWindspeedDialog.value) {
+        WindSpeedUnitDialog(
+            modifier = modifier,
+            onDismissRequest = { openWindspeedDialog.value = false },
+            initialSelectedOption = windSpeedUnit.value ?: "",
+            optionNames = listOf("MPH", "KPH"),
+            onConfirmed = { selectedOption ->
+                coroutineScope.launch {
+                    settingsRepository.saveWindspeedSetting(selectedOption)
+                    openWindspeedDialog.value = false
+                }
+            }
+        )
+    }
+
+    val measurementUnit = settingsRepository.getMeasurementUnit.collectAsState(initial = "")
+    if (openMeasurementDialog.value) {
+        MeasurementUnitDialog(
+            modifier = modifier,
+            onDismissRequest = { openMeasurementDialog.value = false },
+            initialSelectedOption = measurementUnit.value ?: "",
+            optionNames = listOf("IN", "MM"),
+            onConfirmed = { selectedOption ->
+                coroutineScope.launch {
+                    settingsRepository.saveMeasurementSetting(selectedOption)
+                    openMeasurementDialog.value = false
+                }
+            }
+        )
+    }
+
+    val clockFormat = settingsRepository.getClockFormat.collectAsState(initial = "")
+    if(openClockFormatDialog.value) {
+        ClockFormatDialog(
+            optionNames = listOf(Pair("12 hour","hh:mm a"), Pair("24 hour","kk:mm") ),
+            initialSelectedOption = clockFormat.value ?: "",
+            onDismissRequest = { openClockFormatDialog.value = false }
+        ) { selectedOption ->
+            coroutineScope.launch {
+                settingsRepository.saveClockFormatSetting(selectedOption)
+                openClockFormatDialog.value = false
+            }
+        }
+
     }
 }
 
@@ -100,8 +149,6 @@ private fun prepareUnitSettings(): List<SettingsDrawerItem> {
             label = "Clock Format"
         )
     )
-
-
     return itemsList
 }
 
@@ -130,6 +177,151 @@ fun TemperatureUnitDialog(
                         selected = optionName == selectedOption.value,
                         onClick = { selectedOption.value = optionName } ,
                         text = optionName
+                    )
+                }
+            }
+        },
+        onDismissRequest = onDismissRequest,
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(text = "Cancel")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirmed(selectedOption.value)
+            }) {
+                Text(text = "Ok")
+            }
+        },
+        shape = RoundedCornerShape(size = 4.dp),
+        modifier = modifier
+    )
+
+}
+
+@Composable
+fun WindSpeedUnitDialog(
+    optionNames: List<String>,
+    initialSelectedOption: String,
+    modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit,
+    onConfirmed: (String) -> Unit
+) {
+
+    val selectedOption = rememberSaveable { mutableStateOf(initialSelectedOption) }
+    AlertDialog(
+        title = {
+            Text(
+                text = "Wind Speed Unit",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        },
+        text = {
+            Column {
+                optionNames.forEach { optionName ->
+                    LabeledRadioButton(
+                        selected = optionName == selectedOption.value,
+                        onClick = { selectedOption.value = optionName } ,
+                        text = optionName
+                    )
+                }
+            }
+        },
+        onDismissRequest = onDismissRequest,
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(text = "Cancel")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirmed(selectedOption.value)
+            }) {
+                Text(text = "Ok")
+            }
+        },
+        shape = RoundedCornerShape(size = 4.dp),
+        modifier = modifier
+    )
+
+}
+
+@Composable
+fun MeasurementUnitDialog(
+    optionNames: List<String>,
+    initialSelectedOption: String,
+    modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit,
+    onConfirmed: (String) -> Unit
+) {
+
+    val selectedOption = rememberSaveable { mutableStateOf(initialSelectedOption) }
+    AlertDialog(
+        title = {
+            Text(
+                text = "Measurement Unit",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        },
+        text = {
+            Column {
+                optionNames.forEach { optionName ->
+                    LabeledRadioButton(
+                        selected = optionName == selectedOption.value,
+                        onClick = { selectedOption.value = optionName } ,
+                        text = optionName
+                    )
+                }
+            }
+        },
+        onDismissRequest = onDismissRequest,
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(text = "Cancel")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirmed(selectedOption.value)
+            }) {
+                Text(text = "Ok")
+            }
+        },
+        shape = RoundedCornerShape(size = 4.dp),
+        modifier = modifier
+    )
+
+}
+
+
+@Composable
+fun ClockFormatDialog(
+    optionNames: List<Pair<String, String>>,
+    initialSelectedOption: String,
+    modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit,
+    onConfirmed: (String) -> Unit
+) {
+
+    val selectedOption = rememberSaveable { mutableStateOf(initialSelectedOption) }
+    AlertDialog(
+        title = {
+            Text(
+                text = "Clock Format",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        },
+        text = {
+            Column {
+                optionNames.forEach { optionName ->
+                    LabeledRadioButton(
+                        selected = optionName.second == selectedOption.value,
+                        onClick = { selectedOption.value = optionName.second } ,
+                        text = optionName.first
                     )
                 }
             }

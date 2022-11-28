@@ -47,8 +47,7 @@ fun AlertsScreen(
         }
     }
     val context = LocalContext.current
-    val pref = PreferenceManager.getDefaultSharedPreferences(context)
-    val state by remember {dailyForecastViewModel.getForecastForZipcode(location, pref, context.resources) }.collectAsState()
+    val state by remember {dailyForecastViewModel.getForecastForZipcode(location, context.resources) }.collectAsState()
 
     when (state) {
         is ForecastViewData.Loading -> LoadingScreen(modifier)

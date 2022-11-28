@@ -8,7 +8,7 @@ import com.brian.weathercompose.data.remote.*
 import com.brian.weathercompose.data.remote.dto.ForecastContainer
 import com.brian.weathercompose.data.remote.dto.Search
 import com.brian.weathercompose.data.remote.dto.WeatherContainer
-import com.brian.weathercompose.data.settings.SettingsRepositoryImpl
+import com.brian.weathercompose.data.settings.SettingsRepository
 
 
 class WeatherRepositoryImpl(private val weatherApi: WeatherApi) : WeatherRepository {
@@ -27,13 +27,13 @@ class WeatherRepositoryImpl(private val weatherApi: WeatherApi) : WeatherReposit
         zipcodes: List<String>,
         resources: Resources,
         sharedPreferences: SharedPreferences,
-        settingsRepositoryImpl: SettingsRepositoryImpl
+        settingsRepository: SettingsRepository
     ): List<WeatherDomainObject> {
         val weatherDomainObjects = mutableListOf<WeatherDomainObject>()
         zipcodes.forEach { zipcode ->
             val response = getWeather(zipcode)
             response.onSuccess {
-                weatherDomainObjects.add(it.asDomainModel(zipcode, resources, sharedPreferences, settingsRepositoryImpl))
+                weatherDomainObjects.add(it.asDomainModel(zipcode, resources, settingsRepository))
             }.onError { code, message ->
                 println(message)
             }.onException {

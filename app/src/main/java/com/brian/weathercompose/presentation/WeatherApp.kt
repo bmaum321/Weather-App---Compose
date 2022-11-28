@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.preference.PreferenceManager
 import com.brian.weathercompose.BuildConfig
 import com.brian.weathercompose.R
+import com.brian.weathercompose.data.settings.SettingsRepository
 import com.brian.weathercompose.presentation.navigation.*
 import com.brian.weathercompose.presentation.screens.*
 import com.brian.weathercompose.presentation.screens.settings.UnitSettingsScreen
@@ -32,6 +34,7 @@ import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.get
 
 sealed class MenuAction(
     @StringRes val label: Int,
@@ -104,6 +107,9 @@ fun WeatherApp(
     val coroutineScope = rememberCoroutineScope()
     val openAboutDialog = remember { mutableStateOf(false) }
     val openTemperatureUnitDialog = remember { mutableStateOf(false) }
+    val openClockFormatDialog = remember { mutableStateOf(false) }
+    val openWindspeedDialog = remember { mutableStateOf(false) }
+    val openMeasurementDialog = remember { mutableStateOf(false) }
 
     if (openAboutDialog.value) {
         AlertDialog(
@@ -227,7 +233,8 @@ fun WeatherApp(
                             },
                             location = location,
                             mainViewModel = mainViewModel,
-                            alertFabOnClick = { navController.navigateToAlertsScreen(location) }
+                            alertFabOnClick = { navController.navigateToAlertsScreen(location) },
+
                         )
                     }
                 }
@@ -251,20 +258,25 @@ fun WeatherApp(
                 UnitSettingsScreen(
                     onDismissRequest = {openTemperatureUnitDialog.value = false},
                     openTemperatureDialog = openTemperatureUnitDialog,
+                    openClockFormatDialog = openClockFormatDialog,
+                    openMeasurementDialog = openMeasurementDialog,
+                    openWindspeedDialog = openWindspeedDialog,
                     viewModel = mainViewModel,
+                    coroutineScope = coroutineScope,
+                    settingsRepository = get(),
                     itemClick = { itemlabel ->
                         when(itemlabel) {
                             "Temperature" -> {
                                 openTemperatureUnitDialog.value = true
                             }
                             "Pressure" -> {
-
+                                openMeasurementDialog.value = true
                             }
                             "Wind" -> {
-
+                                openWindspeedDialog.value = true
                             }
                             "Clock Format" -> {
-
+                                openClockFormatDialog.value = true
                             }
 
                         }

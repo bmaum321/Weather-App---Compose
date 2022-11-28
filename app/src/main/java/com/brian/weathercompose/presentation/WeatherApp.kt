@@ -27,7 +27,6 @@ import com.brian.weathercompose.BuildConfig
 import com.brian.weathercompose.R
 import com.brian.weathercompose.presentation.navigation.*
 import com.brian.weathercompose.presentation.screens.*
-import com.brian.weathercompose.presentation.screens.settings.SettingsDatastore
 import com.brian.weathercompose.presentation.screens.settings.UnitSettingsScreen
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
@@ -183,8 +182,8 @@ fun WeatherApp(
                     color = MaterialTheme.colors.background
                 ) {
                     val weatherUiState by remember {
-                        weatherListViewModel.getAllWeather(pref, resources = context.resources, settingsDatastore = SettingsDatastore(
-                            context))
+                        weatherListViewModel.getAllWeather(pref, resources = context.resources
+                        )
                     }.collectAsState()
 
                     MainWeatherListScreen(

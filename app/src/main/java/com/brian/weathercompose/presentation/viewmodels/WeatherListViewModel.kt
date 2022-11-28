@@ -7,14 +7,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.data.local.WeatherEntity
 import com.brian.weathercompose.data.remote.NetworkResult
-import com.brian.weathercompose.presentation.screens.settings.SettingsDatastore
+import com.brian.weathercompose.data.settings.SettingsRepositoryImpl
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -33,6 +31,7 @@ sealed interface WeatherListState {
 
 class WeatherListViewModel(
     private val weatherRepository: WeatherRepository,
+    private val settingsRepositoryImpl: SettingsRepositoryImpl,
     private val weatherDao: WeatherDao,
     application: Application
 ) : AndroidViewModel(application) {
@@ -69,7 +68,6 @@ class WeatherListViewModel(
      */
     fun getAllWeather(
         sharedPreferences: SharedPreferences,
-        settingsDatastore: SettingsDatastore,
         resources: Resources
     ): StateFlow<WeatherListState> {
         return refreshFlow
@@ -87,7 +85,7 @@ class WeatherListViewModel(
                                                 zipcodes,
                                                 resources,
                                                 sharedPreferences,
-                                                settingsDatastore
+                                                settingsRepositoryImpl
                                             )
                                         )
                                     )

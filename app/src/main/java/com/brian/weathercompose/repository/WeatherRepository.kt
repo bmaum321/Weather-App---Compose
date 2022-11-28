@@ -7,7 +7,7 @@ import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.data.remote.dto.ForecastContainer
 import com.brian.weathercompose.data.remote.dto.Search
 import com.brian.weathercompose.data.remote.dto.WeatherContainer
-import com.brian.weathercompose.presentation.screens.settings.SettingsDatastore
+import com.brian.weathercompose.data.settings.SettingsRepositoryImpl
 
 interface WeatherRepository {
 
@@ -24,7 +24,7 @@ interface WeatherRepository {
         zipcodes: List<String>,
         resources: Resources,
         sharedPreferences: SharedPreferences,
-        settingsDatastore: SettingsDatastore
+        settingsRepositoryImpl: SettingsRepositoryImpl
     ): List<WeatherDomainObject>
 
 }

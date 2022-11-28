@@ -1,21 +1,13 @@
 package com.brian.weathercompose.data.mapper
 
-import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Build
 import androidx.compose.ui.graphics.Color
-import androidx.datastore.preferences.core.Preferences
 import com.brian.weathercompose.R
 import com.brian.weathercompose.data.remote.dto.WeatherContainer
 import com.brian.weathercompose.domain.model.WeatherDomainObject
-import com.brian.weathercompose.presentation.screens.settings.SettingsDatastore
-import kotlinx.coroutines.flow.collectLatest
-import org.koin.androidx.compose.getKoin
-import org.koin.androidx.compose.inject
-import org.koin.core.component.get
-import org.koin.dsl.module
+import com.brian.weathercompose.data.settings.SettingsRepositoryImpl
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -23,8 +15,13 @@ suspend fun WeatherContainer.asDomainModel(
     zipcode: String,
     resources: Resources,
     sharedPreferences: SharedPreferences,
-    settingsDatastore: SettingsDatastore,
+    settingsRepositoryImpl: SettingsRepositoryImpl,
 ): WeatherDomainObject {
+
+    val settings = settingsRepositoryImpl.fetchInitialPreferences()
+    val temperatureUnit = settings.get(key = settingsRepositoryImpl.TEMPERATURE_UNIT)
+    println("Key retrieved in mapper is $temperatureUnit")
+
 
     val locationDataDomainModel = location.toDomainModel()
     // Get local time for display
@@ -105,15 +102,12 @@ suspend fun WeatherContainer.asDomainModel(
 
 
 
-    val unit = settingsDatastore.fetchInitialPreferences().get(key = SettingsDatastore.TEMPERATURE_UNIT) ?: ""
-    println("Key retrieved in mapper is $unit")
-
 
     return WeatherDomainObject(
         time = locationDataDomainModel.localtime,
         location = locationDataDomainModel.name,
         zipcode = zipcode,
-        temp = if(unit == "Fahrenheit")current.temp_f.toInt().toString() else current.temp_c.toInt().toString(),
+        temp = if(temperatureUnit == "Fahrenheit")current.temp_f.toInt().toString() else current.temp_c.toInt().toString(),
         imgSrcUrl = current.condition.icon,
         conditionText = current.condition.text,
         windSpeed = current.wind_mph,

@@ -8,17 +8,18 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brian.weathercompose.R
+import com.brian.weathercompose.data.settings.SettingsRepositoryImpl
 import com.brian.weathercompose.presentation.SettingsDrawerItem
 import com.brian.weathercompose.presentation.SettingsListItem
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LabeledRadioButton
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.get
 
 
 @Composable
@@ -30,7 +31,7 @@ fun UnitSettingsScreen(
     onDismissRequest: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val datastore = SettingsDatastore(LocalContext.current)
+    val datastore = SettingsRepositoryImpl(get())
     viewModel.updateActionBarTitle("Units")
     val itemsList = prepareUnitSettings()
 

@@ -2,7 +2,6 @@ package com.brian.weathercompose.presentation.screens.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -10,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import com.brian.weathercompose.R
 import com.brian.weathercompose.data.settings.PreferencesRepository
 import com.brian.weathercompose.presentation.SettingsDrawerItem
-import com.brian.weathercompose.presentation.screens.reusablecomposables.SettingsListItemWithCheckbox
+import com.brian.weathercompose.presentation.screens.reusablecomposables.SettingsListItemWithSwitch
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -37,7 +36,7 @@ fun InterfaceSettingsScreen(
     ) {
 
        item {
-           SettingsListItemWithCheckbox(
+           SettingsListItemWithSwitch(
                item = itemsList[0],
                isChecked = dynamicColorsSetting.value ?: true,
                onCheckedChanged = {
@@ -49,7 +48,7 @@ fun InterfaceSettingsScreen(
        }
 
         item {
-            SettingsListItemWithCheckbox(
+            SettingsListItemWithSwitch(
                 item = itemsList[1],
                 isChecked = showAlertsSetting.value ?: true,
                 onCheckedChanged = {

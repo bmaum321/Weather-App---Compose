@@ -20,7 +20,7 @@ import com.brian.weathercompose.data.settings.PreferencesRepository
 import com.brian.weathercompose.presentation.SettingsDrawerItem
 import com.brian.weathercompose.presentation.SettingsListItem
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LabeledCheckBox
-import com.brian.weathercompose.presentation.screens.reusablecomposables.SettingsListItemWithCheckbox
+import com.brian.weathercompose.presentation.screens.reusablecomposables.SettingsListItemWithSwitch
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -53,7 +53,7 @@ fun NotificationSettingsScreen(
     ) {
 
         item {
-            SettingsListItemWithCheckbox(
+            SettingsListItemWithSwitch(
                 item = itemsList[0],
                 isChecked = showNotifications.value ?: true,
                 onCheckedChanged = {
@@ -65,7 +65,7 @@ fun NotificationSettingsScreen(
         }
 
         item {
-            SettingsListItemWithCheckbox(
+            SettingsListItemWithSwitch(
                 item = itemsList[1],
                 isChecked = showLocalForecast.value ?: true && showNotifications.value ?: true,
                 onCheckedChanged = {
@@ -78,7 +78,7 @@ fun NotificationSettingsScreen(
         }
 
         item {
-            SettingsListItemWithCheckbox(
+            SettingsListItemWithSwitch(
                 item = itemsList[2],
                 isChecked = showPrecipitationNotifications.value ?: true && showNotifications.value ?: true,
                 onCheckedChanged = {
@@ -132,6 +132,7 @@ fun PrecipitationLocationsDialog(
 
     val newlySelectedLocations = rememberSaveable { mutableStateOf(selectedLocations) }
     val newLocations = selectedLocations.toMutableSet()
+
     AlertDialog(
         title = {
             Text(
@@ -150,6 +151,7 @@ fun PrecipitationLocationsDialog(
                             if(it) newLocations.add(location) else newLocations.remove(location)
 
                             newlySelectedLocations.value = newLocations
+
                         }
                     )
                 }

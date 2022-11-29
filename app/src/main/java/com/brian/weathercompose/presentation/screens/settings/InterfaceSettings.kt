@@ -13,6 +13,7 @@ import com.brian.weathercompose.presentation.SettingsDrawerItem
 import com.brian.weathercompose.presentation.screens.reusablecomposables.SettingsListItemWithCheckbox
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -25,6 +26,9 @@ fun InterfaceSettingsScreen(
     viewModel.updateActionBarTitle("Interface Settings")
     val itemsList = prepareInterfaceSettings()
 
+    val dynamicColorsSetting = preferencesRepository.getDynamicColorsSetting.collectAsState(initial = null)
+    val showAlertsSetting = preferencesRepository.getWeatherAlertsSetting.collectAsState(initial = null)
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
@@ -32,11 +36,28 @@ fun InterfaceSettingsScreen(
         contentPadding = PaddingValues(vertical = 12.dp)
     ) {
 
-        items(itemsList) { item ->
-            SettingsListItemWithCheckbox(
-                item = item
-            )
+       item {
+           SettingsListItemWithCheckbox(
+               item = itemsList[0],
+               isChecked = dynamicColorsSetting.value ?: true,
+               onCheckedChanged = {
+                   coroutineScope.launch {
+                       preferencesRepository.saveDynamicColorSetting(!dynamicColorsSetting.value!!)
+                   }
+               }
+           )
+       }
 
+        item {
+            SettingsListItemWithCheckbox(
+                item = itemsList[1],
+                isChecked = showAlertsSetting.value ?: true,
+                onCheckedChanged = {
+                    coroutineScope.launch {
+                        preferencesRepository.saveWeatherAlertSetting(!showAlertsSetting.value!!)
+                    }
+                }
+            )
         }
     }
 

@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -28,6 +29,7 @@ import com.brian.weathercompose.R
 import com.brian.weathercompose.presentation.navigation.*
 import com.brian.weathercompose.presentation.screens.*
 import com.brian.weathercompose.presentation.screens.settings.InterfaceSettingsScreen
+import com.brian.weathercompose.presentation.screens.settings.NotificationSettingsScreen
 import com.brian.weathercompose.presentation.screens.settings.UnitSettingsScreen
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
@@ -100,6 +102,8 @@ fun WeatherApp(
     val currentScreen =
         screens.find { it.route == backStackEntry?.destination?.route } ?: MainWeatherList
 
+    val locationsInDatabase = weatherListViewModel.getZipCodesFromDatabase().collectAsState(initial = "")
+
     // Get the app bar title from the main view model
     val title by mainViewModel.title.collectAsState()
     val scaffoldState = rememberScaffoldState()
@@ -151,8 +155,12 @@ fun WeatherApp(
                         }
                         navController.navigate(InterfaceMenu.route)
                     }
-                    else -> {
-
+                    "Notifications" -> {
+                        coroutineScope.launch {
+                            delay(250)
+                            scaffoldState.drawerState.close()
+                        }
+                        navController.navigate(NotificationsMenu.route)
                     }
                 }
             }
@@ -284,7 +292,6 @@ fun WeatherApp(
                             "Clock Format" -> {
                                 openClockFormatDialog.value = true
                             }
-
                         }
                     })
             }
@@ -297,15 +304,21 @@ fun WeatherApp(
                 )
             }
 
+            composable(route = NotificationsMenu.route) {
+                NotificationSettingsScreen(
+                    viewModel = mainViewModel,
+                    coroutineScope = coroutineScope,
+                    preferencesRepository = get(),
+                    locations = locationsInDatabase.value as List<String>
+                )
+            }
+
             composable(route = Alerts.routeWithArgs) { navBackStackEntry ->
                 val location = navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
                 if (location != null) {
                     AlertsScreen(mainViewModel = mainViewModel, location = location)
                 }
             }
-
-
-
         }
     }
 }

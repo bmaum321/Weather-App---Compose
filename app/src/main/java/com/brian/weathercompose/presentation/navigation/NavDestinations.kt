@@ -50,6 +50,10 @@ object Alerts: NavDestinations {
     val routeWithArgs = "$route/{${locationArg}}"
 }
 
+object NotificationsMenu: NavDestinations {
+    override val route = "NotificationsMenu"
+}
+
 val screens = listOf(
     MainWeatherList,
     DailyForecast,
@@ -57,5 +61,6 @@ val screens = listOf(
     AddLocation,
     UnitsMenu,
     InterfaceMenu,
-    Alerts
+    Alerts,
+    NotificationsMenu
 )

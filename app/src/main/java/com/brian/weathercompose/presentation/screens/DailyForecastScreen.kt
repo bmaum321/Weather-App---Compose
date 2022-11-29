@@ -89,6 +89,7 @@ fun ForecastList(
     temperatureUnit: String
 
 ) {
+    val dynamicColorsEnabled = remember { mutableStateOf(viewModel.getDynamicColorSetting()) }
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
 
@@ -103,7 +104,7 @@ fun ForecastList(
         onRefresh = { refresh() }
     )
     val scaffoldState = rememberScaffoldState()
-    val fabVisible by remember { mutableStateOf(forecast.alerts.isNotEmpty()) }
+    val fabVisible by remember { mutableStateOf(forecast.alerts.isNotEmpty() && viewModel.getAlertsSetting())  }
     Scaffold(
         scaffoldState = scaffoldState,
         floatingActionButton = {
@@ -126,7 +127,8 @@ fun ForecastList(
                         it,
                         onClick = onClick,
                         temperatureUnit = temperatureUnit,
-                        gradientColors = it.day.backgroundColors
+                        gradientColors = it.day.backgroundColors,
+                        dynamicColorsEnabled = dynamicColorsEnabled
                     )
                 }
             }
@@ -149,7 +151,8 @@ fun ForecastListItem(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
     temperatureUnit: String,
-    gradientColors: List<Color>
+    gradientColors: List<Color>,
+    dynamicColorsEnabled: MutableState<Boolean>
 ) {
 
     val date = day.date
@@ -160,9 +163,9 @@ fun ForecastListItem(
             .height(100.dp),
         elevation = 4.dp,
         onClick = { onClick(date) },
-        contentColor = day.day.textColor
+        contentColor = if(dynamicColorsEnabled.value) day.day.textColor else LocalContentColor.current
     ) {
-        Box(modifier = modifier.background(gradient)) {
+        Box(modifier = if(dynamicColorsEnabled.value) modifier.background(gradient) else modifier) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

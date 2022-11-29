@@ -87,6 +87,7 @@ fun WeatherListScreen(
     addWeatherFabAction: () -> Unit,
     weatherListViewModel: WeatherListViewModel,
 ) {
+    val dynamicColorsEnabled = remember { mutableStateOf(weatherListViewModel.getDynamicColorSetting()) }
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
 
@@ -209,7 +210,10 @@ fun WeatherListScreen(
                         },
 
                         dismissContent = {
-                            WeatherListItem(weatherDomainObject = item, onClick = onClick)
+                            WeatherListItem(
+                                weatherDomainObject = item,
+                                onClick = onClick,
+                                dynamicColorsEnabled = dynamicColorsEnabled)
                         }
 
                     )
@@ -271,9 +275,9 @@ fun WeatherListItem(
     weatherDomainObject: WeatherDomainObject,
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
+    dynamicColorsEnabled: MutableState<Boolean>
 ) {
     val location = weatherDomainObject.zipcode
-    val fontColor = weatherDomainObject.textColor
     val gradient = Brush.linearGradient(weatherDomainObject.backgroundColors)
     Card(
         modifier = Modifier
@@ -282,9 +286,9 @@ fun WeatherListItem(
             .fillMaxWidth(),
         elevation = 4.dp,
         onClick = { onClick(location) },
-        contentColor = weatherDomainObject.textColor
+        contentColor = if(dynamicColorsEnabled.value) weatherDomainObject.textColor else LocalContentColor.current
     ) {
-        Box(modifier = Modifier.background(gradient)) {
+        Box(modifier = if(dynamicColorsEnabled.value) Modifier.background(gradient) else modifier) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

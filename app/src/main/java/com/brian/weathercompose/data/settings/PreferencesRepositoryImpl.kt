@@ -1,5 +1,6 @@
 package com.brian.weathercompose.data.settings
 
+
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.IOException
 import androidx.datastore.preferences.core.*
@@ -21,6 +22,10 @@ class PreferencesRepositoryImpl(
     override val DYNAMIC_COLORS = booleanPreferencesKey("dynamic_colors")
     override val SHOW_WEATHER_ALERTS = booleanPreferencesKey("show_weather_alerts")
     override val CLOCK_FORMAT = stringPreferencesKey("clock_format")
+    override val SHOW_NOTIFICATIONS = booleanPreferencesKey("show_notifications")
+    override val SHOW_LOCAL_FORECAST = booleanPreferencesKey("show_local_forecast")
+    override val SHOW_PRECIPITATION_NOTIFICATIONS = booleanPreferencesKey("show_precipitation_notifications")
+    override val PRECIPITATION_LOCATIONS: Preferences.Key<Set<String>> = stringSetPreferencesKey("precipitation_locations")
 
     override val getTemperatureUnit: Flow<String?> = dataStore.data
         .catch { exception ->
@@ -57,10 +62,76 @@ class PreferencesRepositoryImpl(
     }.map { preferences ->
         preferences[MEASUREMENT_UNIT] ?: "IN" // default value
     }
-    override val getWeatherAlertsSetting: Flow<String?>
-        get() = TODO("Not yet implemented")
-    override val getDynamicColorsSetting: Flow<String?>
-        get() = TODO("Not yet implemented")
+    override val getWeatherAlertsSetting: Flow<Boolean?> = dataStore.data
+        .catch { exception ->
+            // dataStore.data throws an IOException when an error is encountered when reading data
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { preferences ->
+            preferences[SHOW_WEATHER_ALERTS] ?: true // default value
+        }
+
+    override val getDynamicColorsSetting: Flow<Boolean?> = dataStore.data
+    .catch { exception ->
+        // dataStore.data throws an IOException when an error is encountered when reading data
+        if (exception is IOException) {
+            emit(emptyPreferences())
+        } else {
+            throw exception
+        }
+    }.map { preferences ->
+        preferences[DYNAMIC_COLORS] ?: true // default value
+    }
+    override val getNotificationSetting: Flow<Boolean?> = dataStore.data
+    .catch { exception ->
+        // dataStore.data throws an IOException when an error is encountered when reading data
+        if (exception is IOException) {
+            emit(emptyPreferences())
+        } else {
+            throw exception
+        }
+    }.map { preferences ->
+        preferences[SHOW_NOTIFICATIONS] ?: true // default value
+    }
+
+    override val getLocalForecastSetting: Flow<Boolean?> = dataStore.data
+    .catch { exception ->
+        // dataStore.data throws an IOException when an error is encountered when reading data
+        if (exception is IOException) {
+            emit(emptyPreferences())
+        } else {
+            throw exception
+        }
+    }.map { preferences ->
+        preferences[SHOW_LOCAL_FORECAST] ?: true // default value
+    }
+
+    override val getPrecipitationSetting: Flow<Boolean?> = dataStore.data
+    .catch { exception ->
+        // dataStore.data throws an IOException when an error is encountered when reading data
+        if (exception is IOException) {
+            emit(emptyPreferences())
+        } else {
+            throw exception
+        }
+    }.map { preferences ->
+        preferences[SHOW_PRECIPITATION_NOTIFICATIONS] ?: true // default value
+    }
+
+    override val getPrecipitationLocations: Flow<Set<String>> = dataStore.data
+    .catch { exception ->
+        // dataStore.data throws an IOException when an error is encountered when reading data
+        if (exception is IOException) {
+            emit(emptyPreferences())
+        } else {
+            throw exception
+        }
+    }.map { preferences ->
+        preferences[PRECIPITATION_LOCATIONS] ?: emptySet() // default value
+    }
 
     override val getClockFormat: Flow<String?> = dataStore.data
         .catch { exception ->
@@ -86,37 +157,69 @@ class PreferencesRepositoryImpl(
         }
 
     //save setting into datastore
-    override suspend fun saveTemperatureSetting(unit: String) {
+    override suspend fun saveTemperatureSetting(value: String) {
         dataStore.edit { preferences ->
-            preferences[TEMPERATURE_UNIT] = unit
+            preferences[TEMPERATURE_UNIT] = value
         }
     }
 
-    override suspend fun saveMeasurementSetting(unit: String) {
+    override suspend fun saveMeasurementSetting(value: String) {
         dataStore.edit { preferences ->
-            preferences[MEASUREMENT_UNIT] = unit
+            preferences[MEASUREMENT_UNIT] = value
         }
     }
 
-    override suspend fun saveWindspeedSetting(unit: String) {
+    override suspend fun saveWindspeedSetting(value: String) {
         dataStore.edit { preferences ->
-            preferences[WINDSPEED_UNIT] = unit
+            preferences[WINDSPEED_UNIT] = value
         }
     }
 
-    override suspend fun saveClockFormatSetting(unit: String) {
+    override suspend fun saveClockFormatSetting(value: String) {
         dataStore.edit { preferences ->
-            preferences[CLOCK_FORMAT] = unit
+            preferences[CLOCK_FORMAT] = value
         }
     }
 
-    override suspend fun saveWeatherAlertSetting(unit: String) {
-        TODO("Not yet implemented")
+    override suspend fun saveWeatherAlertSetting(value: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[SHOW_WEATHER_ALERTS] = value
+        }
     }
 
-    override suspend fun saveDynamicColorSetting(unit: String) {
-        TODO("Not yet implemented")
+
+    override suspend fun saveDynamicColorSetting(value: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[DYNAMIC_COLORS] = value
+        }
     }
+
+    override suspend fun saveNotificationSetting(value: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[SHOW_NOTIFICATIONS] = value
+        }
+    }
+
+    override suspend fun saveLocalForecastSetting(value: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[SHOW_LOCAL_FORECAST] = value
+        }
+    }
+
+    override suspend fun savePrecipitationSetting(value: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[SHOW_PRECIPITATION_NOTIFICATIONS] = value
+        }
+    }
+
+    override suspend fun savePrecipitationLocations(values: Set<String>) {
+        dataStore.edit { preferences ->
+            preferences[PRECIPITATION_LOCATIONS] = values
+        }
+    }
+
+
+
 
     // Function to return preferences
     override suspend fun fetchInitialPreferences() = dataStore.data.first().toPreferences()

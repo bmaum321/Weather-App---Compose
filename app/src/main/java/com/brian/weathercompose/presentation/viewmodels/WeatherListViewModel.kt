@@ -44,7 +44,7 @@ class WeatherListViewModel(
         tryEmit(Unit)
     }
 
-    private fun getZipCodesFromDatabase(): Flow<List<String>> {
+    fun getZipCodesFromDatabase(): Flow<List<String>> {
         return weatherDao.getZipcodesFlow()
     }
 
@@ -58,6 +58,15 @@ class WeatherListViewModel(
             weatherDao.delete(weatherEntity)
         }
     }
+
+    fun getDynamicColorSetting(): Boolean {
+        var setting = true
+        viewModelScope.launch {
+            setting = preferencesRepository.getDynamicColorsSetting.first() ?: true
+        }
+        return setting
+    }
+
 
     fun refresh() {
         refreshFlow.tryEmit(Unit)

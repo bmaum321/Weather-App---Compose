@@ -3,6 +3,7 @@ package com.brian.weathercompose.presentation.viewmodels
 import android.app.Application
 import android.content.res.Resources
 import androidx.lifecycle.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.domain.model.ForecastDomainObject
 import com.brian.weathercompose.data.mapper.asDomainModel
@@ -55,6 +56,22 @@ class DailyForecastViewModel(
          }
          return unit
      }
+
+    fun getAlertsSetting(): Boolean {
+        var setting = true
+        viewModelScope.launch {
+            setting = preferencesRepository.getWeatherAlertsSetting.first() ?: true
+        }
+        return setting
+    }
+
+    fun getDynamicColorSetting(): Boolean {
+        var setting = true
+        viewModelScope.launch {
+            setting = preferencesRepository.getDynamicColorsSetting.first() ?: true
+        }
+        return setting
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getForecastForZipcode(zipcode: String,

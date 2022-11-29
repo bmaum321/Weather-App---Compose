@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImagePainter.State.Empty.painter
 import com.brian.weathercompose.R
 import com.brian.weathercompose.presentation.SettingsDrawerItem
 import com.brian.weathercompose.presentation.theme.WeatherComposeTheme
@@ -23,6 +24,9 @@ import com.brian.weathercompose.presentation.theme.WeatherComposeTheme
 @Composable
 fun SettingsListItemWithCheckbox(
     item: SettingsDrawerItem,
+    isChecked: Boolean,
+    onCheckedChanged: (Boolean) -> Unit,
+    enabled: Boolean = true
 ) {
     Row(
         modifier = Modifier
@@ -31,30 +35,31 @@ fun SettingsListItemWithCheckbox(
     ) {
 
         // icon and unread bubble
+        Icon(
+            modifier = Modifier
+                .size(size = 48.dp)
+                .padding(start = 20.dp),
+            painter = item.image,
+            contentDescription = null,
+            tint = Color.White
+        )
+        Spacer(modifier = Modifier.size(24.dp))
 
-
-            Icon(
-                modifier = Modifier
-                    .size(size = 40.dp)
-                    .padding(start =12.dp),
-                painter = item.image,
-                contentDescription = null,
-                tint = Color.White
-            )
-            Spacer(modifier = Modifier.size(12.dp))
-
-            // label
-            Text(
-               // modifier = Modifier.padding(start = 16.dp),
-                text = item.label,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.White
-            )
+        // label
+        Text(
+            // modifier = Modifier.padding(start = 16.dp),
+            text = item.label,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.White
+        )
         Spacer(modifier = Modifier.weight(1f))
 
-            Checkbox(checked = true, onCheckedChange = { })
-
+        Checkbox(
+            checked = isChecked,
+            onCheckedChange = onCheckedChanged,
+            enabled = enabled
+        )
 
 
     }
@@ -64,10 +69,13 @@ fun SettingsListItemWithCheckbox(
 @Composable
 fun CheckboxPreview() {
     WeatherComposeTheme() {
-        SettingsListItemWithCheckbox(item = SettingsDrawerItem(
-            image = painterResource(R.drawable.ic_baseline_color_lens_24),
-            label = "Dynamic Condition Colors"
-        )
+        SettingsListItemWithCheckbox(
+            item = SettingsDrawerItem(
+                image = painterResource(R.drawable.ic_baseline_color_lens_24),
+                label = "Dynamic Condition Colors",
+            ),
+            isChecked = true,
+            onCheckedChanged = {}
         )
 
     }

@@ -55,6 +55,7 @@
     <string name="location_services_required_dialog_title">Location Services Required</string>
     <string name="location_services_required_dialog">Please enable location services in settings</string>
     <string name="show_notifications">show_notifications</string>
+    <string name="notifications_settings">Notification Settings</string>
     <string name="precipitation_notification_locations">Precipitation Notification Locations</string>
     <string name="choose_precip_locations">Choose which locations to show precipitation notifications</string>
     <string name="get_local_forecast">Get daily notifications for local forecast</string>

@@ -350,7 +350,7 @@ fun WeatherListItem(
                          * By doing it this way, what happens if it gets the setting from the preferences
                          * but the wrong setting was used in the mapper function, should never be the case,
                          * but ideally I guess I would have to the presentation logic here instead of the mapper
-                         * for a concrete test case 
+                         * for a concrete test case
                          */
                         modifier = Modifier.semantics { testTag = clockFormat.value }
                     )

@@ -7,6 +7,8 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.unit.dp
 
 
@@ -19,7 +21,10 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center,
         modifier = modifier.fillMaxSize()
     ) {
-        CircularProgressIndicator(modifier = Modifier.size(128.dp))
+        CircularProgressIndicator(
+            modifier = Modifier
+                .size(128.dp)
+                .semantics { testTag = "Loading" })
     }
 }
 

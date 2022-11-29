@@ -97,11 +97,13 @@ dependencies {
     implementation "androidx.preference:preference-ktx:1.2.0"
     implementation "androidx.datastore:datastore-preferences:1.1.0-alpha01"
 
-
     // Koin DI
     implementation "io.insert-koin:koin-android:$koin_version"
     implementation "io.insert-koin:koin-androidx-navigation:$koin_version"
     implementation "io.insert-koin:koin-androidx-compose:$koin_version"
+
+    // Accompanist Library for permission handling
+    implementation "com.google.accompanist:accompanist-permissions:0.28.0"
 
 
     // Testing

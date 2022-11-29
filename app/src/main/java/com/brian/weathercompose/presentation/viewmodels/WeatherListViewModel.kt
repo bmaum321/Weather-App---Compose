@@ -1,7 +1,6 @@
 package com.brian.weathercompose.presentation.viewmodels
 
 import android.app.Application
-import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +11,7 @@ import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.data.local.WeatherEntity
 import com.brian.weathercompose.data.remote.NetworkResult
+import com.brian.weathercompose.data.settings.AppPreferences
 import com.brian.weathercompose.data.settings.PreferencesRepository
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
@@ -67,6 +67,24 @@ class WeatherListViewModel(
         return setting
     }
 
+    fun getClockFormat(): String {
+        var setting = ""
+        viewModelScope.launch {
+            setting = preferencesRepository.getClockFormat.first() ?: ""
+        }
+        return setting
+    }
+
+    fun getTemperatureUnit(): String {
+        var setting = ""
+        viewModelScope.launch {
+            setting = preferencesRepository.getTemperatureUnit.first() ?: ""
+        }
+        return setting
+    }
+
+    fun getPreferences() = preferencesRepository.getAllPreferences
+
 
     fun refresh() {
         refreshFlow.tryEmit(Unit)
@@ -76,7 +94,6 @@ class WeatherListViewModel(
      * Gets Weather info for a list of zipcodes
      */
     fun getAllWeather(
-        sharedPreferences: SharedPreferences,
         resources: Resources
     ): StateFlow<WeatherListState> {
         return refreshFlow
@@ -93,7 +110,6 @@ class WeatherListViewModel(
                                             weatherRepository.getWeatherListForZipCodes(
                                                 zipcodes,
                                                 resources,
-                                                sharedPreferences,
                                                 preferencesRepository
                                             )
                                         )

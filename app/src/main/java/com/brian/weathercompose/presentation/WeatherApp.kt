@@ -14,6 +14,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +36,7 @@ import com.brian.weathercompose.presentation.screens.settings.UnitSettingsScreen
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 
@@ -97,6 +100,7 @@ fun WeatherApp(
     navController: NavHostController = rememberNavController()
 ) {
 
+    val ctx = LocalContext.current
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen =
@@ -116,6 +120,8 @@ fun WeatherApp(
 
     if (openAboutDialog.value) {
         AlertDialog(
+            // This test tag is used for semantics matching in UI testing
+            modifier = Modifier.semantics { testTag = "About Dialog" },
             title = {
                 Text(
                     text = "Version: ${BuildConfig.VERSION_NAME} \n",
@@ -138,10 +144,10 @@ fun WeatherApp(
         drawerContent = {
             DrawerContent { itemLabel ->
                 when (itemLabel) {
-                    "About" -> {
+                    ctx.getString(R.string.about) -> {
                         openAboutDialog.value = true
                     }
-                    "Units" -> {
+                    ctx.getString(R.string.units) -> {
                         coroutineScope.launch {
                             delay(250)
                             scaffoldState.drawerState.close()
@@ -186,7 +192,6 @@ fun WeatherApp(
     ) { innerPadding ->
 
         val context = LocalContext.current
-        val pref = PreferenceManager.getDefaultSharedPreferences(context)
         NavHost(
             navController = navController,
             startDestination = MainWeatherList.route,
@@ -202,7 +207,7 @@ fun WeatherApp(
                     color = MaterialTheme.colors.background
                 ) {
                     val weatherUiState by remember {
-                        weatherListViewModel.getAllWeather(pref, resources = context.resources
+                        weatherListViewModel.getAllWeather(context.resources
                         )
                     }.collectAsState()
 

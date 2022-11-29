@@ -9,6 +9,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,7 +57,7 @@ fun SettingsListItemWithSwitch(
             checked = isChecked,
             onCheckedChange = onCheckedChanged,
             enabled = enabled,
-            modifier = Modifier.padding(end = 8.dp))
+            modifier = Modifier.padding(end = 8.dp).semantics { testTag = item.label })
 
 
     }

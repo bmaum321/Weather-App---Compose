@@ -16,7 +16,7 @@ interface PreferencesRepository {
      val SHOW_PRECIPITATION_NOTIFICATIONS: Preferences.Key<Boolean>
      val PRECIPITATION_LOCATIONS: Preferences.Key<Set<String>>
 
-     val preferencesFlow: Flow<AppPreferences>
+     val getAllPreferences: Flow<AppPreferences>
      val getClockFormat: Flow<String?>
      val getTemperatureUnit: Flow<String?>
      val getWindspeedUnit: Flow<String?>

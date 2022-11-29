@@ -106,7 +106,7 @@ class PreferencesRepositoryImpl(
             throw exception
         }
     }.map { preferences ->
-        preferences[SHOW_LOCAL_FORECAST] ?: true // default value
+        preferences[SHOW_LOCAL_FORECAST] ?: false // default value
     }
 
     override val getPrecipitationSetting: Flow<Boolean?> = dataStore.data
@@ -145,14 +145,32 @@ class PreferencesRepositoryImpl(
             preferences[CLOCK_FORMAT] ?: TWELVE_HOUR // default value
         }
 
-    override val preferencesFlow: Flow<AppPreferences> = dataStore.data
+    override val getAllPreferences: Flow<AppPreferences> = dataStore.data
         .map { preferences ->
             val tempUnit = preferences[TEMPERATURE_UNIT] ?: "Fahrenheit"
+            val clockFormat = preferences[CLOCK_FORMAT] ?: "hh:mm a"
             val dynamicColors = preferences[DYNAMIC_COLORS] ?: true
+            val windSpeedUnit = preferences[WINDSPEED_UNIT] ?: "MPH"
+            val showAlerts = preferences[SHOW_WEATHER_ALERTS] ?: true
+            val precipLocations = preferences[PRECIPITATION_LOCATIONS] ?: emptySet()
+            val measurmentUnit = preferences[MEASUREMENT_UNIT] ?: "IN"
+            val showLocalForecast = preferences[SHOW_LOCAL_FORECAST] ?: false
+            val showNotifications = preferences[SHOW_NOTIFICATIONS] ?: true
+            val showPrecipNotifications = preferences[SHOW_PRECIPITATION_NOTIFICATIONS
+            ] ?: true
 
             AppPreferences(
                 tempUnit = tempUnit,
-                dynamicColors = dynamicColors
+                dynamicColors = dynamicColors,
+                measurementUnit = measurmentUnit,
+                windUnit = windSpeedUnit,
+                clockFormat = clockFormat,
+                showAlerts = showAlerts,
+                showLocalForecast = showLocalForecast ,
+                showNotifications = showNotifications,
+                showPrecipitationNotifications = showPrecipNotifications,
+                precipitationLocations = precipLocations
+
             )
         }
 

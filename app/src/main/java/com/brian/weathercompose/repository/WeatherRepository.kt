@@ -23,7 +23,6 @@ interface WeatherRepository {
     suspend fun getWeatherListForZipCodes(
         zipcodes: List<String>,
         resources: Resources,
-        sharedPreferences: SharedPreferences,
         preferencesRepository: PreferencesRepository
     ): List<WeatherDomainObject>
 

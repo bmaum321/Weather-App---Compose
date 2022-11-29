@@ -3,30 +3,29 @@ package com.example.weathercompose.nav_tests
 import android.app.Application
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.brian.weathercompose.BuildConfig
 import com.brian.weathercompose.data.local.WeatherDatabase
 import com.brian.weathercompose.data.remote.WeatherApi
-import com.brian.weathercompose.presentation.navigation.MainWeatherList
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
 import com.brian.weathercompose.repository.WeatherRepositoryImpl
 import com.brian.weathercompose.R
+import com.brian.weathercompose.data.settings.PreferencesRepositoryImpl
 import com.brian.weathercompose.presentation.WeatherApp
-import com.brian.weathercompose.presentation.navigation.AddLocation
-import com.brian.weathercompose.presentation.navigation.Alerts
-import com.brian.weathercompose.presentation.navigation.DailyForecast
+import com.brian.weathercompose.presentation.navigation.*
 import com.brian.weathercompose.presentation.screens.AddWeatherScreen
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.androidx.compose.get
 
 
 @RunWith(AndroidJUnit4::class)
@@ -45,10 +44,11 @@ class NavigationTests {
             }
             WeatherApp(
                 weatherListViewModel = WeatherListViewModel(
-                application = Application(),
-                weatherDao = WeatherDatabase.getDatabase(LocalContext.current).getWeatherDao(),
-                weatherRepository = WeatherRepositoryImpl(WeatherApi)
-            ),
+                    application = Application(),
+                    weatherDao = WeatherDatabase.getDatabase(LocalContext.current).getWeatherDao(),
+                    weatherRepository = WeatherRepositoryImpl(WeatherApi),
+                    preferencesRepository = PreferencesRepositoryImpl(get())
+                ),
                 mainViewModel = mainViewModel,
                 navController = navController
             )
@@ -87,7 +87,7 @@ class NavigationTests {
      */
     @Test
     fun weatherNavHost_clickAddWeatherFab_navigatesToAddWeatherScreen() {
-        Thread.sleep(2000)
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToAddWeatherScreen()
         navController.assertCurrentRouteName(AddLocation.route)
     }
@@ -98,13 +98,13 @@ class NavigationTests {
      */
     @Test
     fun weatherNavHost_clickAlertFab_navigatesToAlertsScreen() {
-        Thread.sleep(2000)
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
-        Thread.sleep(2000)
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         val buttonDescription = composeTestRule.activity.getString(R.string.alert_fab_description)
         composeTestRule.onNodeWithContentDescription(buttonDescription)
             .performClick()
-        Thread.sleep(2000)
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navController.assertCurrentRouteName(Alerts.routeWithArgs)
         val backText = composeTestRule.activity.getString(R.string.back_button)
         composeTestRule.onNodeWithContentDescription(backText).assertExists()
@@ -115,7 +115,7 @@ class NavigationTests {
      */
     @Test
     fun weatherNavHost_verifyBackNavigationShownOnAddWeatherScreen() {
-        Thread.sleep(2000)
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToAddWeatherScreen()
         val backText = composeTestRule.activity.getString(R.string.back_button)
         composeTestRule.onNodeWithContentDescription(backText).assertExists()
@@ -126,7 +126,7 @@ class NavigationTests {
      */
     @Test
     fun weatherNavHost_clickBackButtonOnAddWeatherScreen_navigatesToWeatherListScreen() {
-        Thread.sleep(2000)
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToAddWeatherScreen()
         performNavigateUp()
         navController.assertCurrentRouteName(MainWeatherList.route)
@@ -137,8 +137,8 @@ class NavigationTests {
      * Verify navigation to daily forecast screen
      */
     @Test
-    fun weatherNavHost_clickLocationCard_navigateToDailyForecastScreen(){
-        Thread.sleep(2000)
+    fun weatherNavHost_clickLocationCard_navigateToDailyForecastScreen() {
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
         navController.assertCurrentRouteName(DailyForecast.routeWithArgs)
     }
@@ -148,7 +148,7 @@ class NavigationTests {
      */
     @Test
     fun weatherNavHost_clickButtonOnDailyForecast_navigateToHomeScreen() {
-        Thread.sleep(2000)
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
         performNavigateUp()
         navController.assertCurrentRouteName(MainWeatherList.route)
@@ -158,12 +158,12 @@ class NavigationTests {
      * Verify navigation to Hourly forecast screen
      */
     @Test
-    fun weatherNavHost_clickOnDailyForecast_navigateToHourlyForecast(){
-        Thread.sleep(2000)
+    fun weatherNavHost_clickOnDailyForecast_navigateToHourlyForecast() {
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
-        Thread.sleep(2000)
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToHourlyForecastScreen()
-        Thread.sleep(2000)
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
     }
 
     /**
@@ -171,9 +171,9 @@ class NavigationTests {
      */
     @Test
     fun weatherNavHost_clickBackButtonHourlyForecast_navigateToDailyForecastScreen() {
-        Thread.sleep(2000)
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
-        Thread.sleep(2000)
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToHourlyForecastScreen()
         performNavigateUp()
         navController.assertCurrentRouteName(DailyForecast.routeWithArgs)
@@ -183,27 +183,81 @@ class NavigationTests {
      * Verify title is updating correctly
      */
     @Test
-    fun weatherNavHost_clickOnPlace_verifyTitleUpdate(){
-        Thread.sleep(2000)
+    fun weatherNavHost_clickOnPlace_verifyTitleUpdate() {
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
-        composeTestRule.onNodeWithText("Syracuse").assertExists()
+        composeTestRule.onNodeWithText("Miami").assertExists()
     }
 
     /**
      * Verify correct title on hourly forecast screen
      */
     @Test
-    fun weatherNavHost_clickOnDay_verifyTitleUpdateOnHourlyForecastScreen(){
-        Thread.sleep(2000)
+    fun weatherNavHost_clickOnDay_verifyTitleUpdateOnHourlyForecastScreen() {
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
-        Thread.sleep(3000)
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToHourlyForecastScreen()
-        Thread.sleep(2000)
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         composeTestRule.onNodeWithText("Today").assertExists()
     }
 
-    private fun navigateToAddWeatherScreen(){
-        val buttonDescription = composeTestRule.activity.getString(R.string.add_weather_fab_description)
+    /**
+     * Verify navigate to Units screen
+     */
+    @Test
+    fun weatherNavHost_clickOnSettings_verifyNavigateToSettingsScreen() {
+        //
+        val actionMenuText = composeTestRule.activity.getString(R.string.action_menu)
+        composeTestRule.onNodeWithContentDescription(actionMenuText).performClick()
+        composeTestRule.onNodeWithText("Units").assertExists()
+        composeTestRule.onNodeWithText("Units").performClick()
+        navController.assertCurrentRouteName(UnitsMenu.route)
+    }
+
+    /**
+     * Verify navigate to Notifications screen
+     */
+    @Test
+    fun weatherNavHost_clickOnSettings_verifyNavigateToNotificationsScreen() {
+        //
+        val actionMenuText = composeTestRule.activity.getString(R.string.action_menu)
+        composeTestRule.onNodeWithContentDescription(actionMenuText).performClick()
+        composeTestRule.onNodeWithText("Notifications").performClick()
+        navController.assertCurrentRouteName(NotificationsMenu.route)
+    }
+
+    /**
+     * Verify navigate to Interface Settings screen
+     */
+    @Test
+    fun weatherNavHost_clickOnSettings_verifyNavigateToInterfaceSettingsScreen() {
+        //
+        val actionMenuText = composeTestRule.activity.getString(R.string.action_menu)
+        composeTestRule.onNodeWithContentDescription(actionMenuText).performClick()
+        composeTestRule.onNodeWithText("Interface").performClick()
+        navController.assertCurrentRouteName(InterfaceMenu.route)
+    }
+
+
+    /**
+     * Verify app about dialog
+     */
+    @Test
+    fun weatherNavHost_clickOnSettings_verifyAppAboutDialogShows() {
+        //
+        val actionMenuText = composeTestRule.activity.getString(R.string.action_menu)
+        composeTestRule.onNodeWithContentDescription(actionMenuText).performClick()
+        composeTestRule.onNodeWithText("About").performClick()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        composeTestRule.onNodeWithTag(testTag = "About Dialog").assertExists()
+    }
+
+
+
+    private fun navigateToAddWeatherScreen() {
+        val buttonDescription =
+            composeTestRule.activity.getString(R.string.add_weather_fab_description)
         composeTestRule.onNodeWithContentDescription(buttonDescription)
             .performClick()
     }
@@ -214,13 +268,30 @@ class NavigationTests {
     }
 
     private fun navigateToDailyForecastScreen() {
-        composeTestRule.onNodeWithText("Miami" , ignoreCase = true)
+        composeTestRule.onNodeWithText("Miami", ignoreCase = true)
             .performClick()
     }
 
     private fun navigateToHourlyForecastScreen() {
-        composeTestRule.onNodeWithText("Today" , ignoreCase = true)
+        composeTestRule.onNodeWithText("Today", ignoreCase = true)
             .performClick()
+    }
+
+    private fun ComposeContentTestRule.waitUntilNodeCount(
+        matcher: SemanticsMatcher,
+        count: Int,
+        timeoutMillis: Long = 3_000L
+    ) {
+        this.waitUntil(timeoutMillis) {
+            this.onAllNodes(matcher).fetchSemanticsNodes().size == count
+        }
+    }
+
+    private fun ComposeContentTestRule.waitUntilDoesNotExist(
+        matcher: SemanticsMatcher,
+        timeoutMillis: Long = 3_000L
+    ) {
+        return this.waitUntilNodeCount(matcher, 0, timeoutMillis)
     }
 
 }

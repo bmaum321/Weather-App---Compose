@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -135,7 +136,7 @@ private fun prepareNavigationDrawerItems(): List<SettingsDrawerItem> {
     itemsList.add(
         SettingsDrawerItem(
             image = painterResource(R.drawable.ic_temperature),
-            label = "Units"
+            label = stringResource(R.string.units)
         )
     )
     itemsList.add(
@@ -155,7 +156,7 @@ private fun prepareNavigationDrawerItems(): List<SettingsDrawerItem> {
     itemsList.add(
         SettingsDrawerItem(
             image = painterResource(id = R.drawable.ic_baseline_help_24),
-            label = "About"
+            label = stringResource(id = R.string.about)
         )
     )
 

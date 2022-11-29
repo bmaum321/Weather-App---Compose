@@ -72,4 +72,8 @@
     <string name="expand_button_content_description">See detailed hourly forecast.</string>
     <string name="places">Places</string>
     <string name="scroll_to_top">Scroll To Top</string>
+    <string name="twelve_hour_clock_format">hh:mm a</string>
+    <string name="twenty_four_hour_clock_format">kk:mm</string>
+    <string name="units">Units</string>
+    <string name="about">About</string>
 </resources>

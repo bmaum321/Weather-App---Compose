@@ -26,7 +26,6 @@ class WeatherRepositoryImpl(private val weatherApi: WeatherApi) : WeatherReposit
     override suspend fun getWeatherListForZipCodes(
         zipcodes: List<String>,
         resources: Resources,
-        sharedPreferences: SharedPreferences,
         preferencesRepository: PreferencesRepository
     ): List<WeatherDomainObject> {
         val weatherDomainObjects = mutableListOf<WeatherDomainObject>()

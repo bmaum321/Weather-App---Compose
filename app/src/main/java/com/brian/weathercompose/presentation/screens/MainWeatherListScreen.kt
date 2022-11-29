@@ -24,10 +24,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import com.brian.weathercompose.R
+import com.brian.weathercompose.data.settings.AppPreferences
 import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.presentation.screens.reusablecomposables.ErrorScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LoadingScreen
@@ -37,6 +40,10 @@ import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListState
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -46,7 +53,7 @@ fun MainWeatherListScreen(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
     addWeatherFabAction: () -> Unit,
-    weatherListViewModel: WeatherListViewModel, //Should I be passing around a viewmodel like this to subcomposables?
+    weatherListViewModel: WeatherListViewModel,
     mainViewModel: MainViewModel
 ) {
 
@@ -87,7 +94,17 @@ fun WeatherListScreen(
     addWeatherFabAction: () -> Unit,
     weatherListViewModel: WeatherListViewModel,
 ) {
-    val dynamicColorsEnabled = remember { mutableStateOf(weatherListViewModel.getDynamicColorSetting()) }
+    /**
+     * Currently passing all the preferences down to the composable to add as semantics tags for
+     * testing purposes. This would allow me to make the decision what to present here instead
+     * of doing it in the mapper
+     *
+     * There must also be a better way to pass all the permissions instead of each individually
+     */
+    val preferences = weatherListViewModel.getPreferences().collectAsState(initial = null)
+    val dynamicColorsEnabled = preferences.value?.dynamicColors
+    val clockFormat = remember { mutableStateOf(weatherListViewModel.getClockFormat()) }
+    val temperatureUnit = remember { mutableStateOf(weatherListViewModel.getTemperatureUnit()) }
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
 
@@ -213,7 +230,11 @@ fun WeatherListScreen(
                             WeatherListItem(
                                 weatherDomainObject = item,
                                 onClick = onClick,
-                                dynamicColorsEnabled = dynamicColorsEnabled)
+                                dynamicColorsEnabled = dynamicColorsEnabled,
+                                clockFormat = clockFormat,
+                                temperatureUnit = temperatureUnit
+                            )
+
                         }
 
                     )
@@ -275,7 +296,9 @@ fun WeatherListItem(
     weatherDomainObject: WeatherDomainObject,
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
-    dynamicColorsEnabled: MutableState<Boolean>
+    dynamicColorsEnabled: Boolean?,
+    clockFormat: MutableState<String>,
+    temperatureUnit: MutableState<String>
 ) {
     val location = weatherDomainObject.zipcode
     val gradient = Brush.linearGradient(weatherDomainObject.backgroundColors)
@@ -286,9 +309,9 @@ fun WeatherListItem(
             .fillMaxWidth(),
         elevation = 4.dp,
         onClick = { onClick(location) },
-        contentColor = if(dynamicColorsEnabled.value) weatherDomainObject.textColor else LocalContentColor.current
+        contentColor = if(dynamicColorsEnabled == true) weatherDomainObject.textColor else LocalContentColor.current
     ) {
-        Box(modifier = if(dynamicColorsEnabled.value) Modifier.background(gradient) else modifier) {
+        Box(modifier = if(dynamicColorsEnabled == true) Modifier.background(gradient) else modifier) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -316,12 +339,21 @@ fun WeatherListItem(
                     Text(
                         text = "${weatherDomainObject.temp}\u00B0",
                         fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.semantics { testTag = temperatureUnit.value }
                     )
                     Text(
                         text = weatherDomainObject.time,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp)
+                        fontSize = 18.sp,
+                        /**
+                         * By doing it this way, what happens if it gets the setting from the preferences
+                         * but the wrong setting was used in the mapper function, should never be the case,
+                         * but ideally I guess I would have to the presentation logic here instead of the mapper
+                         * for a concrete test case 
+                         */
+                        modifier = Modifier.semantics { testTag = clockFormat.value }
+                    )
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 WeatherConditionIcon(iconUrl = weatherDomainObject.imgSrcUrl)

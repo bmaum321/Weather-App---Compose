@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -106,7 +107,9 @@ fun UnitSettingsScreen(
     val clockFormat = preferencesRepository.getClockFormat.collectAsState(initial = "")
     if(openClockFormatDialog.value) {
         ClockFormatDialog(
-            optionNames = listOf(Pair("12 hour","hh:mm a"), Pair("24 hour","kk:mm") ),
+            optionNames = listOf(
+                Pair("12 hour", stringResource(R.string.twelve_hour_clock_format)),
+                Pair("24 hour", stringResource(R.string.twenty_four_hour_clock_format)) ),
             initialSelectedOption = clockFormat.value ?: "",
             onDismissRequest = { openClockFormatDialog.value = false }
         ) { selectedOption ->

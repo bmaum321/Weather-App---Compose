@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -205,17 +207,20 @@ fun HourlyForecastDetails(
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(
             iconId = R.drawable.ic_wind,
-            value = if(windUnit == "MPH") hour.wind_mph.toString() + " MPH" else hour.wind_kph.toString() + " KPH"
+            value = if(windUnit == "MPH") hour.wind_mph.toString() + " MPH" else hour.wind_kph.toString() + " KPH",
+            modifier = Modifier.semantics { testTag = windUnit }
         )
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(
             iconId = R.drawable.barometer_svgrepo_com,
-            value = if(measurementUnit == "IN") hour.pressure_in.toString() + " IN" else hour.pressure_mb.toString() +" MB"
+            value = if(measurementUnit == "IN") hour.pressure_in.toString() + " IN" else hour.pressure_mb.toString() +" MB",
+            modifier = Modifier.semantics { testTag = measurementUnit }
         )
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(
             iconId = R.drawable.ic_rain_svgrepo_com,
-            value = if(measurementUnit == "IN") hour.precip_in.toString() + " IN" else hour.precip_mm.toString() + " MM"
+            value = if(measurementUnit == "IN") hour.precip_in.toString() + " IN" else hour.precip_mm.toString() + " MM",
+            modifier = Modifier.semantics { testTag = measurementUnit }
         )
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(

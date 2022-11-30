@@ -114,7 +114,89 @@ class SettingsTests {
         performNavigateUp()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         composeTestRule.onAllNodesWithTag(testTag = "Celsius", true).onFirst().assertExists()
+
     }
+
+    /**
+     * Verify wind unit settings
+     */
+    @Test
+    fun unitSettings_clickUseMph_changesUnitCorrectly() {
+        navigateToUnitsScreen()
+        composeTestRule.onNodeWithText("Wind").performClick()
+        composeTestRule.onNodeWithText("MPH").performClick()
+        composeTestRule.onNodeWithText("Ok").performClick()
+        performNavigateUp()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        navigateToDailyForecastScreen()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        navigateToHourlyForecastScreen()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        composeTestRule.onAllNodesWithContentDescription(composeTestRule.activity.getString(R.string.expand_button_content_description)).onFirst().performClick()
+        composeTestRule.onAllNodesWithTag(testTag = "MPH", true).onFirst().assertExists()
+    }
+
+
+    /**
+     * Verify wind unit settings
+     */
+    @Test
+    fun unitSettings_clickUseKph_changesUnitCorrectly() {
+        navigateToUnitsScreen()
+        composeTestRule.onNodeWithText("Wind").performClick()
+        composeTestRule.onNodeWithText("KPH").performClick()
+        composeTestRule.onNodeWithText("Ok").performClick()
+        performNavigateUp()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        navigateToDailyForecastScreen()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        navigateToHourlyForecastScreen()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        composeTestRule.onAllNodesWithContentDescription(composeTestRule.activity.getString(R.string.expand_button_content_description)).onFirst().performClick()
+        composeTestRule.onAllNodesWithTag(testTag = "KPH", true).onFirst().assertExists()
+    }
+
+    /**
+     * Verify pressure unit settings
+     */
+    @Test
+    fun unitSettings_clickUseIn_changesUnitCorrectly() {
+        navigateToUnitsScreen()
+        composeTestRule.onNodeWithText("Pressure").performClick()
+        composeTestRule.onNodeWithText("IN").performClick()
+        composeTestRule.onNodeWithText("Ok").performClick()
+        performNavigateUp()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        navigateToDailyForecastScreen()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        navigateToHourlyForecastScreen()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        composeTestRule.onAllNodesWithContentDescription(composeTestRule.activity.getString(R.string.expand_button_content_description)).onFirst().performClick()
+        composeTestRule.onAllNodesWithTag(testTag = "IN", true).onFirst().assertExists()
+    }
+
+
+
+    /**
+     * Verify pressure unit settings
+     */
+    @Test
+    fun unitSettings_clickUseMm_changesUnitCorrectly() {
+        navigateToUnitsScreen()
+        composeTestRule.onNodeWithText("Pressure").performClick()
+        composeTestRule.onNodeWithText("MM").performClick()
+        composeTestRule.onNodeWithText("Ok").performClick()
+        performNavigateUp()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        navigateToDailyForecastScreen()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        navigateToHourlyForecastScreen()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        composeTestRule.onAllNodesWithContentDescription(composeTestRule.activity.getString(R.string.expand_button_content_description)).onFirst().performClick()
+        composeTestRule.onAllNodesWithTag(testTag = "MM", true).onFirst().assertExists()
+    }
+
+
 
     /**
      * Verify Show Alerts Setting
@@ -160,7 +242,7 @@ class SettingsTests {
         }
     }
 
-    fun ComposeContentTestRule.waitUntilDoesNotExist(
+    private fun ComposeContentTestRule.waitUntilDoesNotExist(
         matcher: SemanticsMatcher,
         timeoutMillis: Long = 3_000L
     ) {

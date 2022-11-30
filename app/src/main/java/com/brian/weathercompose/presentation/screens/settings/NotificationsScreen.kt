@@ -8,7 +8,6 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -43,7 +42,7 @@ fun NotificationSettingsScreen(
     val showPrecipitationNotifications = preferencesRepository.getPrecipitationSetting.collectAsState(
         initial = null
     )
-    val selectedLocations = preferencesRepository.getPrecipitationLocations.collectAsState(initial = null)
+    val selectedLocations = preferencesRepository.getPrecipitationLocations.collectAsState(null)
 
     LazyColumn(
         modifier = Modifier
@@ -105,7 +104,7 @@ fun NotificationSettingsScreen(
     if(showDialog.value) {
         PrecipitationLocationsDialog(
             locations = locations,
-            selectedLocations = (selectedLocations.value ?: emptySet()) as Set<String>,
+            selectedLocations = ((selectedLocations.value?.toMutableList() ?: emptyList() )),
             onDismissRequest = { showDialog.value = false },
             onConfirmed = {newLocations ->
                 coroutineScope.launch {
@@ -113,7 +112,8 @@ fun NotificationSettingsScreen(
                     showDialog.value = false
                 }
             },
-            coroutineScope = coroutineScope
+            coroutineScope = coroutineScope,
+            preferencesRepository = preferencesRepository
         )
     }
 
@@ -123,15 +123,16 @@ fun NotificationSettingsScreen(
 @Composable
 fun PrecipitationLocationsDialog(
     locations: List<String>,
-    selectedLocations: Set<String>,
+    selectedLocations: List<String>,
     modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit,
     onConfirmed: (Set<String>) -> Unit,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    preferencesRepository: PreferencesRepository
 ) {
 
-    val newlySelectedLocations = rememberSaveable { mutableStateOf(selectedLocations) }
-    val newLocations = selectedLocations.toMutableSet()
+    val newlySelectedLocations = remember(Unit) { mutableStateOf(selectedLocations.toMutableList()) }
+    println(newlySelectedLocations.value)
 
     AlertDialog(
         title = {
@@ -148,10 +149,12 @@ fun PrecipitationLocationsDialog(
                         text = location,
                         checked = newlySelectedLocations.value.contains(location),
                         onCheckedChanged = {
-                            if(it) newLocations.add(location) else newLocations.remove(location)
-
-                            newlySelectedLocations.value = newLocations
-
+                            if(it) newlySelectedLocations.value.add(location) else newlySelectedLocations.value.remove(location)
+                            println("New Locations: ${newlySelectedLocations.value}")
+                            //newlySelectedLocations.value = newLocations
+                            coroutineScope.launch {
+                                preferencesRepository.savePrecipitationLocations(newlySelectedLocations.value.toSet())
+                            }
                         }
                     )
                 }
@@ -165,7 +168,7 @@ fun PrecipitationLocationsDialog(
         },
         confirmButton = {
             TextButton(onClick = {
-                onConfirmed(newlySelectedLocations.value)
+                onConfirmed(newlySelectedLocations.value.toSet())
             }) {
                 Text(text = "Ok")
             }

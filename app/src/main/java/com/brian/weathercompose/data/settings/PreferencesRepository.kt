@@ -26,7 +26,7 @@ interface PreferencesRepository {
      val getNotificationSetting: Flow<Boolean?>
      val getLocalForecastSetting: Flow<Boolean?>
      val getPrecipitationSetting: Flow<Boolean?>
-     val getPrecipitationLocations: Flow<Set<String?>>
+     val getPrecipitationLocations: Flow<Set<String>?>
 
      suspend fun saveTemperatureSetting(value: String)
      suspend fun saveMeasurementSetting(value: String)

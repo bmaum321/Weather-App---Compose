@@ -59,31 +59,7 @@ class WeatherListViewModel(
         }
     }
 
-    fun getDynamicColorSetting(): Boolean {
-        var setting = true
-        viewModelScope.launch {
-            setting = preferencesRepository.getDynamicColorsSetting.first() ?: true
-        }
-        return setting
-    }
-
-    fun getClockFormat(): String {
-        var setting = ""
-        viewModelScope.launch {
-            setting = preferencesRepository.getClockFormat.first() ?: ""
-        }
-        return setting
-    }
-
-    fun getTemperatureUnit(): String {
-        var setting = ""
-        viewModelScope.launch {
-            setting = preferencesRepository.getTemperatureUnit.first() ?: ""
-        }
-        return setting
-    }
-
-    fun getPreferences() = preferencesRepository.getAllPreferences
+    val allPreferences = preferencesRepository.getAllPreferences.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
 
     fun refresh() {

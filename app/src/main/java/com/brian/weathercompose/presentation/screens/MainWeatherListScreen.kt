@@ -101,10 +101,7 @@ fun WeatherListScreen(
      *
      * There must also be a better way to pass all the permissions instead of each individually
      */
-    val preferences = weatherListViewModel.getPreferences().collectAsState(initial = null)
-    val dynamicColorsEnabled = preferences.value?.dynamicColors
-    val clockFormat = remember { mutableStateOf(weatherListViewModel.getClockFormat()) }
-    val temperatureUnit = remember { mutableStateOf(weatherListViewModel.getTemperatureUnit()) }
+    val preferences = weatherListViewModel.allPreferences.collectAsState().value
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
 
@@ -230,9 +227,7 @@ fun WeatherListScreen(
                             WeatherListItem(
                                 weatherDomainObject = item,
                                 onClick = onClick,
-                                dynamicColorsEnabled = dynamicColorsEnabled,
-                                clockFormat = clockFormat,
-                                temperatureUnit = temperatureUnit
+                                preferences = preferences
                             )
 
                         }
@@ -296,9 +291,7 @@ fun WeatherListItem(
     weatherDomainObject: WeatherDomainObject,
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
-    dynamicColorsEnabled: Boolean?,
-    clockFormat: MutableState<String>,
-    temperatureUnit: MutableState<String>
+    preferences: AppPreferences?
 ) {
     val location = weatherDomainObject.zipcode
     val gradient = Brush.linearGradient(weatherDomainObject.backgroundColors)
@@ -309,9 +302,9 @@ fun WeatherListItem(
             .fillMaxWidth(),
         elevation = 4.dp,
         onClick = { onClick(location) },
-        contentColor = if(dynamicColorsEnabled == true) weatherDomainObject.textColor else LocalContentColor.current
+        contentColor = if(preferences?.dynamicColors == true) weatherDomainObject.textColor else LocalContentColor.current
     ) {
-        Box(modifier = if(dynamicColorsEnabled == true) Modifier.background(gradient) else modifier) {
+        Box(modifier = if(preferences?.dynamicColors == true) Modifier.background(gradient) else modifier) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -340,7 +333,7 @@ fun WeatherListItem(
                         text = "${weatherDomainObject.temp}\u00B0",
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.semantics { testTag = temperatureUnit.value }
+                        modifier = Modifier.semantics { testTag = preferences?.tempUnit ?: "" }
                     )
                     Text(
                         text = weatherDomainObject.time,
@@ -352,7 +345,7 @@ fun WeatherListItem(
                          * but ideally I guess I would have to the presentation logic here instead of the mapper
                          * for a concrete test case
                          */
-                        modifier = Modifier.semantics { testTag = clockFormat.value }
+                        modifier = Modifier.semantics { testTag = preferences?.clockFormat ?: "" }
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))

@@ -79,8 +79,6 @@ class JobScheduler(private val preferences: AppPreferences) {
                 // Get phones location coordinates and pass to the worker as input data
                 fusedLocationClient.lastLocation.addOnCompleteListener { task ->
                     val location = task.result
-                    //TODO the lat and lon passed to the API return very obscure towns, need
-                    // to find a way to get closest major village/city
                     val data = Data.Builder()
                     data.putDoubleArray(
                         "location",

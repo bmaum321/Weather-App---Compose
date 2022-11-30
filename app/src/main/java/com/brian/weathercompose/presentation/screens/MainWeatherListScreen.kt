@@ -312,7 +312,7 @@ fun WeatherListItem(
                     .padding(8.dp)
                     .align(Alignment.Center)
             ) {
-                Column(modifier = modifier.weight(4f)) {
+                Column(modifier = modifier.weight(10f)) {
                     Text(
                         text = weatherDomainObject.location,
                         fontWeight = FontWeight.Bold,
@@ -350,7 +350,7 @@ fun WeatherListItem(
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                WeatherConditionIcon(iconUrl = weatherDomainObject.imgSrcUrl)
+                WeatherConditionIcon(iconUrl = weatherDomainObject.imgSrcUrl, iconSize = 76)
             }
         }
 

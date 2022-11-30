@@ -15,11 +15,12 @@ import com.brian.weathercompose.R
 @Composable
 fun WeatherConditionIcon(
     iconUrl: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    iconSize: Int
 ) {
     AsyncImage(
         modifier = modifier
-            .size(64.dp),
+            .size(iconSize.dp),
         model = ImageRequest.Builder(context = LocalContext.current)
             .data("https:$iconUrl")
             .crossfade(true)

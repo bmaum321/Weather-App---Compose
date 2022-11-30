@@ -5,6 +5,7 @@ import android.content.res.Resources
 import androidx.compose.ui.graphics.Color
 import com.brian.weathercompose.data.remote.NetworkResult
 import com.brian.weathercompose.data.remote.dto.*
+import com.brian.weathercompose.data.settings.PreferencesRepository
 import com.brian.weathercompose.domain.model.WeatherDomainObject
 import com.brian.weathercompose.repository.WeatherRepository
 
@@ -47,7 +48,7 @@ class FakeWeatherRepository: WeatherRepository {
         feelsLikeTemp = "",
         imgSrcUrl = "",
         location = "",
-        temp = "",
+        temp = "32",
         textColor = Color.Black,
         windSpeed = 12.2
     ))
@@ -89,19 +90,12 @@ class FakeWeatherRepository: WeatherRepository {
         }
     }
 
-    override suspend fun getWeather(
-        zipcode: String,
-        resources: Resources,
-        sharedPreferences: SharedPreferences
-    ): WeatherDomainObject {
-        return weatherItems.random()
-    }
-
     override suspend fun getWeatherListForZipCodes(
         zipcodes: List<String>,
         resources: Resources,
-        sharedPreferences: SharedPreferences
+        preferencesRepository: PreferencesRepository
     ): List<WeatherDomainObject> {
         return weatherItems
     }
+
 }

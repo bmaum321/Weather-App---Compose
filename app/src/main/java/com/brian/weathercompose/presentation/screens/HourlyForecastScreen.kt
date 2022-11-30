@@ -23,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.preference.PreferenceManager
 import com.brian.weathercompose.R
 import com.brian.weathercompose.domain.model.HoursDomainObject
 import com.brian.weathercompose.presentation.screens.reusablecomposables.ErrorScreen
@@ -170,7 +169,7 @@ fun HourlyForecastListItem(
 
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                WeatherConditionIcon(iconUrl = hour.condition.icon)
+                WeatherConditionIcon(iconUrl = hour.condition.icon, iconSize = 64)
                 ExpandCardButton(expanded = expanded, onClick = { expanded = !expanded })
             }
 

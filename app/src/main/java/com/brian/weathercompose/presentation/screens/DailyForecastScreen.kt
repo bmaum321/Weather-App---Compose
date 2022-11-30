@@ -205,7 +205,7 @@ fun ForecastListItem(
 
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                WeatherConditionIcon(iconUrl = day.day.condition.icon)
+                WeatherConditionIcon(iconUrl = day.day.condition.icon, iconSize = 64)
             }
         }
 

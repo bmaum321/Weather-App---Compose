@@ -40,10 +40,7 @@ import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListState
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.*
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -146,11 +143,10 @@ fun WeatherListScreen(
                 items(weatherDomainObjectList) { item ->
                     // WeatherListItem(item, onClick = onClick)
                     val dismissState = rememberDismissState()
-                    var placeDeleted = ""
                     if (dismissState.isDismissed(DismissDirection.EndToStart) ||
                         dismissState.isDismissed(DismissDirection.StartToEnd)
                     ) {
-                        coroutineScope.launch {
+                        LaunchedEffect(Unit) {
                             val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
                                 message = "${item.zipcode} will be deleted",
                                 actionLabel = "Cancel",
@@ -167,8 +163,13 @@ fun WeatherListScreen(
                                 val weatherEntity =
                                     weatherListViewModel.getWeatherByZipcode(item.zipcode)
                                 weatherListViewModel.deleteWeather(weatherEntity)
-                                placeDeleted = weatherEntity.cityName
                             }
+                        }
+
+                        LaunchedEffect(Unit) {
+                            //TODO the logic here needs some work, the list getting passed to the worker is not updated
+                            // When a location is deleted from the database
+                            weatherListViewModel.updateLocations(weatherListViewModel.getZipCodesFromDatabase().first().toSet())
                         }
                     }
 

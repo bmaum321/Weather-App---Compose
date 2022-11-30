@@ -16,8 +16,8 @@ import java.net.URL
 
 
 // Notification ID.
-private val NOTIFICATION_ID = 0
-private val FORECAST_NOTIFICATION_ID = 1
+private const val NOTIFICATION_ID = 0
+private const val FORECAST_NOTIFICATION_ID = 1
 private val REQUEST_CODE = 0
 private val FLAGS = 0
 

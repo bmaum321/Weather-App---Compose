@@ -59,6 +59,14 @@ class WeatherListViewModel(
         }
     }
 
+    fun updateLocations(locations: Set<String>) {
+        viewModelScope.launch {
+            preferencesRepository.savePrecipitationLocations(locations)
+        }
+    }
+
+    //private val _allPreferences = preferencesRepository.getAllPreferences.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    //val allPreferences = _allPreferences.value
     val allPreferences = preferencesRepository.getAllPreferences.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
 

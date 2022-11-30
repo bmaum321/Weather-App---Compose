@@ -14,8 +14,8 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
 
-suspend fun ForecastContainer.asDomainModel(
-    preferencesRepository: PreferencesRepository,
+fun ForecastContainer.asDomainModel(
+    clockFormat: String,
     resources: Resources
 ): ForecastDomainObject {
 
@@ -24,8 +24,6 @@ suspend fun ForecastContainer.asDomainModel(
      * Convert daily timestamp from API into day of week for the daily forecast
      * Convert hourly timestamp from API from 24hr format to 12hr format
      */
-
-    val clockFormat = preferencesRepository.getClockFormat.first().toString()
 
     // Subtracting an hour from current time to see the current hour in the forecast
     val forecastDayDomainObjectList = forecast.forecastday.map { it.toDomainModel() }

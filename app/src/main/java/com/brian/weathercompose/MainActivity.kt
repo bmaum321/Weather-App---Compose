@@ -12,8 +12,10 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -21,6 +23,7 @@ import com.brian.weathercompose.presentation.WeatherApp
 import com.brian.weathercompose.presentation.theme.WeatherComposeTheme
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
+import com.brian.weathercompose.util.workers.JobScheduler
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -122,6 +125,12 @@ class MainActivity : ComponentActivity() {
                     }
                     val mainViewModel = getViewModel<MainViewModel>()
                     val weatherListViewModel = getViewModel<WeatherListViewModel>()
+
+                    weatherListViewModel.allPreferences.collectAsState().value?.let {
+                        JobScheduler(
+                            it
+                        ).schedulePrecipitationJob(LocalContext.current)
+                    }
                     WeatherApp(weatherListViewModel, mainViewModel)
 
                 }

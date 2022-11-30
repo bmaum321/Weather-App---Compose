@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class MainViewModel: ViewModel() {
 
-    var tempUnit = "Fahrenheit"
     private val _title = MutableStateFlow<String>("Weather")
     val title = _title.asStateFlow()
 

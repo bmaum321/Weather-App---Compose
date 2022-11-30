@@ -83,7 +83,10 @@ class HourlyForecastViewModel(
                     when (val response = weatherRepository.getForecast(zipcode)) {
                         is NetworkResult.Success -> emit(
                             HourlyForecastViewData.Done(
-                                response.data.asDomainModel(preferencesRepository, resources)
+                                response.data
+                                    .asDomainModel(
+                                        preferencesRepository.getClockFormat.first().toString(),
+                                        resources)
                             )
                         )
                         is NetworkResult.Failure -> emit(

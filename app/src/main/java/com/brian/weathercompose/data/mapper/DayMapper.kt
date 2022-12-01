@@ -26,6 +26,9 @@ fun ForecastForDay.toDomainModel(): DayDomainObject {
         mintemp_f = mintemp_f,
         daily_chance_of_rain = daily_chance_of_rain,
         backgroundColors = emptyList(),
-        textColor = Color.White
+        textColor = Color.White,
+        daily_chance_of_snow = daily_chance_of_snow,
+        totalprecip_in = totalprecip_in,
+        totalprecip_mm = totalprecip_mm
     )
 }

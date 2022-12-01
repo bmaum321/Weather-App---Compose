@@ -13,6 +13,9 @@ data class DayDomainObject(
     val mintemp_c: Double,
     val daily_chance_of_rain: Double,
     var backgroundColors: List<Color>,
-    var textColor: Color
+    var textColor: Color,
+    val daily_chance_of_snow: Double,
+    val totalprecip_in: Double,
+    val totalprecip_mm: Double
 )
 

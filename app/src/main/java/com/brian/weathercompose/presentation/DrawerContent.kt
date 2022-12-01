@@ -99,7 +99,7 @@ fun SettingsListItem(
                     .size(size = if (item.showUnreadBubble && item.label == "Messages") 24.dp else 28.dp),
                 painter = item.image,
                 contentDescription = null,
-                tint = Color.White
+              //  tint = Color.White
             )
 
             // unread bubble
@@ -119,7 +119,7 @@ fun SettingsListItem(
             text = item.label,
             fontSize = 20.sp,
             fontWeight = FontWeight.Medium,
-            color = Color.White
+           // color = Color.White
         )
     }
 }

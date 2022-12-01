@@ -13,6 +13,7 @@ import com.brian.weathercompose.data.settings.PreferencesRepository
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -35,6 +36,18 @@ class DailyForecastViewModel(
     AndroidViewModel(application) {
 
     //The data source this viewmodel will fetch results from
+
+
+    val weatherstats = listOf<String>(
+        "Chance of Rain: ",
+        "Chance of Snow: ",
+        "Average Temperature: "
+    ).asSequence()
+        .asFlow()
+        .onEach { delay(3000) }
+
+
+
 
     private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST)
         .apply {

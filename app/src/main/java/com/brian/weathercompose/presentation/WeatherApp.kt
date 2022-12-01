@@ -64,8 +64,8 @@ fun WeatherAppBar(
     TopAppBar(
         title = { Text(text = title, fontSize = 22.sp, fontWeight = FontWeight.Bold) },
         modifier = modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colors.primary),
+            .fillMaxWidth(),
+           // .background(color = MaterialTheme.colors.primary),
         navigationIcon = {
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {

@@ -1,5 +1,8 @@
 package com.brian.weathercompose.presentation.screens
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.SizeTransform
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import com.brian.weathercompose.R
 import com.brian.weathercompose.domain.model.DaysDomainObject
 import com.brian.weathercompose.domain.model.ForecastDomainObject
+import com.brian.weathercompose.presentation.screens.animations.tickerAnimation
 import com.brian.weathercompose.presentation.screens.reusablecomposables.ErrorScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LoadingScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.WeatherConditionIcon
@@ -62,14 +66,18 @@ fun DailyForecastScreen(
 
     when (state) {
         is ForecastViewData.Loading -> LoadingScreen(modifier)
-        is ForecastViewData.Done -> ForecastList(
-            (state as ForecastViewData.Done).forecastDomainObject,
-            modifier,
-            onClick,
-            dailyForecastViewModel,
-            alertFabOnClick,
-            temperatureUnit
-        )
+        is ForecastViewData.Done -> {
+            val weatherStatTicker = dailyForecastViewModel.weatherstats.collectAsState(initial = "")
+            ForecastList(
+                (state as ForecastViewData.Done).forecastDomainObject,
+                modifier,
+                onClick,
+                dailyForecastViewModel,
+                alertFabOnClick,
+                temperatureUnit,
+                weatherStatTicker
+            )
+        }
         is ForecastViewData.Error -> ErrorScreen({ dailyForecastViewModel.refresh() }, modifier)
     }
 }
@@ -86,7 +94,8 @@ fun ForecastList(
     onClick: (String) -> Unit,
     viewModel: DailyForecastViewModel,
     alertFabOnClick: () -> Unit,
-    temperatureUnit: String
+    temperatureUnit: String,
+    weatherStatTicker: State<String>
 
 ) {
     val dynamicColorsEnabled = remember { mutableStateOf(viewModel.getDynamicColorSetting()) }
@@ -104,7 +113,7 @@ fun ForecastList(
         onRefresh = { refresh() }
     )
     val scaffoldState = rememberScaffoldState()
-    val fabVisible by remember { mutableStateOf(forecast.alerts.isNotEmpty() && viewModel.getAlertsSetting())  }
+    val fabVisible by remember { mutableStateOf(forecast.alerts.isNotEmpty() && viewModel.getAlertsSetting()) }
     Scaffold(
         scaffoldState = scaffoldState,
         floatingActionButton = {
@@ -128,7 +137,8 @@ fun ForecastList(
                         onClick = onClick,
                         temperatureUnit = temperatureUnit,
                         gradientColors = it.day.backgroundColors,
-                        dynamicColorsEnabled = dynamicColorsEnabled
+                        dynamicColorsEnabled = dynamicColorsEnabled,
+                        ticker = weatherStatTicker
                     )
                 }
             }
@@ -144,7 +154,7 @@ fun ForecastList(
 }
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun ForecastListItem(
     day: DaysDomainObject,
@@ -152,7 +162,8 @@ fun ForecastListItem(
     onClick: (String) -> Unit,
     temperatureUnit: String,
     gradientColors: List<Color>,
-    dynamicColorsEnabled: MutableState<Boolean>
+    dynamicColorsEnabled: MutableState<Boolean>,
+    ticker: State<String>
 ) {
 
     val date = day.date
@@ -163,16 +174,16 @@ fun ForecastListItem(
             .height(125.dp),
         elevation = 4.dp,
         onClick = { onClick(date) },
-        contentColor = if(dynamicColorsEnabled.value) day.day.textColor else LocalContentColor.current
+        contentColor = if (dynamicColorsEnabled.value) day.day.textColor else LocalContentColor.current
     ) {
-        Box(modifier = if(dynamicColorsEnabled.value) modifier.background(gradient) else modifier) {
+        Box(modifier = if (dynamicColorsEnabled.value) modifier.background(gradient) else modifier) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
                     .align(Alignment.Center)
             ) {
-                Column(modifier = modifier.weight(4f)) {
+                Column(modifier = modifier.weight(6f)) {
                     Text(
                         text = day.date,
                         fontWeight = FontWeight.Bold,
@@ -185,25 +196,50 @@ fun ForecastListItem(
                 }
                 Spacer(modifier = Modifier.weight(.5f))
 
-                Row(
-                    modifier = modifier.padding(top = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = if (temperatureUnit == "Fahrenheit") "${day.day.mintemp_f.toInt()}\u00B0 \\"
-                        else "${day.day.mintemp_c.toInt()}\u00B0 \\",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = if (temperatureUnit == "Fahrenheit") " ${day.day.maxtemp_f.toInt()}\u00B0"
-                        else " ${day.day.maxtemp_c.toInt()}\u00B0",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                Column() {
 
+                    Row(
+                        modifier = modifier.padding(top = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Text(
+                            text = if (temperatureUnit == "Fahrenheit") "${day.day.mintemp_f.toInt()}\u00B0 ·"
+                            else "${day.day.mintemp_c.toInt()}\u00B0 ·",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = if (temperatureUnit == "Fahrenheit") " ${day.day.maxtemp_f.toInt()}\u00B0"
+                            else " ${day.day.maxtemp_c.toInt()}\u00B0",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                    }
+                    /*
+                    if (day.day.daily_chance_of_rain != 0.0 && day.day.daily_chance_of_rain > day.day.daily_chance_of_snow) {
+                        Text(text = "Chance of rain: ${day.day.daily_chance_of_rain.toInt()} %")
+                    } else if (day.day.daily_chance_of_snow != 0.0) {
+                        Text(text = "Chance of snow: ${day.day.daily_chance_of_snow.toInt()} %")
+                    }
+
+                     */
+
+                    AnimatedContent(
+                        targetState = ticker,
+                        transitionSpec = {
+                            tickerAnimation().using(
+                                SizeTransform(clip = false)
+                            )
+                        }
+                    ) { targetCount ->
+                        Text(text = targetCount.value)
+                    }
 
                 }
+
+
                 Spacer(modifier = Modifier.weight(1f))
                 WeatherConditionIcon(iconUrl = day.day.condition.icon, iconSize = 64)
             }

@@ -160,7 +160,7 @@ fun ForecastListItem(
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .height(100.dp),
+            .height(125.dp),
         elevation = 4.dp,
         onClick = { onClick(date) },
         contentColor = if(dynamicColorsEnabled.value) day.day.textColor else LocalContentColor.current
@@ -172,7 +172,7 @@ fun ForecastListItem(
                     .padding(8.dp)
                     .align(Alignment.Center)
             ) {
-                Column(modifier = modifier.weight(3f)) {
+                Column(modifier = modifier.weight(4f)) {
                     Text(
                         text = day.date,
                         fontWeight = FontWeight.Bold,

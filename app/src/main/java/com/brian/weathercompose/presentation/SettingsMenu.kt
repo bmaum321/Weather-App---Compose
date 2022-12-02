@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,12 +21,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brian.weathercompose.R
-import com.brian.weathercompose.presentation.screens.reusablecomposables.LoadingScreen
 import com.brian.weathercompose.presentation.theme.WeatherComposeTheme
-import kotlinx.coroutines.Job
 
 @Composable
-fun DrawerContent(
+fun SettingsMenu(
     gradientColors: List<Color> = listOf(Color(0xFFF70A74), Color(0xFFF59118)),
     itemClick: (String) -> Unit
 ) {
@@ -41,6 +37,7 @@ fun DrawerContent(
         //horizontalAlignment = Alignment.CenterHorizontally,
         contentPadding = PaddingValues(vertical = 12.dp)
     ) {
+        /*
         item {
             Box(modifier = Modifier){
                 Row(
@@ -64,6 +61,8 @@ fun DrawerContent(
             }
 
         }
+
+         */
 
         items(itemsList) { item ->
             SettingsListItem(
@@ -174,6 +173,6 @@ data class SettingsDrawerItem(
 @Composable
 fun DrawerPreview() {
     WeatherComposeTheme {
-        DrawerContent(itemClick = {})
+        SettingsMenu(itemClick = {})
     }
 }

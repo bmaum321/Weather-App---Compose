@@ -80,7 +80,7 @@ fun MainWeatherListScreen(
  * The home screen displaying list of weather objects
  */
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun WeatherListScreen(
     weatherDomainObjectList: List<WeatherDomainObject>,
@@ -115,17 +115,22 @@ fun WeatherListScreen(
 
     val listState = rememberLazyListState()
     val showScrollToTopButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
-    val showAddWeatherFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+    val showAddWeatherFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0} }
    // val scaffoldState = rememberScaffoldState()
     Scaffold(
     //    scaffoldState = scaffoldState,
         floatingActionButton = {
-            AnimatedVisibility(visible = showAddWeatherFab) {
+            AnimatedVisibility(
+                visible = showAddWeatherFab,
+                enter = scaleIn(),
+                exit = scaleOut()
+            ) {
                 AddWeatherFab(
                     onClick = addWeatherFabAction
                 )
             }
-        }
+        },
+        floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
 
        // Box(modifier = Modifier.pullRefresh(refreshState)) {
@@ -256,7 +261,9 @@ fun WeatherListScreen(
 
             AnimatedVisibility(
                 visible = showScrollToTopButton,
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier.align(Alignment.BottomCenter),
+                enter = scaleIn(),
+                exit = scaleOut()
             ) {
 
                 FloatingActionButton(
@@ -297,7 +304,6 @@ fun AddWeatherFab(
 }
 
 
-
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherListItem(
@@ -314,6 +320,8 @@ fun WeatherListItem(
         windspeed = "${weatherDomainObject.windSpeed.toInt()} ${preferences?.windUnit}"
     ).collectAsState(initial = "")
     val gradient = Brush.linearGradient(weatherDomainObject.backgroundColors)
+
+    val colors = CardDefaults.cardColors(contentColor = if(preferences?.dynamicColors == true) weatherDomainObject.textColor else LocalContentColor.current)
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -321,9 +329,12 @@ fun WeatherListItem(
             .fillMaxWidth(),
        // elevation = 4.dp,
         onClick = { onClick(weatherDomainObject.zipcode) },
+        colors = colors
       //  contentColor = if(preferences?.dynamicColors == true) weatherDomainObject.textColor else LocalContentColor.current
     ) {
-        Box(modifier = if(preferences?.dynamicColors == true) Modifier.background(gradient).fillMaxSize() else modifier) {
+        Box(modifier = if(preferences?.dynamicColors == true) Modifier
+            .background(gradient)
+            .fillMaxSize() else modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -347,7 +358,7 @@ fun WeatherListItem(
                 }
                 Spacer(modifier = Modifier.weight(.1f))
 
-                Column(modifier = Modifier.weight(7f)) {
+                Column(modifier = Modifier.weight(7.5f)) {
                     Text(
                         text = "${weatherDomainObject.temp}\u00B0",
                         fontSize = 32.sp,

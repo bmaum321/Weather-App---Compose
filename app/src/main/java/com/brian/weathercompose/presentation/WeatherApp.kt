@@ -2,8 +2,6 @@ package com.brian.weathercompose.presentation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,13 +20,11 @@ import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.preference.PreferenceManager
 import com.brian.weathercompose.BuildConfig
 import com.brian.weathercompose.R
 import com.brian.weathercompose.presentation.navigation.*
@@ -39,7 +35,6 @@ import com.brian.weathercompose.presentation.screens.settings.UnitSettingsScreen
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 
@@ -143,45 +138,12 @@ fun WeatherApp(
         )
     }
 
-    ModalNavigationDrawer(
-        gesturesEnabled = drawerState.isOpen,
-        drawerContent = {
-            DrawerContent { itemLabel ->
-                when (itemLabel) {
-                    ctx.getString(R.string.about) -> {
-                        openAboutDialog.value = true
-                    }
-                    ctx.getString(R.string.units) -> {
-                        coroutineScope.launch {
-                            delay(250)
-                            drawerState.close()
-                        }
-                        navController.navigate(UnitsMenu.route)
-                    }
-                    "Interface" -> {
-                        coroutineScope.launch {
-                            delay(250)
-                            drawerState.close()
-                        }
-                        navController.navigate(InterfaceMenu.route)
-                    }
-                    "Notifications" -> {
-                        coroutineScope.launch {
-                            delay(250)
-                            drawerState.close()
-                        }
-                        navController.navigate(NotificationsMenu.route)
-                    }
-                }
-            }
-        }
-    ) {
-
         Scaffold(
             topBar = {
                 WeatherAppBar(
                     canNavigateBack = navController.previousBackStackEntry != null,
-                    navigateUp = { navController.navigateUp() },
+                    navigateUp = { navController.navigateUp()
+                        println("nav back button clicked ")},
                     currentScreen = currentScreen,
                     actionBarOnClick = {
                         navController.navigate(
@@ -190,9 +152,7 @@ fun WeatherApp(
                     },
                     title = title,
                     menuOnClick = {
-                        coroutineScope.launch {
-                            drawerState.open()
-                        }
+                        navController.navigate(SettingsMenu.route)
                     }
                 )
             }
@@ -334,10 +294,41 @@ fun WeatherApp(
                         AlertsScreen(mainViewModel = mainViewModel, location = location)
                     }
                 }
+
+                composable(route = SettingsMenu.route) { navBackStackEntry ->
+                    SettingsMenu { itemLabel ->
+                        when (itemLabel) {
+                            ctx.getString(R.string.about) -> {
+                                openAboutDialog.value = true
+                            }
+                            ctx.getString(R.string.units) -> {
+                                coroutineScope.launch {
+                                    delay(250)
+                                    drawerState.close()
+                                }
+                                navController.navigate(UnitsMenu.route)
+                            }
+                            "Interface" -> {
+                                coroutineScope.launch {
+                                    delay(250)
+                                    drawerState.close()
+                                }
+                                navController.navigate(InterfaceMenu.route)
+                            }
+                            "Notifications" -> {
+                                coroutineScope.launch {
+                                    delay(250)
+                                    drawerState.close()
+                                }
+                                navController.navigate(NotificationsMenu.route)
+                            }
+                        }
+                    }
+                }
             }
         }
 
-    }
+
 
 }
 

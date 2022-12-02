@@ -7,13 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -173,15 +167,18 @@ fun ForecastListItem(
     ).collectAsState(initial = "")
     val date = daysDomainObject.date
     val gradient = Brush.linearGradient(gradientColors)
+    val colors = CardDefaults.cardColors(contentColor = if(dynamicColorsEnabled.value) daysDomainObject.day.textColor else LocalContentColor.current)
+
     Card(
         modifier = Modifier
             .padding(8.dp)
             .height(125.dp),
        // elevation = 4.dp,
         onClick = { onClick(date) },
+        colors = colors
        // contentColor = if (dynamicColorsEnabled.value) daysDomainObject.day.textColor else LocalContentColor.current
     ) {
-        Box(modifier = if (dynamicColorsEnabled.value) modifier.background(gradient).fillMaxSize() else modifier) {
+        Box(modifier = if (dynamicColorsEnabled.value) modifier.background(gradient).fillMaxSize() else modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -201,7 +198,7 @@ fun ForecastListItem(
                 }
                 Spacer(modifier = Modifier.weight(.5f))
 
-                Column(modifier = Modifier.weight(7.5f)) {
+                Column(modifier = Modifier.weight(8f)) {
 
                     Row(
                         modifier = modifier.padding(top = 5.dp),

@@ -54,6 +54,10 @@ object NotificationsMenu: NavDestinations {
     override val route = "NotificationsMenu"
 }
 
+object SettingsMenu: NavDestinations {
+    override val route: String = "SettingsMenu"
+}
+
 val screens = listOf(
     MainWeatherList,
     DailyForecast,

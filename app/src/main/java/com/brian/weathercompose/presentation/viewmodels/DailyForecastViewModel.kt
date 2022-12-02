@@ -47,11 +47,11 @@ class DailyForecastViewModel(
         flow {
             while (true)  {
                 if(chanceOfRain > 0.0) {
-                    emit("Chance of Rain: ${chanceOfRain.toInt()} %")
+                    emit("Rain: ${chanceOfRain.toInt()} %")
                     delay(3000)
                 }
                 if(chanceOfSnow> 0.0) {
-                    emit("Chance of Snow: ${chanceOfSnow.toInt()} %")
+                    emit("Snow: ${chanceOfSnow.toInt()} %")
                     delay(3000)
                 }
                 emit("Avg Temp: ${avgTemp.toInt()}° ")

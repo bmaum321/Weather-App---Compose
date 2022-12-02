@@ -17,6 +17,7 @@ This application uses the following libraries
 - Coil for image loading from API
 - Preferences Datastore for settings backend with custom UI
 - Workmanager for scheduling background API calls and sending notifications
+- Google play location services for local forecast notifications
 
 
 ## Clean Architecture

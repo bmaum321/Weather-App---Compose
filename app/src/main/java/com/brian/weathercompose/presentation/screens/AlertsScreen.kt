@@ -6,9 +6,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,7 +66,6 @@ fun AlertsScreen(
 /**
  * Screen displaying Weather Alerts
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AlertsList(
     forecast: ForecastDomainObject,
@@ -82,15 +82,16 @@ fun AlertsList(
         refreshing = false
     }
 
-    val refreshState = rememberPullRefreshState(
-        refreshing = refreshing,
-        onRefresh = { refresh() }
-    )
+   // val refreshState = rememberPullRefreshState(
+  //      refreshing = refreshing,
+  //      onRefresh = { refresh() }
+  //  )
     val listState = rememberLazyListState()
     val showButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     val coroutineScope = rememberCoroutineScope()
 
-        Box(modifier = Modifier.pullRefresh(refreshState)) {
+       // Box(modifier = Modifier.pullRefresh(refreshState)) {
+    Box() {
             LazyColumn(
                 modifier = modifier
                     .fillMaxWidth(),
@@ -101,11 +102,11 @@ fun AlertsList(
                     AlertListItem(it)
                 }
             }
-            PullRefreshIndicator(
-                refreshing = refreshing,
-                state = refreshState,
-                Modifier.align(Alignment.TopCenter)
-            )
+           // PullRefreshIndicator(
+            //    refreshing = refreshing,
+             //   state = refreshState,
+            //    Modifier.align(Alignment.TopCenter)
+          //  )
 
             AnimatedVisibility(
                 visible = showButton,
@@ -134,7 +135,7 @@ fun AlertListItem(
 ) {
     Card(
         modifier = Modifier.padding(8.dp),
-        elevation = 4.dp,
+       // elevation = 4.dp,
 
     ) {
         Column() {

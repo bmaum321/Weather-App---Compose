@@ -2,14 +2,17 @@ package com.brian.weathercompose.presentation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -51,6 +54,7 @@ sealed class MenuAction(
 /**
  * Composable that displays the topBar and displays back button if back navigation is possible.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherAppBar(
     canNavigateBack: Boolean,
@@ -65,7 +69,7 @@ fun WeatherAppBar(
         title = { Text(text = title, fontSize = 22.sp, fontWeight = FontWeight.Bold) },
         modifier = modifier
             .fillMaxWidth(),
-           // .background(color = MaterialTheme.colors.primary),
+        // .background(color = MaterialTheme.colors.primary),
         navigationIcon = {
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {
@@ -92,6 +96,7 @@ fun WeatherAppBar(
  */
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherApp(
     weatherListViewModel: WeatherListViewModel,
@@ -106,11 +111,12 @@ fun WeatherApp(
     val currentScreen =
         screens.find { it.route == backStackEntry?.destination?.route } ?: MainWeatherList
 
-    val locationsInDatabase = weatherListViewModel.getZipCodesFromDatabase().collectAsState(initial = "")
+    val locationsInDatabase =
+        weatherListViewModel.getZipCodesFromDatabase().collectAsState(initial = "")
 
     // Get the app bar title from the main view model
     val title by mainViewModel.title.collectAsState()
-    val scaffoldState = rememberScaffoldState()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     val openAboutDialog = remember { mutableStateOf(false) }
     val openTemperatureUnitDialog = remember { mutableStateOf(false) }
@@ -137,10 +143,8 @@ fun WeatherApp(
         )
     }
 
-    Scaffold(
-        scaffoldState = scaffoldState,
-        drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
-        drawerElevation = 4.dp,
+    ModalNavigationDrawer(
+        gesturesEnabled = drawerState.isOpen,
         drawerContent = {
             DrawerContent { itemLabel ->
                 when (itemLabel) {
@@ -150,182 +154,191 @@ fun WeatherApp(
                     ctx.getString(R.string.units) -> {
                         coroutineScope.launch {
                             delay(250)
-                            scaffoldState.drawerState.close()
+                            drawerState.close()
                         }
                         navController.navigate(UnitsMenu.route)
                     }
                     "Interface" -> {
                         coroutineScope.launch {
                             delay(250)
-                            scaffoldState.drawerState.close()
+                            drawerState.close()
                         }
                         navController.navigate(InterfaceMenu.route)
                     }
                     "Notifications" -> {
                         coroutineScope.launch {
                             delay(250)
-                            scaffoldState.drawerState.close()
+                            drawerState.close()
                         }
                         navController.navigate(NotificationsMenu.route)
                     }
                 }
             }
-        },
-        topBar = {
-            WeatherAppBar(
-                canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() },
-                currentScreen = currentScreen,
-                actionBarOnClick = {
-                    navController.navigate(
-                        UnitsMenu.route
-                    )
-                },
-                title = title,
-                menuOnClick = {
-                    coroutineScope.launch {
-                        scaffoldState.drawerState.open()
-                    }
-                }
-            )
         }
-    ) { innerPadding ->
+    ) {
 
-        val context = LocalContext.current
-        NavHost(
-            navController = navController,
-            startDestination = MainWeatherList.route,
-            modifier = modifier
-        ) {
-            composable(
-                route = MainWeatherList.route,
-                arguments = MainWeatherList.arguments
-            ) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    val weatherUiState by remember {
-                        weatherListViewModel.getAllWeather(context.resources
+        Scaffold(
+            topBar = {
+                WeatherAppBar(
+                    canNavigateBack = navController.previousBackStackEntry != null,
+                    navigateUp = { navController.navigateUp() },
+                    currentScreen = currentScreen,
+                    actionBarOnClick = {
+                        navController.navigate(
+                            UnitsMenu.route
                         )
-                    }.collectAsState()
-
-                    MainWeatherListScreen(
-                        weatherUiState = weatherUiState,
-                        retryAction = { weatherListViewModel.refresh() },
-                        modifier = modifier,
-                        onClick = { location -> navController.navigateToDailyForecast(location) },
-                        addWeatherFabAction = { navController.navigate(AddLocation.route) },
-                        weatherListViewModel = weatherListViewModel,
-                        mainViewModel = mainViewModel
-                    )
-                }
-            }
-
-            composable(route = AddLocation.route) {
-                AddWeatherScreen(
-                    value = "",
-                    onValueChange = { },
-                    navAction = { navController.popBackStack() }
+                    },
+                    title = title,
+                    menuOnClick = {
+                        coroutineScope.launch {
+                            drawerState.open()
+                        }
+                    }
                 )
             }
+        ) { innerPadding ->
 
-            composable(
-                route = DailyForecast.routeWithArgs,
-            ) { navBackStackEntry ->
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    color = MaterialTheme.colors.background
+            val context = LocalContext.current
+            NavHost(
+                navController = navController,
+                startDestination = MainWeatherList.route,
+                modifier = modifier.padding(innerPadding)
+            ) {
+                composable(
+                    route = MainWeatherList.route,
+                    arguments = MainWeatherList.arguments
                 ) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        val weatherUiState by remember {
+                            weatherListViewModel.getAllWeather(
+                                context.resources
+                            )
+                        }.collectAsState()
+
+                        MainWeatherListScreen(
+                            weatherUiState = weatherUiState,
+                            retryAction = { weatherListViewModel.refresh() },
+                            modifier = modifier,
+                            onClick = { location -> navController.navigateToDailyForecast(location) },
+                            addWeatherFabAction = { navController.navigate(AddLocation.route) },
+                            weatherListViewModel = weatherListViewModel,
+                            mainViewModel = mainViewModel
+                        )
+                    }
+                }
+
+                composable(route = AddLocation.route) {
+                    AddWeatherScreen(
+                        value = "",
+                        onValueChange = { },
+                        navAction = { navController.popBackStack() }
+                    )
+                }
+
+                composable(
+                    route = DailyForecast.routeWithArgs,
+                ) { navBackStackEntry ->
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        val location =
+                            navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
+                        if (location != null) {
+                            DailyForecastScreen(
+                                modifier = modifier,
+                                onClick = { date ->
+                                    navController.navigateToHourlyForecast(
+                                        location,
+                                        date
+                                    )
+                                },
+                                location = location,
+                                mainViewModel = mainViewModel,
+                                alertFabOnClick = { navController.navigateToAlertsScreen(location) },
+
+                                )
+                        }
+                    }
+                }
+
+                composable(route = HourlyForecast.routeWithArgs) { navBackStackEntry ->
+                    val location =
+                        navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
+                    val date = navBackStackEntry.arguments?.getString(MainWeatherList.dateArg)
+                    if (date != null && location != null) {
+                        HourlyForecastScreen(
+                            modifier = modifier,
+                            date = date,
+                            location = location,
+                            mainViewModel = mainViewModel
+                        )
+                    }
+
+                }
+
+                composable(route = UnitsMenu.route) {
+                    UnitSettingsScreen(
+                        onDismissRequest = { openTemperatureUnitDialog.value = false },
+                        openTemperatureDialog = openTemperatureUnitDialog,
+                        openClockFormatDialog = openClockFormatDialog,
+                        openMeasurementDialog = openMeasurementDialog,
+                        openWindspeedDialog = openWindspeedDialog,
+                        viewModel = mainViewModel,
+                        coroutineScope = coroutineScope,
+                        preferencesRepository = get(),
+                        itemClick = { itemlabel ->
+                            when (itemlabel) {
+                                "Temperature" -> {
+                                    openTemperatureUnitDialog.value = true
+                                }
+                                "Pressure" -> {
+                                    openMeasurementDialog.value = true
+                                }
+                                "Wind" -> {
+                                    openWindspeedDialog.value = true
+                                }
+                                "Clock Format" -> {
+                                    openClockFormatDialog.value = true
+                                }
+                            }
+                        })
+                }
+
+                composable(route = InterfaceMenu.route) {
+                    InterfaceSettingsScreen(
+                        viewModel = mainViewModel,
+                        coroutineScope = coroutineScope,
+                        preferencesRepository = get()
+                    )
+                }
+
+                composable(route = NotificationsMenu.route) {
+                    NotificationSettingsScreen(
+                        viewModel = mainViewModel,
+                        coroutineScope = coroutineScope,
+                        preferencesRepository = get(),
+                        locations = locationsInDatabase.value as List<String>
+                    )
+                }
+
+                composable(route = Alerts.routeWithArgs) { navBackStackEntry ->
                     val location =
                         navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
                     if (location != null) {
-                        DailyForecastScreen(
-                            modifier = modifier,
-                            onClick = { date ->
-                                navController.navigateToHourlyForecast(
-                                    location,
-                                    date
-                                )
-                            },
-                            location = location,
-                            mainViewModel = mainViewModel,
-                            alertFabOnClick = { navController.navigateToAlertsScreen(location) },
-
-                        )
+                        AlertsScreen(mainViewModel = mainViewModel, location = location)
                     }
                 }
             }
-
-            composable(route = HourlyForecast.routeWithArgs) { navBackStackEntry ->
-                val location = navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
-                val date = navBackStackEntry.arguments?.getString(MainWeatherList.dateArg)
-                if (date != null && location != null) {
-                    HourlyForecastScreen(
-                        modifier = modifier,
-                        date = date,
-                        location = location,
-                        mainViewModel = mainViewModel
-                    )
-                }
-
-            }
-
-            composable(route = UnitsMenu.route) {
-                UnitSettingsScreen(
-                    onDismissRequest = {openTemperatureUnitDialog.value = false},
-                    openTemperatureDialog = openTemperatureUnitDialog,
-                    openClockFormatDialog = openClockFormatDialog,
-                    openMeasurementDialog = openMeasurementDialog,
-                    openWindspeedDialog = openWindspeedDialog,
-                    viewModel = mainViewModel,
-                    coroutineScope = coroutineScope,
-                    preferencesRepository = get(),
-                    itemClick = { itemlabel ->
-                        when(itemlabel) {
-                            "Temperature" -> {
-                                openTemperatureUnitDialog.value = true
-                            }
-                            "Pressure" -> {
-                                openMeasurementDialog.value = true
-                            }
-                            "Wind" -> {
-                                openWindspeedDialog.value = true
-                            }
-                            "Clock Format" -> {
-                                openClockFormatDialog.value = true
-                            }
-                        }
-                    })
-            }
-
-            composable(route = InterfaceMenu.route) {
-                InterfaceSettingsScreen(
-                    viewModel = mainViewModel,
-                    coroutineScope = coroutineScope,
-                    preferencesRepository = get()
-                )
-            }
-
-            composable(route = NotificationsMenu.route) {
-                NotificationSettingsScreen(
-                    viewModel = mainViewModel,
-                    coroutineScope = coroutineScope,
-                    preferencesRepository = get(),
-                    locations = locationsInDatabase.value as List<String>
-                )
-            }
-
-            composable(route = Alerts.routeWithArgs) { navBackStackEntry ->
-                val location = navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
-                if (location != null) {
-                    AlertsScreen(mainViewModel = mainViewModel, location = location)
-                }
-            }
         }
+
     }
+
 }
 
 private fun NavHostController.navigateToDailyForecast(location: String) {

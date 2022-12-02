@@ -6,12 +6,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuerySearch(
     modifier: Modifier = Modifier,
@@ -36,7 +38,7 @@ fun QuerySearch(
         value = query,
         onValueChange = onQueryChanged,
         label = { Text(text = label) },
-        textStyle = MaterialTheme.typography.subtitle1,
+        textStyle = MaterialTheme.typography.bodyMedium,
         singleLine = true,
         trailingIcon = {
             if (showClearButton) {

@@ -7,10 +7,10 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,7 +71,7 @@ fun HourlyForecastScreen(
 /**
  * Screen displaying Daily Forecast
  */
-@OptIn(ExperimentalMaterialApi::class)
+
 @Composable
 fun HourlyForecastList(
     hoursList: List<HoursDomainObject>,
@@ -87,12 +87,13 @@ fun HourlyForecastList(
         refreshing = false
     }
 
-    val state = rememberPullRefreshState(
-        refreshing = refreshing,
-        onRefresh = { refresh() }
-    )
+   // val state = rememberPullRefreshState(
+    //    refreshing = refreshing,
+   //     onRefresh = { refresh() }
+  //  )
 
-    Box(modifier = Modifier.pullRefresh(state)) {
+  //  Box(modifier = Modifier.pullRefresh(state)) {
+    Box() {
         LazyColumn(
             modifier = modifier
                 .fillMaxWidth(),
@@ -107,11 +108,11 @@ fun HourlyForecastList(
                 )
             }
         }
-        PullRefreshIndicator(
-            refreshing = refreshing,
-            state = state,
-            Modifier.align(Alignment.TopCenter)
-        )
+       // PullRefreshIndicator(
+        //    refreshing = refreshing,
+      //      state = state,
+      //      Modifier.align(Alignment.TopCenter)
+     //   )
     }
 }
 
@@ -127,7 +128,7 @@ fun HourlyForecastListItem(
     var expanded by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier.padding(8.dp),
-        elevation = 4.dp
+       // elevation = 4.dp
     ) {
         Column(
             modifier = Modifier

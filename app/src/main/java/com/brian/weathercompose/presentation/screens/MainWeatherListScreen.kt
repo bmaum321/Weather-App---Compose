@@ -8,12 +8,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.*
+import androidx.compose.material3.Card
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,7 +79,8 @@ fun MainWeatherListScreen(
 /**
  * The home screen displaying list of weather objects
  */
-@OptIn(ExperimentalMaterialApi::class, ExperimentalUnitApi::class)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherListScreen(
     weatherDomainObjectList: List<WeatherDomainObject>,
@@ -109,19 +106,19 @@ fun WeatherListScreen(
         refreshing = false
     }
 
-    val refreshState = rememberPullRefreshState(
-        refreshing = refreshing,
-        onRefresh = { refresh() }
-    )
+    //val refreshState = rememberPullRefreshState(
+    //    refreshing = refreshing,
+    //    onRefresh = { refresh() }
+   // )
 
     val coroutineScope = rememberCoroutineScope()
 
     val listState = rememberLazyListState()
     val showScrollToTopButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     val showAddWeatherFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
-    val scaffoldState = rememberScaffoldState()
+   // val scaffoldState = rememberScaffoldState()
     Scaffold(
-        scaffoldState = scaffoldState,
+    //    scaffoldState = scaffoldState,
         floatingActionButton = {
             AnimatedVisibility(visible = showAddWeatherFab) {
                 AddWeatherFab(
@@ -131,17 +128,27 @@ fun WeatherListScreen(
         }
     ) { innerPadding ->
 
-        Box(modifier = Modifier.pullRefresh(refreshState)) {
+       // Box(modifier = Modifier.pullRefresh(refreshState)) {
+        Box() {
             LazyColumn(
                 modifier = modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colors.background)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(innerPadding),
                 contentPadding = PaddingValues(4.dp),
                 state = listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(weatherDomainObjectList) { item ->
+
+                    WeatherListItem(
+                        weatherDomainObject = item,
+                        onClick = onClick,
+                        preferences = preferences,
+                        viewModel = weatherListViewModel
+                    )
+                    /*
+
                     // WeatherListItem(item, onClick = onClick)
                     val dismissState = rememberDismissState()
                     if (dismissState.isDismissed(DismissDirection.EndToStart) ||
@@ -236,14 +243,16 @@ fun WeatherListScreen(
                         }
 
                     )
+                    */
+
 
                 }
             }
-            PullRefreshIndicator(
-                refreshing = refreshing,
-                state = refreshState,
-                Modifier.align(Alignment.TopCenter)
-            )
+           // PullRefreshIndicator(
+          //      refreshing = refreshing,
+           //     state = refreshState,
+           //     Modifier.align(Alignment.TopCenter)
+         //   )
 
             AnimatedVisibility(
                 visible = showScrollToTopButton,
@@ -288,7 +297,8 @@ fun AddWeatherFab(
 }
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
+
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherListItem(
     weatherDomainObject: WeatherDomainObject,
@@ -309,11 +319,11 @@ fun WeatherListItem(
             .padding(8.dp)
             .height(175.dp)
             .fillMaxWidth(),
-        elevation = 4.dp,
+       // elevation = 4.dp,
         onClick = { onClick(weatherDomainObject.zipcode) },
-        contentColor = if(preferences?.dynamicColors == true) weatherDomainObject.textColor else LocalContentColor.current
+      //  contentColor = if(preferences?.dynamicColors == true) weatherDomainObject.textColor else LocalContentColor.current
     ) {
-        Box(modifier = if(preferences?.dynamicColors == true) Modifier.background(gradient) else modifier) {
+        Box(modifier = if(preferences?.dynamicColors == true) Modifier.background(gradient).fillMaxSize() else modifier) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

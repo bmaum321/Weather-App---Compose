@@ -7,9 +7,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,7 +86,8 @@ fun DailyForecastScreen(
 /**
  * Screen displaying Daily Forecast
  */
-@OptIn(ExperimentalMaterialApi::class)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForecastList(
     forecast: ForecastDomainObject,
@@ -102,14 +107,12 @@ fun ForecastList(
         refreshing = false
     }
 
-    val state = rememberPullRefreshState(
-        refreshing = refreshing,
-        onRefresh = { refresh() }
-    )
-    val scaffoldState = rememberScaffoldState()
+   // val state = rememberPullRefreshState(
+   //     refreshing = refreshing,
+  //      onRefresh = { refresh() }
+//    )
     val fabVisible by remember { mutableStateOf(forecast.alerts.isNotEmpty() && viewModel.getAlertsSetting()) }
     Scaffold(
-        scaffoldState = scaffoldState,
         floatingActionButton = {
             if (fabVisible) {
                 AlertFab(
@@ -119,7 +122,7 @@ fun ForecastList(
         }
     ) { innerPadding ->
 
-        Box(modifier = Modifier.pullRefresh(state)) {
+        Box() {
             LazyColumn(
                 modifier = modifier
                     .fillMaxWidth(),
@@ -136,11 +139,11 @@ fun ForecastList(
                     )
                 }
             }
-            PullRefreshIndicator(
-                refreshing = refreshing,
-                state = state,
-                Modifier.align(Alignment.TopCenter)
-            )
+           // PullRefreshIndicator(
+          //      refreshing = refreshing,
+         //       state = state,
+          //      Modifier.align(Alignment.TopCenter)
+          //  )
         }
     }
 
@@ -148,7 +151,7 @@ fun ForecastList(
 }
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ForecastListItem(
     daysDomainObject: DaysDomainObject,
@@ -174,11 +177,11 @@ fun ForecastListItem(
         modifier = Modifier
             .padding(8.dp)
             .height(125.dp),
-        elevation = 4.dp,
+       // elevation = 4.dp,
         onClick = { onClick(date) },
-        contentColor = if (dynamicColorsEnabled.value) daysDomainObject.day.textColor else LocalContentColor.current
+       // contentColor = if (dynamicColorsEnabled.value) daysDomainObject.day.textColor else LocalContentColor.current
     ) {
-        Box(modifier = if (dynamicColorsEnabled.value) modifier.background(gradient) else modifier) {
+        Box(modifier = if (dynamicColorsEnabled.value) modifier.background(gradient).fillMaxSize() else modifier) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -267,7 +270,7 @@ fun AlertFab(
         onClick = onClick,
         shape = RoundedCornerShape(size = 18.dp),
         modifier = modifier.size(64.dp),
-        backgroundColor = Color.Red
+        containerColor = Color.Red
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_baseline_crisis_alert_24),

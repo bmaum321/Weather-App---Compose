@@ -1,6 +1,9 @@
 package com.brian.weathercompose.presentation.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -65,7 +68,7 @@ fun AlertsScreen(
 /**
  * Screen displaying Weather Alerts
  */
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun AlertsList(
     forecast: ForecastDomainObject,
@@ -109,7 +112,9 @@ fun AlertsList(
 
             AnimatedVisibility(
                 visible = showButton,
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier.align(Alignment.BottomCenter),
+                enter = scaleIn(),
+                exit = scaleOut()
             ) {
                 FloatingActionButton(
                     onClick = {   coroutineScope.launch {

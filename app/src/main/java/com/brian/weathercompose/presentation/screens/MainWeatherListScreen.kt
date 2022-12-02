@@ -83,7 +83,7 @@ fun MainWeatherListScreen(
 /**
  * The home screen displaying list of weather objects
  */
-@OptIn(ExperimentalMaterialApi::class, ExperimentalUnitApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalUnitApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun WeatherListScreen(
     weatherDomainObjectList: List<WeatherDomainObject>,
@@ -123,7 +123,11 @@ fun WeatherListScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         floatingActionButton = {
-            AnimatedVisibility(visible = showAddWeatherFab) {
+            AnimatedVisibility(
+                visible = showAddWeatherFab,
+                enter = scaleIn(),
+                exit = scaleOut()
+            ) {
                 AddWeatherFab(
                     onClick = addWeatherFabAction
                 )
@@ -247,7 +251,9 @@ fun WeatherListScreen(
 
             AnimatedVisibility(
                 visible = showScrollToTopButton,
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier.align(Alignment.BottomCenter),
+                enter = scaleIn(),
+                exit = scaleOut()
             ) {
 
                 FloatingActionButton(

@@ -2,8 +2,10 @@ package com.brian.weathercompose.data.mapper
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.graphics.Color
+import com.brian.weathercompose.data.remote.dto.Astro
 import com.brian.weathercompose.data.remote.dto.Day
 import com.brian.weathercompose.data.remote.dto.ForecastForDay
+import com.brian.weathercompose.domain.model.AstroDomainObject
 import com.brian.weathercompose.domain.model.DayDomainObject
 import com.brian.weathercompose.domain.model.DaysDomainObject
 
@@ -11,7 +13,8 @@ fun Day.toDomainModel(): DaysDomainObject {
     return DaysDomainObject(
         date = date,
         day = day.toDomainModel(),
-        hours = hour.map { it.toDomainModel() }.toMutableList()
+        hours = hour.map { it.toDomainModel() }.toMutableList(),
+        astro = astro.toDomainModel()
     )
 }
 
@@ -30,5 +33,13 @@ fun ForecastForDay.toDomainModel(): DayDomainObject {
         daily_chance_of_snow = daily_chance_of_snow,
         totalprecip_in = totalprecip_in,
         totalprecip_mm = totalprecip_mm
+    )
+}
+
+fun Astro.toDomainModel(): AstroDomainObject {
+    return AstroDomainObject(
+        moon_phase = moon_phase,
+        sunrise = sunrise,
+        sunset = sunset
     )
 }

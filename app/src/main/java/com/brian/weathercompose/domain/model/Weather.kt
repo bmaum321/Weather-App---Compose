@@ -22,7 +22,8 @@ data class WeatherDomainObject(
     val code: Int,
     val textColor: Color,
     val country: String,
-    val feelsLikeTemp: String
+    val feelsLikeTemp: String,
+    val humidity: Int
 )
 
 data class ForecastDomainObject(

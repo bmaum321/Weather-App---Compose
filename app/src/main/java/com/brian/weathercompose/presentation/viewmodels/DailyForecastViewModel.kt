@@ -3,7 +3,6 @@ package com.brian.weathercompose.presentation.viewmodels
 import android.app.Application
 import android.content.res.Resources
 import androidx.lifecycle.*
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.brian.weathercompose.data.local.WeatherDao
 import com.brian.weathercompose.domain.model.ForecastDomainObject
 import com.brian.weathercompose.data.mapper.asDomainModel
@@ -38,16 +37,26 @@ class DailyForecastViewModel(
     //The data source this viewmodel will fetch results from
 
 
-    val weatherstats = listOf<String>(
-        "Chance of Rain: ",
-        "Chance of Snow: ",
-        "Average Temperature: "
-    ).asSequence()
-        .asFlow()
-        .onEach { delay(3000) }
-
-
-
+    fun dailyForecastTicker(
+        chanceOfRain: Double,
+        chanceOfSnow: Double,
+        avgTemp: Double,
+        sunrise: String,
+    sunset: String) =
+        flow {
+            while (true)  {
+                emit("Chance of Rain: ${chanceOfRain.toInt()} %")
+                delay(3000)
+                emit("Chance of Snow: ${chanceOfSnow.toInt()} %")
+                delay(3000)
+                emit("Avg Temp: ${avgTemp.toInt()}° ")
+                delay(3000)
+                emit("Sunrise: $sunrise ")
+                delay(3000)
+                emit("Sunset: $sunset ")
+                delay(3000)
+            }
+        }
 
     private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST)
         .apply {

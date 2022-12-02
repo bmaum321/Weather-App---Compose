@@ -15,7 +15,7 @@ data class CurrentWeatherData(
     val humidity: Int,
     val feelslike_f: Double,
     val feelslike_c: Double,
-    val condition: Condition
+    val condition: Condition,
 )
 
 @Serializable

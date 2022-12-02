@@ -18,10 +18,7 @@ suspend fun WeatherContainer.asDomainModel(
     preferencesRepository: PreferencesRepository,
 ): WeatherDomainObject {
 
-    //val settings = preferencesRepository.fetchInitialPreferences()
-    val temperatureUnit = preferencesRepository.getTemperatureUnit.first().toString()
-    val clockFormat = preferencesRepository.getClockFormat.first().toString()
-
+    val preferences = preferencesRepository.getAllPreferences.first()
 
     val locationDataDomainModel = location.toDomainModel()
     // Get local time for display
@@ -30,7 +27,7 @@ suspend fun WeatherContainer.asDomainModel(
         .atZone(ZoneId.of(location.tz_id))
         .format(
             DateTimeFormatter
-                .ofPattern(clockFormat)
+                .ofPattern(preferences.clockFormat)
         )
         .removePrefix("0")
 
@@ -107,16 +104,17 @@ suspend fun WeatherContainer.asDomainModel(
         time = locationDataDomainModel.localtime,
         location = locationDataDomainModel.name,
         zipcode = zipcode,
-        temp = if(temperatureUnit == "Fahrenheit")current.temp_f.toInt().toString() else current.temp_c.toInt().toString(),
+        temp = if(preferences.tempUnit == "Fahrenheit")current.temp_f.toInt().toString() else current.temp_c.toInt().toString(),
         imgSrcUrl = current.condition.icon,
         conditionText = current.condition.text,
-        windSpeed = current.wind_mph,
+        windSpeed = if(preferences.windUnit == "MPH")current.wind_mph else current.wind_kph,
         windDirection = current.wind_dir,
         backgroundColors = backgroundColor,
         code = current.condition.code,
         textColor = textColor,
         country = locationDataDomainModel.country,
-        feelsLikeTemp = current.feelslike_f.toInt().toString()
+        feelsLikeTemp = if(preferences.tempUnit == "Fahrenheit")current.feelslike_f.toInt().toString() else current.feelslike_c.toInt().toString(),
+        humidity = current.humidity
     )
 }
 

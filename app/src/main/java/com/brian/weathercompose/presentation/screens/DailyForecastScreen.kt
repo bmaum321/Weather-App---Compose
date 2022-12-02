@@ -1,8 +1,6 @@
 package com.brian.weathercompose.presentation.screens
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,12 +19,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brian.weathercompose.R
 import com.brian.weathercompose.domain.model.DaysDomainObject
 import com.brian.weathercompose.domain.model.ForecastDomainObject
-import com.brian.weathercompose.presentation.screens.animations.tickerAnimation
 import com.brian.weathercompose.presentation.screens.reusablecomposables.ErrorScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.LoadingScreen
 import com.brian.weathercompose.presentation.screens.reusablecomposables.WeatherConditionIcon
@@ -67,7 +65,6 @@ fun DailyForecastScreen(
     when (state) {
         is ForecastViewData.Loading -> LoadingScreen(modifier)
         is ForecastViewData.Done -> {
-            val weatherStatTicker = dailyForecastViewModel.weatherstats.collectAsState(initial = "")
             ForecastList(
                 (state as ForecastViewData.Done).forecastDomainObject,
                 modifier,
@@ -75,7 +72,6 @@ fun DailyForecastScreen(
                 dailyForecastViewModel,
                 alertFabOnClick,
                 temperatureUnit,
-                weatherStatTicker
             )
         }
         is ForecastViewData.Error -> ErrorScreen({ dailyForecastViewModel.refresh() }, modifier)
@@ -95,8 +91,6 @@ fun ForecastList(
     viewModel: DailyForecastViewModel,
     alertFabOnClick: () -> Unit,
     temperatureUnit: String,
-    weatherStatTicker: State<String>
-
 ) {
     val dynamicColorsEnabled = remember { mutableStateOf(viewModel.getDynamicColorSetting()) }
     val refreshScope = rememberCoroutineScope()
@@ -138,7 +132,7 @@ fun ForecastList(
                         temperatureUnit = temperatureUnit,
                         gradientColors = it.day.backgroundColors,
                         dynamicColorsEnabled = dynamicColorsEnabled,
-                        ticker = weatherStatTicker
+                        viewModel = viewModel
                     )
                 }
             }
@@ -163,9 +157,16 @@ fun ForecastListItem(
     temperatureUnit: String,
     gradientColors: List<Color>,
     dynamicColorsEnabled: MutableState<Boolean>,
-    ticker: State<String>
+    viewModel: DailyForecastViewModel,
 ) {
 
+    val ticker = viewModel.dailyForecastTicker(
+        chanceOfRain = day.day.daily_chance_of_rain,
+        chanceOfSnow = day.day.daily_chance_of_snow,
+        avgTemp = day.day.avgtemp_f,
+        sunrise = day.astro.sunrise,
+        sunset = day.astro.sunset
+    ).collectAsState(initial = "")
     val date = day.date
     val gradient = Brush.linearGradient(gradientColors)
     Card(
@@ -183,7 +184,7 @@ fun ForecastListItem(
                     .padding(8.dp)
                     .align(Alignment.Center)
             ) {
-                Column(modifier = modifier.weight(6f)) {
+                Column(modifier = modifier.weight(6.5f)) {
                     Text(
                         text = day.date,
                         fontWeight = FontWeight.Bold,
@@ -196,10 +197,10 @@ fun ForecastListItem(
                 }
                 Spacer(modifier = Modifier.weight(.5f))
 
-                Column() {
+                Column(modifier = Modifier.weight(7.5f)) {
 
                     Row(
-                        modifier = modifier.padding(top = 10.dp),
+                        modifier = modifier.padding(top = 5.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
@@ -226,21 +227,27 @@ fun ForecastListItem(
 
                      */
 
+
                     AnimatedContent(
-                        targetState = ticker,
+                        modifier = Modifier.animateContentSize(),
+                        targetState = ticker.value,
                         transitionSpec = {
-                            tickerAnimation().using(
-                                SizeTransform(clip = false)
-                            )
+
+                            (slideInVertically { height -> height } + fadeIn() with
+                                    slideOutVertically { height -> -height } + fadeOut())
+                                .using(
+                                    // Disable clipping since the faded slide-in/out should
+                                    // be displayed out of bounds.
+                                    SizeTransform(clip = false)
+                                )
                         }
-                    ) { targetCount ->
-                        Text(text = targetCount.value)
+                    ) { targetString ->
+                        Text(text = ticker.value, textAlign = TextAlign.Center)
                     }
 
                 }
 
-
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(.5f))
                 WeatherConditionIcon(iconUrl = day.day.condition.icon, iconSize = 64)
             }
         }

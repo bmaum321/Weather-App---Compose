@@ -1,7 +1,6 @@
 package com.brian.weathercompose.presentation.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -27,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import com.brian.weathercompose.R
@@ -228,7 +228,8 @@ fun WeatherListScreen(
                             WeatherListItem(
                                 weatherDomainObject = item,
                                 onClick = onClick,
-                                preferences = preferences
+                                preferences = preferences,
+                                viewModel = weatherListViewModel
                             )
 
                         }
@@ -286,15 +287,21 @@ fun AddWeatherFab(
 }
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun WeatherListItem(
     weatherDomainObject: WeatherDomainObject,
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
-    preferences: AppPreferences?
+    preferences: AppPreferences?,
+    viewModel: WeatherListViewModel
 ) {
-    val location = weatherDomainObject.zipcode
+    val ticker = viewModel.weatherTicker(
+        humidity = weatherDomainObject.humidity,
+        feelsLikeTemp = weatherDomainObject.feelsLikeTemp,
+        time = weatherDomainObject.time,
+        windspeed = "${weatherDomainObject.windSpeed.toInt()} ${preferences?.windUnit}"
+    ).collectAsState(initial = "")
     val gradient = Brush.linearGradient(weatherDomainObject.backgroundColors)
     Card(
         modifier = Modifier
@@ -302,7 +309,7 @@ fun WeatherListItem(
             .height(175.dp)
             .fillMaxWidth(),
         elevation = 4.dp,
-        onClick = { onClick(location) },
+        onClick = { onClick(weatherDomainObject.zipcode) },
         contentColor = if(preferences?.dynamicColors == true) weatherDomainObject.textColor else LocalContentColor.current
     ) {
         Box(modifier = if(preferences?.dynamicColors == true) Modifier.background(gradient) else modifier) {
@@ -327,29 +334,43 @@ fun WeatherListItem(
                         fontSize = 24.sp
                     )
                 }
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(.1f))
 
-                Column {
+                Column(modifier = Modifier.weight(7f)) {
                     Text(
                         text = "${weatherDomainObject.temp}\u00B0",
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.semantics { testTag = preferences?.tempUnit ?: "" }
                     )
+
+                    AnimatedContent(
+                        modifier = Modifier.animateContentSize(),
+                        targetState = ticker.value,
+                        transitionSpec = {
+
+                            (slideInVertically { height -> height } + fadeIn() with
+                                    slideOutVertically { height -> -height } + fadeOut())
+                                .using(
+                                    // Disable clipping since the faded slide-in/out should
+                                    // be displayed out of bounds.
+                                    SizeTransform(clip = false)
+                                )
+                        }
+                    ) { targetString ->
+                        Text(text = ticker.value, textAlign = TextAlign.Center)
+                    }
+                    /*
                     Text(
                         text = weatherDomainObject.time,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
-                        /**
-                         * By doing it this way, what happens if it gets the setting from the preferences
-                         * but the wrong setting was used in the mapper function, should never be the case,
-                         * but ideally I guess I would have to the presentation logic here instead of the mapper
-                         * for a concrete test case
-                         */
                         modifier = Modifier.semantics { testTag = preferences?.clockFormat ?: "" }
                     )
+
+                     */
                 }
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.size(4.dp))
                 WeatherConditionIcon(iconUrl = weatherDomainObject.imgSrcUrl, iconSize = 76)
             }
         }
@@ -383,7 +404,7 @@ fun WeatherListScreenPreview() {
         val mockData = List(10) {
             WeatherDomainObject(
                 "Liverpool", "32", "13088", "", "Sunny", 12.0,
-                "SSW", "", emptyList(), 1000, Color.Black, "USA", "32"
+                "SSW", "", emptyList(), 1000, Color.Black, "USA", "32",1
             )
         }
         WeatherListScreen(

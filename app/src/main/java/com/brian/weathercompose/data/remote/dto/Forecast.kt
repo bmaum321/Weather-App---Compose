@@ -37,7 +37,15 @@ data class Alert(
 data class Day(
     val date: String,
     val day: ForecastForDay,
-    val hour: List<Hour>
+    val hour: List<Hour>,
+    val astro: Astro
+)
+
+@Serializable
+data class Astro(
+    val sunrise: String,
+    val sunset: String,
+    val moon_phase: String
 )
 
 @Serializable

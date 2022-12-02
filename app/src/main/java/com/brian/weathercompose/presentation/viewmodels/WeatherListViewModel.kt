@@ -16,6 +16,7 @@ import com.brian.weathercompose.data.settings.PreferencesRepository
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -39,6 +40,25 @@ class WeatherListViewModel(
     // Turn this into a flow?
     var weatherUiState: WeatherListState by mutableStateOf(WeatherListState.Empty)
 
+
+    fun weatherTicker(
+        windspeed: String,
+        time: String,
+        feelsLikeTemp: String,
+        humidity: Int
+    ) =
+        flow {
+            while (true)  {
+                emit(time)
+                delay(3000)
+                emit("Wind: $windspeed")
+                delay(3000)
+                emit("Feels Like: ${feelsLikeTemp}°")
+                delay(3000)
+                emit("Humidity: $humidity %")
+                delay(3000)
+            }
+        }
 
     private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST).apply {
         tryEmit(Unit)

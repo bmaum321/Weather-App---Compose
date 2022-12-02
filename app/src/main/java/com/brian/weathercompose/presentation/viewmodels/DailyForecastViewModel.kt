@@ -42,14 +42,21 @@ class DailyForecastViewModel(
         chanceOfSnow: Double,
         avgTemp: Double,
         sunrise: String,
-    sunset: String) =
+        avgHumidity: Double,
+        sunset: String) =
         flow {
             while (true)  {
-                emit("Chance of Rain: ${chanceOfRain.toInt()} %")
-                delay(3000)
-                emit("Chance of Snow: ${chanceOfSnow.toInt()} %")
-                delay(3000)
+                if(chanceOfRain > 0.0) {
+                    emit("Chance of Rain: ${chanceOfRain.toInt()} %")
+                    delay(3000)
+                }
+                if(chanceOfSnow> 0.0) {
+                    emit("Chance of Snow: ${chanceOfSnow.toInt()} %")
+                    delay(3000)
+                }
                 emit("Avg Temp: ${avgTemp.toInt()}° ")
+                delay(3000)
+                emit("Avg Humidity: ${avgHumidity.toInt()} %")
                 delay(3000)
                 emit("Sunrise: $sunrise ")
                 delay(3000)

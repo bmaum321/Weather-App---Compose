@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.fontResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -358,7 +359,12 @@ fun WeatherListItem(
                                 )
                         }
                     ) { targetString ->
-                        Text(text = ticker.value, textAlign = TextAlign.Center)
+                        Text(
+                            text = ticker.value,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            modifier = Modifier.semantics { testTag = preferences?.clockFormat ?: "" }
+                        )
                     }
                     /*
                     Text(
@@ -371,7 +377,7 @@ fun WeatherListItem(
                      */
                 }
                 Spacer(modifier = Modifier.size(4.dp))
-                WeatherConditionIcon(iconUrl = weatherDomainObject.imgSrcUrl, iconSize = 76)
+                WeatherConditionIcon(iconUrl = weatherDomainObject.imgSrcUrl, iconSize = 64)
             }
         }
 

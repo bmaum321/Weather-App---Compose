@@ -26,7 +26,7 @@ fun ForecastContainer.asDomainModel(
      */
 
     // Subtracting an hour from current time to see the current hour in the forecast
-    val forecastDayDomainObjectList = forecast.forecastday.map { it.toDomainModel() }
+    val forecastDayDomainObjectList = forecast.forecastday.map { it.toDomainModel(clockFormat) }
     val currentEpochTime = System
         .currentTimeMillis() / 1000 - 3600
 
@@ -77,7 +77,7 @@ fun ForecastContainer.asDomainModel(
 
         // Change text color to black for certain gradients for easier reading
         if (day.day.backgroundColors == listOf(Color(0xfff5f242), Color(0xffff9100)) ||
-            day.day.backgroundColors == listOf(Color.Gray, Color.DarkGray) ||
+           // day.day.backgroundColors == listOf(Color.Gray, Color.DarkGray) ||
             day.day.backgroundColors == listOf(Color.White, Color.Gray) ||
             day.day.backgroundColors == listOf(Color(0xffffffff), Color(0xffffbb00))
         ) {

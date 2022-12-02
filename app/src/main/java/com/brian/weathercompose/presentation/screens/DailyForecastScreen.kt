@@ -151,7 +151,7 @@ fun ForecastList(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun ForecastListItem(
-    day: DaysDomainObject,
+    daysDomainObject: DaysDomainObject,
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
     temperatureUnit: String,
@@ -161,13 +161,14 @@ fun ForecastListItem(
 ) {
 
     val ticker = viewModel.dailyForecastTicker(
-        chanceOfRain = day.day.daily_chance_of_rain,
-        chanceOfSnow = day.day.daily_chance_of_snow,
-        avgTemp = day.day.avgtemp_f,
-        sunrise = day.astro.sunrise,
-        sunset = day.astro.sunset
+        chanceOfRain = daysDomainObject.day.daily_chance_of_rain,
+        chanceOfSnow = daysDomainObject.day.daily_chance_of_snow,
+        avgTemp = daysDomainObject.day.avgtemp_f,
+        sunrise = daysDomainObject.astroData.sunrise,
+        sunset = daysDomainObject.astroData.sunset,
+        avgHumidity = daysDomainObject.day.avghumidity
     ).collectAsState(initial = "")
-    val date = day.date
+    val date = daysDomainObject.date
     val gradient = Brush.linearGradient(gradientColors)
     Card(
         modifier = Modifier
@@ -175,7 +176,7 @@ fun ForecastListItem(
             .height(125.dp),
         elevation = 4.dp,
         onClick = { onClick(date) },
-        contentColor = if (dynamicColorsEnabled.value) day.day.textColor else LocalContentColor.current
+        contentColor = if (dynamicColorsEnabled.value) daysDomainObject.day.textColor else LocalContentColor.current
     ) {
         Box(modifier = if (dynamicColorsEnabled.value) modifier.background(gradient) else modifier) {
             Row(
@@ -186,12 +187,12 @@ fun ForecastListItem(
             ) {
                 Column(modifier = modifier.weight(6.5f)) {
                     Text(
-                        text = day.date,
+                        text = daysDomainObject.date,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp
                     )
                     Text(
-                        text = day.day.condition.text,
+                        text = daysDomainObject.day.condition.text,
                         fontSize = 18.sp
                     )
                 }
@@ -205,14 +206,14 @@ fun ForecastListItem(
                     ) {
 
                         Text(
-                            text = if (temperatureUnit == "Fahrenheit") "${day.day.mintemp_f.toInt()}\u00B0 ·"
-                            else "${day.day.mintemp_c.toInt()}\u00B0 ·",
+                            text = if (temperatureUnit == "Fahrenheit") "${daysDomainObject.day.mintemp_f.toInt()}\u00B0 ·"
+                            else "${daysDomainObject.day.mintemp_c.toInt()}\u00B0 ·",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = if (temperatureUnit == "Fahrenheit") " ${day.day.maxtemp_f.toInt()}\u00B0"
-                            else " ${day.day.maxtemp_c.toInt()}\u00B0",
+                            text = if (temperatureUnit == "Fahrenheit") " ${daysDomainObject.day.maxtemp_f.toInt()}\u00B0"
+                            else " ${daysDomainObject.day.maxtemp_c.toInt()}\u00B0",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -248,7 +249,7 @@ fun ForecastListItem(
                 }
 
                 Spacer(modifier = Modifier.weight(.5f))
-                WeatherConditionIcon(iconUrl = day.day.condition.icon, iconSize = 64)
+                WeatherConditionIcon(iconUrl = daysDomainObject.day.condition.icon, iconSize = 64)
             }
         }
 

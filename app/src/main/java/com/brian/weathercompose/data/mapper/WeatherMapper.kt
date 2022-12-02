@@ -74,7 +74,7 @@ suspend fun WeatherContainer.asDomainModel(
 
     // Change text color to black for certain gradients for easier reading
     if (backgroundColor == listOf(Color(0xfff5f242),Color(0xffff9100)) ||
-        backgroundColor == listOf(Color.Gray, Color.DarkGray) ||
+      //  backgroundColor == listOf(Color.Gray, Color.DarkGray) ||
         backgroundColor == listOf(Color.White, Color.Gray) ||
         backgroundColor == listOf(Color(0xffffffff),Color(0xffffbb00))
     ) {

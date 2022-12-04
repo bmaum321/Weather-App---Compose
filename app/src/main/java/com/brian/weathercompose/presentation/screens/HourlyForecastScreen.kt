@@ -1,13 +1,19 @@
 package com.brian.weathercompose.presentation.screens
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -72,6 +78,7 @@ fun HourlyForecastScreen(
  * Screen displaying Daily Forecast
  */
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HourlyForecastList(
     hoursList: List<HoursDomainObject>,
@@ -87,6 +94,10 @@ fun HourlyForecastList(
         refreshing = false
     }
 
+    val listState = rememberLazyListState()
+    val showButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+    val coroutineScope = rememberCoroutineScope()
+
    // val state = rememberPullRefreshState(
     //    refreshing = refreshing,
    //     onRefresh = { refresh() }
@@ -97,7 +108,8 @@ fun HourlyForecastList(
         LazyColumn(
             modifier = modifier
                 .fillMaxWidth(),
-            contentPadding = PaddingValues(4.dp)
+            contentPadding = PaddingValues(4.dp),
+            state = listState
         ) {
             items(hoursList) { hourDomainObject ->
                 HourlyForecastListItem(
@@ -105,6 +117,25 @@ fun HourlyForecastList(
                     temperatureUnit = viewModel.getTempUnit(),
                     windUnit = viewModel.getWindUnit(),
                     measurementUnit = viewModel.getMeasurement()
+                )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showButton,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            enter = scaleIn(),
+            exit = scaleOut()
+        ) {
+            FloatingActionButton(
+                onClick = {   coroutineScope.launch {
+                    listState.animateScrollToItem(0, 0)
+                } },
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_expand_less_24),
+                    contentDescription = stringResource(R.string.scroll_to_top)
                 )
             }
         }

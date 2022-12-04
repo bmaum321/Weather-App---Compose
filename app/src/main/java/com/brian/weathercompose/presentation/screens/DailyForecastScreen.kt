@@ -120,7 +120,7 @@ fun ForecastList(
             LazyColumn(
                 modifier = modifier
                     .fillMaxWidth(),
-                contentPadding = PaddingValues(4.dp)
+                contentPadding = innerPadding
             ) {
                 items(forecast.days) {
                     ForecastListItem(
@@ -178,7 +178,9 @@ fun ForecastListItem(
         colors = colors
        // contentColor = if (dynamicColorsEnabled.value) daysDomainObject.day.textColor else LocalContentColor.current
     ) {
-        Box(modifier = if (dynamicColorsEnabled.value) modifier.background(gradient).fillMaxSize() else modifier.fillMaxSize()) {
+        Box(modifier = if (dynamicColorsEnabled.value) modifier
+            .background(gradient)
+            .fillMaxSize() else modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

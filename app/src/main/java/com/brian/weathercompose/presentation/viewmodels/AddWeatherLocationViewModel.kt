@@ -10,7 +10,9 @@ import com.brian.weathercompose.data.remote.NetworkResult
 import com.brian.weathercompose.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -32,6 +34,8 @@ class AddWeatherLocationViewModel(
         }
 
     private val queryFlow = MutableSharedFlow<String>(1, 1, BufferOverflow.DROP_OLDEST)
+
+    private var searchJob: Job? = null
 
 
     // sort counter for database entries
@@ -84,7 +88,12 @@ class AddWeatherLocationViewModel(
 
 
     fun setQuery(string: String) {
-        queryFlow.tryEmit(string)
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(1000)
+            queryFlow.tryEmit(string)
+        }
+
     }
 
     fun clearQueryResults() {

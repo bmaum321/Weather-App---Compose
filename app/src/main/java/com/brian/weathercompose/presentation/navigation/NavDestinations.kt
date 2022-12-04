@@ -59,12 +59,12 @@ object SettingsMenu: NavDestinations {
 }
 
 val screens = listOf(
-    MainWeatherList,
-    DailyForecast,
-    HourlyForecast,
-    AddLocation,
-    UnitsMenu,
-    InterfaceMenu,
-    Alerts,
-    NotificationsMenu
+    MainWeatherList.route,
+    DailyForecast.route,
+    HourlyForecast.route,
+    AddLocation.route,
+    UnitsMenu.route,
+    InterfaceMenu.route,
+    Alerts.route,
+    NotificationsMenu.route
 )

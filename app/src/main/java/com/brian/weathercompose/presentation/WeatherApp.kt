@@ -18,6 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.data.EmptyGroup
+import androidx.compose.ui.tooling.data.EmptyGroup.location
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -27,15 +29,22 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.brian.weathercompose.BuildConfig
 import com.brian.weathercompose.R
+import com.brian.weathercompose.data.remote.dto.Hour
 import com.brian.weathercompose.presentation.navigation.*
 import com.brian.weathercompose.presentation.screens.*
+import com.brian.weathercompose.presentation.screens.reusablecomposables.CustomAlertDialog
+import com.brian.weathercompose.presentation.screens.reusablecomposables.OverflowMenu
+import com.brian.weathercompose.presentation.screens.reusablecomposables.DeleteDropDownMenuItem
 import com.brian.weathercompose.presentation.screens.settings.InterfaceSettingsScreen
 import com.brian.weathercompose.presentation.screens.settings.NotificationSettingsScreen
 import com.brian.weathercompose.presentation.screens.settings.UnitSettingsScreen
 import com.brian.weathercompose.presentation.viewmodels.MainViewModel
 import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
+import com.google.android.gms.maps.MapsInitializer
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.get
 
 sealed class MenuAction(
@@ -55,10 +64,11 @@ fun WeatherAppBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    currentScreen: NavDestinations,
+    currentScreen: String,
     actionBarOnClick: () -> Unit,
     title: String,
     menuOnClick: () -> Unit
+
 ) {
     TopAppBar(
         title = { Text(text = title, fontSize = 22.sp, fontWeight = FontWeight.Bold) },
@@ -82,8 +92,14 @@ fun WeatherAppBar(
                 }
             }
         },
-
-        )
+        actions = {
+            if (currentScreen == DailyForecast.routeWithArgs || currentScreen == HourlyForecast.routeWithArgs) {
+                OverflowMenu {
+                    DeleteDropDownMenuItem(onClick = actionBarOnClick)
+                }
+            }
+        }
+    )
 }
 
 /**
@@ -103,9 +119,7 @@ fun WeatherApp(
     val ctx = LocalContext.current
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentScreen =
-        screens.find { it.route == backStackEntry?.destination?.route } ?: MainWeatherList
-
+    val currentScreen = backStackEntry?.destination?.route
     val locationsInDatabase =
         weatherListViewModel.getZipCodesFromDatabase().collectAsState(initial = "")
 
@@ -118,6 +132,7 @@ fun WeatherApp(
     val openClockFormatDialog = remember { mutableStateOf(false) }
     val openWindspeedDialog = remember { mutableStateOf(false) }
     val openMeasurementDialog = remember { mutableStateOf(false) }
+    val openLocationDeleteDialog = remember { mutableStateOf(false) }
 
     if (openAboutDialog.value) {
         AlertDialog(
@@ -133,201 +148,226 @@ fun WeatherApp(
             text = { Text(text = "Thanks for trying my app! \n bmaum1@gmail.com") },
             onDismissRequest = { openAboutDialog.value = false },
             dismissButton = {},
-            confirmButton = {},
-            shape = RoundedCornerShape(size = 4.dp)
+            confirmButton = {}
         )
     }
 
-        Scaffold(
-            topBar = {
-                WeatherAppBar(
-                    canNavigateBack = navController.previousBackStackEntry != null,
-                    navigateUp = { navController.navigateUp()
-                        println("nav back button clicked ")},
-                    currentScreen = currentScreen,
-                    actionBarOnClick = {
-                        navController.navigate(
-                            UnitsMenu.route
-                        )
-                    },
-                    title = title,
-                    menuOnClick = {
-                        navController.navigate(SettingsMenu.route)
+    if (openLocationDeleteDialog.value) {
+        val location =
+            backStackEntry?.arguments?.getString(MainWeatherList.locationArg)
+        CustomAlertDialog(
+            tag = "Location Delete Dialog",
+            title = "Delete $location?",
+            text = "Press Ok to confirm deletion",
+            onDismissRequest = { openLocationDeleteDialog.value = false },
+            confirmButtonOnClick = {
+                coroutineScope.launch {
+                    withContext(Dispatchers.IO) {
+                        val weatherEntity =
+                            location?.let { weatherListViewModel.getWeatherByZipcode(it) }
+                        if (weatherEntity != null) {
+                            weatherListViewModel.deleteWeather(weatherEntity)
+                        }
+                        navController.navigate(navController.graph.startDestinationId)
                     }
+                }
+            },
+            confirmText = "Ok"
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            WeatherAppBar(
+                canNavigateBack = navController.previousBackStackEntry != null,
+                navigateUp = {
+                    navController.navigateUp()
+                    println("nav back button clicked ")
+                },
+                currentScreen = currentScreen ?: MainWeatherList.route,
+                actionBarOnClick = {
+
+
+
+
+                },
+                title = title,
+                menuOnClick = {
+                    navController.navigate(SettingsMenu.route)
+                }
+            )
+        }
+    ) { innerPadding ->
+
+        val context = LocalContext.current
+        NavHost(
+            navController = navController,
+            startDestination = MainWeatherList.route,
+            modifier = modifier.padding(innerPadding)
+        ) {
+            composable(
+                route = MainWeatherList.route,
+                arguments = MainWeatherList.arguments
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val weatherUiState by remember {
+                        weatherListViewModel.getAllWeather(
+                            context.resources
+                        )
+                    }.collectAsState()
+
+                    MainWeatherListScreen(
+                        weatherUiState = weatherUiState,
+                        retryAction = { weatherListViewModel.refresh() },
+                        modifier = modifier,
+                        onClick = { location -> navController.navigateToDailyForecast(location) },
+                        addWeatherFabAction = { navController.navigate(AddLocation.route) },
+                        weatherListViewModel = weatherListViewModel,
+                        mainViewModel = mainViewModel
+                    )
+                }
+            }
+
+            composable(route = AddLocation.route) {
+                AddWeatherScreen(
+                    value = "",
+                    onValueChange = { },
+                    navAction = { navController.popBackStack() }
                 )
             }
-        ) { innerPadding ->
 
-            val context = LocalContext.current
-            NavHost(
-                navController = navController,
-                startDestination = MainWeatherList.route,
-                modifier = modifier.padding(innerPadding)
-            ) {
-                composable(
-                    route = MainWeatherList.route,
-                    arguments = MainWeatherList.arguments
+            composable(
+                route = DailyForecast.routeWithArgs,
+            ) { navBackStackEntry ->
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
                 ) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
-                        val weatherUiState by remember {
-                            weatherListViewModel.getAllWeather(
-                                context.resources
-                            )
-                        }.collectAsState()
-
-                        MainWeatherListScreen(
-                            weatherUiState = weatherUiState,
-                            retryAction = { weatherListViewModel.refresh() },
-                            modifier = modifier,
-                            onClick = { location -> navController.navigateToDailyForecast(location) },
-                            addWeatherFabAction = { navController.navigate(AddLocation.route) },
-                            weatherListViewModel = weatherListViewModel,
-                            mainViewModel = mainViewModel
-                        )
-                    }
-                }
-
-                composable(route = AddLocation.route) {
-                    AddWeatherScreen(
-                        value = "",
-                        onValueChange = { },
-                        navAction = { navController.popBackStack() }
-                    )
-                }
-
-                composable(
-                    route = DailyForecast.routeWithArgs,
-                ) { navBackStackEntry ->
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
-                        val location =
-                            navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
-                        if (location != null) {
-                            DailyForecastScreen(
-                                modifier = modifier,
-                                onClick = { date ->
-                                    navController.navigateToHourlyForecast(
-                                        location,
-                                        date
-                                    )
-                                },
-                                location = location,
-                                mainViewModel = mainViewModel,
-                                alertFabOnClick = { navController.navigateToAlertsScreen(location) },
-
-                                )
-                        }
-                    }
-                }
-
-                composable(route = HourlyForecast.routeWithArgs) { navBackStackEntry ->
-                    val location =
-                        navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
-                    val date = navBackStackEntry.arguments?.getString(MainWeatherList.dateArg)
-                    if (date != null && location != null) {
-                        HourlyForecastScreen(
-                            modifier = modifier,
-                            date = date,
-                            location = location,
-                            mainViewModel = mainViewModel
-                        )
-                    }
-
-                }
-
-                composable(route = UnitsMenu.route) {
-                    UnitSettingsScreen(
-                        onDismissRequest = { openTemperatureUnitDialog.value = false },
-                        openTemperatureDialog = openTemperatureUnitDialog,
-                        openClockFormatDialog = openClockFormatDialog,
-                        openMeasurementDialog = openMeasurementDialog,
-                        openWindspeedDialog = openWindspeedDialog,
-                        viewModel = mainViewModel,
-                        coroutineScope = coroutineScope,
-                        preferencesRepository = get(),
-                        itemClick = { itemlabel ->
-                            when (itemlabel) {
-                                "Temperature" -> {
-                                    openTemperatureUnitDialog.value = true
-                                }
-                                "Pressure" -> {
-                                    openMeasurementDialog.value = true
-                                }
-                                "Wind" -> {
-                                    openWindspeedDialog.value = true
-                                }
-                                "Clock Format" -> {
-                                    openClockFormatDialog.value = true
-                                }
-                            }
-                        })
-                }
-
-                composable(route = InterfaceMenu.route) {
-                    InterfaceSettingsScreen(
-                        viewModel = mainViewModel,
-                        coroutineScope = coroutineScope,
-                        preferencesRepository = get()
-                    )
-                }
-
-                composable(route = NotificationsMenu.route) {
-                    NotificationSettingsScreen(
-                        viewModel = mainViewModel,
-                        coroutineScope = coroutineScope,
-                        preferencesRepository = get(),
-                        locations = locationsInDatabase.value as List<String>
-                    )
-                }
-
-                composable(route = Alerts.routeWithArgs) { navBackStackEntry ->
                     val location =
                         navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
                     if (location != null) {
-                        AlertsScreen(mainViewModel = mainViewModel, location = location)
+                        DailyForecastScreen(
+                            modifier = modifier,
+                            onClick = { date ->
+                                navController.navigateToHourlyForecast(
+                                    location,
+                                    date
+                                )
+                            },
+                            location = location,
+                            mainViewModel = mainViewModel,
+                            alertFabOnClick = { navController.navigateToAlertsScreen(location) },
+
+                            )
                     }
                 }
+            }
 
-                composable(route = SettingsMenu.route) { navBackStackEntry ->
-                    SettingsMenu { itemLabel ->
-                        when (itemLabel) {
-                            ctx.getString(R.string.about) -> {
-                                openAboutDialog.value = true
+            composable(route = HourlyForecast.routeWithArgs) { navBackStackEntry ->
+                val location =
+                    navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
+                val date = navBackStackEntry.arguments?.getString(MainWeatherList.dateArg)
+                if (date != null && location != null) {
+                    HourlyForecastScreen(
+                        modifier = modifier,
+                        date = date,
+                        location = location,
+                        mainViewModel = mainViewModel
+                    )
+                }
+
+            }
+
+            composable(route = UnitsMenu.route) {
+                UnitSettingsScreen(
+                    onDismissRequest = { openTemperatureUnitDialog.value = false },
+                    openTemperatureDialog = openTemperatureUnitDialog,
+                    openClockFormatDialog = openClockFormatDialog,
+                    openMeasurementDialog = openMeasurementDialog,
+                    openWindspeedDialog = openWindspeedDialog,
+                    viewModel = mainViewModel,
+                    coroutineScope = coroutineScope,
+                    preferencesRepository = get(),
+                    itemClick = { itemlabel ->
+                        when (itemlabel) {
+                            "Temperature" -> {
+                                openTemperatureUnitDialog.value = true
                             }
-                            ctx.getString(R.string.units) -> {
-                                coroutineScope.launch {
-                                    delay(250)
-                                    drawerState.close()
-                                }
-                                navController.navigate(UnitsMenu.route)
+                            "Pressure" -> {
+                                openMeasurementDialog.value = true
                             }
-                            "Interface" -> {
-                                coroutineScope.launch {
-                                    delay(250)
-                                    drawerState.close()
-                                }
-                                navController.navigate(InterfaceMenu.route)
+                            "Wind" -> {
+                                openWindspeedDialog.value = true
                             }
-                            "Notifications" -> {
-                                coroutineScope.launch {
-                                    delay(250)
-                                    drawerState.close()
-                                }
-                                navController.navigate(NotificationsMenu.route)
+                            "Clock Format" -> {
+                                openClockFormatDialog.value = true
                             }
+                        }
+                    })
+            }
+
+            composable(route = InterfaceMenu.route) {
+                InterfaceSettingsScreen(
+                    viewModel = mainViewModel,
+                    coroutineScope = coroutineScope,
+                    preferencesRepository = get()
+                )
+            }
+
+            composable(route = NotificationsMenu.route) {
+                NotificationSettingsScreen(
+                    viewModel = mainViewModel,
+                    coroutineScope = coroutineScope,
+                    preferencesRepository = get(),
+                    locations = locationsInDatabase.value as List<String>
+                )
+            }
+
+            composable(route = Alerts.routeWithArgs) { navBackStackEntry ->
+                val location =
+                    navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
+                if (location != null) {
+                    AlertsScreen(mainViewModel = mainViewModel, location = location)
+                }
+            }
+
+            composable(route = SettingsMenu.route) { navBackStackEntry ->
+                SettingsMenu { itemLabel ->
+                    when (itemLabel) {
+                        ctx.getString(R.string.about) -> {
+                            openAboutDialog.value = true
+                        }
+                        ctx.getString(R.string.units) -> {
+                            coroutineScope.launch {
+                                delay(250)
+                                drawerState.close()
+                            }
+                            navController.navigate(UnitsMenu.route)
+                        }
+                        "Interface" -> {
+                            coroutineScope.launch {
+                                delay(250)
+                                drawerState.close()
+                            }
+                            navController.navigate(InterfaceMenu.route)
+                        }
+                        "Notifications" -> {
+                            coroutineScope.launch {
+                                delay(250)
+                                drawerState.close()
+                            }
+                            navController.navigate(NotificationsMenu.route)
                         }
                     }
                 }
             }
         }
-
+    }
 
 
 }

@@ -6,15 +6,15 @@ plugins {
 }
 
 android {
-    namespace 'com.brian.weathercompose'
+    namespace 'com.brian.weather'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.brian.weathercompose"
+        applicationId "com.brian.weather"
         minSdk 26
         targetSdk 33
-        versionCode 1
-        versionName "1.10"
+        versionCode 8
+        versionName "2.00"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

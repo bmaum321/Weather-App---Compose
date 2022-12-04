@@ -90,7 +90,7 @@ class AddWeatherLocationViewModel(
     fun setQuery(string: String) {
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            delay(1000)
+            delay(500)
             queryFlow.tryEmit(string)
         }
 

@@ -2,10 +2,10 @@ package com.brian.weathercompose.presentation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -13,14 +13,12 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.data.EmptyGroup
-import androidx.compose.ui.tooling.data.EmptyGroup.location
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -43,6 +41,7 @@ import com.brian.weathercompose.presentation.viewmodels.WeatherListViewModel
 import com.google.android.gms.maps.MapsInitializer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.get
@@ -71,10 +70,11 @@ fun WeatherAppBar(
 
 ) {
     TopAppBar(
+        colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
         title = { Text(text = title, fontSize = 22.sp, fontWeight = FontWeight.Bold) },
         modifier = modifier
             .fillMaxWidth(),
-        // .background(color = MaterialTheme.colors.primary),
+          //  .background(color = MaterialTheme.colorScheme.tertiaryContainer),
         navigationIcon = {
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {
@@ -93,7 +93,7 @@ fun WeatherAppBar(
             }
         },
         actions = {
-            if (currentScreen == DailyForecast.routeWithArgs || currentScreen == HourlyForecast.routeWithArgs) {
+            if (currentScreen == DailyForecast.routeWithArgs) {
                 OverflowMenu {
                     DeleteDropDownMenuItem(onClick = actionBarOnClick)
                 }
@@ -116,6 +116,7 @@ fun WeatherApp(
     navController: NavHostController = rememberNavController()
 ) {
 
+    val preferences = weatherListViewModel.allPreferences.collectAsState()
     val ctx = LocalContext.current
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -127,6 +128,8 @@ fun WeatherApp(
     val title by mainViewModel.title.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
+
+    // TODO these dialog states should live in the screens themeselves? otherwise this seems to be like a lot states to track here
     val openAboutDialog = remember { mutableStateOf(false) }
     val openTemperatureUnitDialog = remember { mutableStateOf(false) }
     val openClockFormatDialog = remember { mutableStateOf(false) }
@@ -160,6 +163,7 @@ fun WeatherApp(
             title = "Delete $location?",
             text = "Press Ok to confirm deletion",
             onDismissRequest = { openLocationDeleteDialog.value = false },
+            dismissButtonOnClick = { openLocationDeleteDialog.value = false },
             confirmButtonOnClick = {
                 coroutineScope.launch {
                     withContext(Dispatchers.IO) {
@@ -168,11 +172,22 @@ fun WeatherApp(
                         if (weatherEntity != null) {
                             weatherListViewModel.deleteWeather(weatherEntity)
                         }
-                        navController.navigate(navController.graph.startDestinationId)
+
+                        //TODO the logic here needs some work, the list getting passed to the worker is not updated
+                        // When a location is deleted from the database
+                        weatherListViewModel.updatePrecipitationLocations(weatherListViewModel.allPreferences.value?.precipitationLocations
+                            ?: emptySet()
+                        )
+                        withContext(Dispatchers.Main) {
+                            navController.popBackStack()
+                            openLocationDeleteDialog.value = false
+                        }
+
                     }
                 }
             },
             confirmText = "Ok"
+
         )
     }
 
@@ -185,12 +200,7 @@ fun WeatherApp(
                     println("nav back button clicked ")
                 },
                 currentScreen = currentScreen ?: MainWeatherList.route,
-                actionBarOnClick = {
-
-
-
-
-                },
+                actionBarOnClick = { openLocationDeleteDialog.value = true },
                 title = title,
                 menuOnClick = {
                     navController.navigate(SettingsMenu.route)

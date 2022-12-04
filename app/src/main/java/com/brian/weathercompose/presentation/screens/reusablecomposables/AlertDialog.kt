@@ -17,7 +17,7 @@ fun CustomAlertDialog(
     title: String,
     text: String,
     onDismissRequest: () -> Unit,
-    dismissButton: @Composable () -> Unit = {},
+    dismissButtonOnClick: () -> Unit,
     confirmButtonOnClick: () -> Unit,
     confirmText: String
 ) {
@@ -33,10 +33,16 @@ fun CustomAlertDialog(
         },
         text = { Text(text = text) },
         onDismissRequest = onDismissRequest,
-        dismissButton = dismissButton,
+        dismissButton = {
+            TextButton(
+                onClick = dismissButtonOnClick
+            ) {
+                Text(text = "Cancel")
+            }
+        },
         confirmButton = {
-            TextButton(onClick =
-                confirmButtonOnClick
+            TextButton(
+                onClick = confirmButtonOnClick
             ) {
                 Text(text = confirmText)
             }

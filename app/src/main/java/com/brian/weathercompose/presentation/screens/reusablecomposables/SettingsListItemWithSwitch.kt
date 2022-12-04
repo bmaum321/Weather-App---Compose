@@ -39,7 +39,6 @@ fun SettingsListItemWithSwitch(
                 .padding(start = 20.dp),
             painter = item.image,
             contentDescription = null,
-            tint = Color.White
         )
         Spacer(modifier = Modifier.size(24.dp))
 
@@ -49,7 +48,6 @@ fun SettingsListItemWithSwitch(
             text = item.label,
             fontSize = 20.sp,
             fontWeight = FontWeight.Medium,
-            color = Color.White
         )
         Spacer(modifier = Modifier.weight(1f))
 

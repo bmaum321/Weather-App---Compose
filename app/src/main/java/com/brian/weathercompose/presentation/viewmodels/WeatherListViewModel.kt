@@ -79,7 +79,7 @@ class WeatherListViewModel(
         }
     }
 
-    fun updateLocations(locations: Set<String>) {
+    fun updatePrecipitationLocations(locations: Set<String>) {
         viewModelScope.launch {
             preferencesRepository.savePrecipitationLocations(locations)
         }

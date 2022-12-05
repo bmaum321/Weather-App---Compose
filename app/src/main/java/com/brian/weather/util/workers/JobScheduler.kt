@@ -45,7 +45,7 @@ class JobScheduler(private val preferences: AppPreferences) {
                 TimeUnit.HOURS
             )
                 .setConstraints(constraints)
-               // .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+                .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
                 .addTag(Constants.TAG_OUTPUT)
                 .setInputData(data.build())
                 .build()

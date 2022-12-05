@@ -21,15 +21,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brian.weather.presentation.theme.WeatherComposeTheme
 import com.brian.weather.R
+import com.brian.weather.presentation.viewmodels.MainViewModel
 
 @Composable
 fun SettingsMenu(
     gradientColors: List<Color> = listOf(Color(0xFFF70A74), Color(0xFFF59118)),
-    itemClick: (String) -> Unit
+    itemClick: (String) -> Unit,
+    viewmodel: MainViewModel
 ) {
 
     val itemsList = prepareNavigationDrawerItems()
-
+    viewmodel.updateActionBarTitle("Settings")
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
@@ -167,11 +169,3 @@ data class SettingsDrawerItem(
     val label: String,
     val showUnreadBubble: Boolean = false
 )
-
-@Preview(showSystemUi = true)
-@Composable
-fun DrawerPreview() {
-    WeatherComposeTheme {
-        SettingsMenu(itemClick = {})
-    }
-}

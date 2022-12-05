@@ -55,9 +55,9 @@ class AddWeatherLocationViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     val getSearchResults: StateFlow<SearchViewData> =
         queryFlow
-            .flatMapLatest { location ->
+            .flatMapLatest { currentQuery ->
                 flow {
-                    when (val response = weatherRepository.getSearchResults(location)) {
+                    when (val response = weatherRepository.getSearchResults(currentQuery)) {
                         is NetworkResult.Success -> {
                             val newSearchResults =
                                 response.data.map { it.toDomainModel() }
@@ -100,10 +100,6 @@ class AddWeatherLocationViewModel(
         queryFlow.tryEmit("")
     }
 
-    fun refreshFlow() {
-        refreshFlow.tryEmit(Unit)
-    }
-
     suspend fun storeNetworkDataInDatabase(zipcode: String): Boolean {
         /**
          * This runs on a background thread by default so any value modified within this scoupe cannot
@@ -128,6 +124,10 @@ class AddWeatherLocationViewModel(
 
     }
 
+    fun getWeatherByZipcode(location: String): WeatherEntity {
+        return weatherDao.getWeatherByLocation(location)
+    }
+
     fun updateWeather(
         id: Long,
         name: String,
@@ -144,17 +144,6 @@ class AddWeatherLocationViewModel(
             // call the DAO method to update a weather object to the database here
             weatherDao.insert(weatherEntity)
         }
-    }
-
-    fun deleteWeather(weatherEntity: WeatherEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            // call the DAO method to delete a weather object to the database here
-            weatherDao.delete(weatherEntity)
-        }
-    }
-
-    fun isValidEntry(zipcode: String): Boolean {
-        return zipcode.isNotBlank()
     }
 
 

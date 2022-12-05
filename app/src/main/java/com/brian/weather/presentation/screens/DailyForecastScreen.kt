@@ -165,6 +165,7 @@ fun ForecastListItem(
         sunset = daysDomainObject.astroData.sunset,
         avgHumidity = daysDomainObject.day.avghumidity
     ).collectAsState(initial = "")
+
     val date = daysDomainObject.date
     val gradient = Brush.linearGradient(gradientColors)
     val colors = CardDefaults.cardColors(contentColor = if(dynamicColorsEnabled.value) daysDomainObject.day.textColor else LocalContentColor.current)
@@ -221,15 +222,6 @@ fun ForecastListItem(
                         )
 
                     }
-                    /*
-                    if (day.day.daily_chance_of_rain != 0.0 && day.day.daily_chance_of_rain > day.day.daily_chance_of_snow) {
-                        Text(text = "Chance of rain: ${day.day.daily_chance_of_rain.toInt()} %")
-                    } else if (day.day.daily_chance_of_snow != 0.0) {
-                        Text(text = "Chance of snow: ${day.day.daily_chance_of_snow.toInt()} %")
-                    }
-
-                     */
-
 
                     AnimatedContent(
                         modifier = Modifier.animateContentSize(),
@@ -245,7 +237,7 @@ fun ForecastListItem(
                                 )
                         }
                     ) { targetString ->
-                        Text(text = ticker.value, textAlign = TextAlign.Center)
+                        Text(text = targetString, textAlign = TextAlign.Center)
                     }
 
                 }

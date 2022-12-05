@@ -3,6 +3,7 @@ package com.brian.weather.presentation.screens.reusablecomposables
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -52,6 +53,22 @@ fun DeleteDropDownMenuItem(onClick: () -> Unit) {
             )
         },
         text = { Text("Delete") }
+    )
+}
+
+@Composable
+fun EditDropDownMenuItem(onClick: () -> Unit) {
+    //Drop down menu item with an icon on its left
+    DropdownMenuItem(
+        onClick = onClick,
+        leadingIcon = {
+            Icon(
+                Icons.Filled.Edit,
+                contentDescription = stringResource(R.string.action_menu),
+                modifier = Modifier.size(24.dp)
+            )
+        },
+        text = { Text("Edit") }
     )
 }
 

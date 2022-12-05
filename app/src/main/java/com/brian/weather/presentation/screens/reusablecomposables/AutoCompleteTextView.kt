@@ -56,7 +56,6 @@ fun <T> AutoCompleteTextView(
         modifier = modifier
             .heightIn(max = TextFieldDefaults.MinHeight * 6)
             .animateContentSize()
-            .border(BorderStroke(2.dp, Color.Black))
     ) {
         if (searchResults.isNotEmpty()) {
             items(searchResults) { place ->

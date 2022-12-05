@@ -34,9 +34,12 @@ fun AddWeatherScreen(
     modifier: Modifier = Modifier,
     navAction: () -> Unit
 ) {
-
+    var input = value
+    if(value == "{location}") {
+        input = ""
+    }
     val addWeatherLocationViewModel = getViewModel<AddWeatherLocationViewModel>()
-    var location by remember { mutableStateOf("") }
+    var location by remember { mutableStateOf(input) }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -88,16 +91,30 @@ fun AddWeatherScreen(
 
             Spacer(modifier = modifier.size(120.dp))
 
-            Button(
-                onClick = {
-                    coroutineScope.launch(Dispatchers.IO) {
-                        addWeather(navAction, addWeatherLocationViewModel, location, context)
-                    }
-                },
-                modifier
-            ) {
-                Text(stringResource(R.string.save))
+            if(value.isBlank()) {
+                Button(
+                    onClick = {
+                        coroutineScope.launch(Dispatchers.IO) {
+                            addWeather(navAction, addWeatherLocationViewModel, location, context)
+                        }
+                    },
+                    modifier
+                ) {
+                    Text(stringResource(R.string.save))
+                }
+            } else {
+                Button(
+                    onClick = {
+                        coroutineScope.launch(Dispatchers.IO) {
+                            editWeather(navAction, addWeatherLocationViewModel, location, context)
+                        }
+                    },
+                    modifier
+                ) {
+                    Text(stringResource(R.string.save))
+                }
             }
+
         }
     }
 }
@@ -118,6 +135,31 @@ private suspend fun addWeather(
             }
         }
 
+        //Navigate back to main screen
+        withContext(Dispatchers.Main) {
+            run(navAction)
+        }
+
+    }
+
+}
+
+private suspend fun editWeather(
+    navAction: () -> Unit,
+    viewModel: AddWeatherLocationViewModel,
+    location: String,
+    context: Context
+) {
+    withContext(Dispatchers.IO) {
+        val entity = viewModel.getWeatherByZipcode(location)
+        if (location.isNotBlank()) {
+            viewModel.updateWeather(
+                name = location,
+                sortOrder = 0,
+                zipcode = location,
+                id = entity.id
+            )
+    }
         //Navigate back to main screen
         withContext(Dispatchers.Main) {
             run(navAction)

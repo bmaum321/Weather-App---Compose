@@ -30,13 +30,13 @@ import com.brian.weather.presentation.screens.*
 import com.brian.weather.presentation.screens.reusablecomposables.CustomAlertDialog
 import com.brian.weather.presentation.screens.reusablecomposables.OverflowMenu
 import com.brian.weather.presentation.screens.reusablecomposables.DeleteDropDownMenuItem
+import com.brian.weather.presentation.screens.reusablecomposables.EditDropDownMenuItem
 import com.brian.weather.presentation.screens.settings.InterfaceSettingsScreen
 import com.brian.weather.presentation.screens.settings.NotificationSettingsScreen
 import com.brian.weather.presentation.screens.settings.UnitSettingsScreen
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.get
@@ -59,13 +59,19 @@ fun WeatherAppBar(
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     currentScreen: String,
-    actionBarOnClick: () -> Unit,
+    deleteOnClick: () -> Unit,
+    editOnClick: () -> Unit,
     title: String,
     menuOnClick: () -> Unit
 
 ) {
     TopAppBar(
-        colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+        actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
+        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+        titleContentColor = MaterialTheme.colorScheme.onPrimary
+        ),
         title = { Text(text = title, fontSize = 22.sp, fontWeight = FontWeight.Bold) },
         modifier = modifier
             .fillMaxWidth(),
@@ -90,7 +96,8 @@ fun WeatherAppBar(
         actions = {
             if (currentScreen == DailyForecast.routeWithArgs) {
                 OverflowMenu {
-                    DeleteDropDownMenuItem(onClick = actionBarOnClick)
+                    DeleteDropDownMenuItem(onClick = deleteOnClick)
+                    EditDropDownMenuItem(onClick = editOnClick)
                 }
             }
         }
@@ -121,7 +128,6 @@ fun WeatherApp(
 
     // Get the app bar title from the main view model
     val title by mainViewModel.title.collectAsState()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
     // TODO these dialog states should live in the screens themeselves? otherwise this seems to be like a lot states to track here
@@ -130,7 +136,8 @@ fun WeatherApp(
     val openClockFormatDialog = remember { mutableStateOf(false) }
     val openWindspeedDialog = remember { mutableStateOf(false) }
     val openMeasurementDialog = remember { mutableStateOf(false) }
-    val openLocationDeleteDialog = remember { mutableStateOf(false) }
+    val openLocationOverflowMenu = remember { mutableStateOf(false) }
+
 
     if (openAboutDialog.value) {
         AlertDialog(
@@ -150,15 +157,15 @@ fun WeatherApp(
         )
     }
 
-    if (openLocationDeleteDialog.value) {
+    if (openLocationOverflowMenu.value) {
         val location =
             backStackEntry?.arguments?.getString(MainWeatherList.locationArg)
         CustomAlertDialog(
             tag = "Location Delete Dialog",
             title = "Delete $location?",
             text = "Press Ok to confirm deletion",
-            onDismissRequest = { openLocationDeleteDialog.value = false },
-            dismissButtonOnClick = { openLocationDeleteDialog.value = false },
+            onDismissRequest = { openLocationOverflowMenu.value = false },
+            dismissButtonOnClick = { openLocationOverflowMenu.value = false },
             confirmButtonOnClick = {
                 coroutineScope.launch {
                     withContext(Dispatchers.IO) {
@@ -175,7 +182,7 @@ fun WeatherApp(
                         )
                         withContext(Dispatchers.Main) {
                             navController.popBackStack()
-                            openLocationDeleteDialog.value = false
+                            openLocationOverflowMenu.value = false
                         }
 
                     }
@@ -195,11 +202,12 @@ fun WeatherApp(
                     println("nav back button clicked ")
                 },
                 currentScreen = currentScreen ?: MainWeatherList.route,
-                actionBarOnClick = { openLocationDeleteDialog.value = true },
+                deleteOnClick = { openLocationOverflowMenu.value = true },
                 title = title,
                 menuOnClick = {
                     navController.navigate(SettingsMenu.route)
-                }
+                },
+                editOnClick = { navController.navigateToEditScreen(backStackEntry?.arguments?.getString(MainWeatherList.locationArg) ?: "") }
             )
         }
     ) { innerPadding ->
@@ -230,16 +238,17 @@ fun WeatherApp(
                         retryAction = { weatherListViewModel.refresh() },
                         modifier = modifier,
                         onClick = { location -> navController.navigateToDailyForecast(location) },
-                        addWeatherFabAction = { navController.navigate(AddLocation.route) },
+                        addWeatherFabAction = { navController.navigate(AddLocation.routeWithArgs) },
                         weatherListViewModel = weatherListViewModel,
                         mainViewModel = mainViewModel
                     )
                 }
             }
 
-            composable(route = AddLocation.route) {
+            composable(route = AddLocation.routeWithArgs) {
+                val location = it.arguments?.getString("location")
                 AddWeatherScreen(
-                    value = "",
+                    value = location ?: "",
                     onValueChange = { },
                     navAction = { navController.popBackStack() }
                 )
@@ -341,35 +350,25 @@ fun WeatherApp(
                 }
             }
 
-            composable(route = SettingsMenu.route) { navBackStackEntry ->
-                SettingsMenu { itemLabel ->
+            composable(route = SettingsMenu.route) {
+                SettingsMenu(viewmodel = mainViewModel,
+                itemClick = { itemLabel ->
                     when (itemLabel) {
                         ctx.getString(R.string.about) -> {
                             openAboutDialog.value = true
                         }
                         ctx.getString(R.string.units) -> {
-                            coroutineScope.launch {
-                                delay(250)
-                                drawerState.close()
-                            }
                             navController.navigate(UnitsMenu.route)
                         }
                         "Interface" -> {
-                            coroutineScope.launch {
-                                delay(250)
-                                drawerState.close()
-                            }
                             navController.navigate(InterfaceMenu.route)
                         }
                         "Notifications" -> {
-                            coroutineScope.launch {
-                                delay(250)
-                                drawerState.close()
-                            }
                             navController.navigate(NotificationsMenu.route)
                         }
                     }
                 }
+                )
             }
         }
     }
@@ -388,6 +387,11 @@ private fun NavHostController.navigateToHourlyForecast(location: String, date: S
 private fun NavHostController.navigateToAlertsScreen(location: String) {
     this.navigate("${Alerts.route}/$location")
 }
+
+private fun NavHostController.navigateToEditScreen(location: String) {
+    this.navigate("${AddLocation.route}/$location")
+}
+
 
 
 

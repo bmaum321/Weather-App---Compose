@@ -150,7 +150,7 @@ fun WeatherListScreen(
                 modifier = modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background)
-                    .padding(innerPadding),
+                    .padding(top = 8.dp),
                 contentPadding = PaddingValues(4.dp),
                 state = listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp)

@@ -120,7 +120,8 @@ fun ForecastList(
         Box() {
             LazyColumn(
                 modifier = modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
                 contentPadding = innerPadding
             ) {
                 items(forecast.days) {
@@ -176,7 +177,6 @@ fun ForecastListItem(
             .padding(8.dp)
             .height(125.dp)
             .pressClickEffect(),
-       // elevation = 4.dp,
         onClick = { onClick(date) },
         colors = colors
        // contentColor = if (dynamicColorsEnabled.value) daysDomainObject.day.textColor else LocalContentColor.current

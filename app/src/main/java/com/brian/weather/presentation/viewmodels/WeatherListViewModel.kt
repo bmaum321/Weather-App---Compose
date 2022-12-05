@@ -105,7 +105,6 @@ class WeatherListViewModel(
                     .flatMapLatest { zipcodes ->
                         flow {
                             if (zipcodes.isNotEmpty()) {
-                                //weatherUiState = WeatherListState.Loading
                                 emit(WeatherListState.Loading)
                                 when (weatherRepository.getWeather(zipcodes.first())) {
                                     is NetworkResult.Success -> emit(

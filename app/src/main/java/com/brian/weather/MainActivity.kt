@@ -25,7 +25,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.brian.weather.presentation.WeatherApp
-import com.brian.weather.presentation.screens.reusablecomposables.CustomAlertDialog
+import com.brian.weather.presentation.reusablecomposables.CustomAlertDialog
 import com.brian.weather.presentation.theme.WeatherComposeTheme
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel

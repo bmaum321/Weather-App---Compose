@@ -16,7 +16,12 @@ class WeatherRepositoryImpl(private val weatherApi: WeatherApi) : WeatherReposit
             weatherApi.retrofitService.getWeather(zipcode)
 
     override suspend fun getForecast(zipcode: String): NetworkResult<ForecastContainer> =
+        try {
             weatherApi.retrofitService.getForecast(zipcode)
+        } catch (e: Exception) {
+            weatherApi.retrofitService.getForecast(zipcode, days = 3)
+        }
+
 
     override suspend fun getSearchResults(location: String): NetworkResult<List<Search>> =
             weatherApi.retrofitService.locationSearch(location)

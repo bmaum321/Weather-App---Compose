@@ -25,8 +25,9 @@ import androidx.compose.ui.unit.sp
 import com.brian.weather.R
 import com.brian.weather.domain.model.AlertDomainObject
 import com.brian.weather.domain.model.ForecastDomainObject
-import com.brian.weather.presentation.screens.reusablecomposables.ErrorScreen
-import com.brian.weather.presentation.screens.reusablecomposables.LoadingScreen
+import com.brian.weather.presentation.animations.pressClickEffect
+import com.brian.weather.presentation.reusablecomposables.ErrorScreen
+import com.brian.weather.presentation.reusablecomposables.LoadingScreen
 import com.brian.weather.presentation.viewmodels.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -121,7 +122,9 @@ fun AlertsList(
                     onClick = {   coroutineScope.launch {
                         listState.animateScrollToItem(0, 0)
                     } },
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier
+                        .size(32.dp)
+                        .pressClickEffect()
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_baseline_expand_less_24),

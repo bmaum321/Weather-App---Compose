@@ -23,9 +23,10 @@ import androidx.compose.ui.unit.sp
 import com.brian.weather.R
 import com.brian.weather.domain.model.DaysDomainObject
 import com.brian.weather.domain.model.ForecastDomainObject
-import com.brian.weather.presentation.screens.reusablecomposables.ErrorScreen
-import com.brian.weather.presentation.screens.reusablecomposables.LoadingScreen
-import com.brian.weather.presentation.screens.reusablecomposables.WeatherConditionIcon
+import com.brian.weather.presentation.animations.pressClickEffect
+import com.brian.weather.presentation.reusablecomposables.ErrorScreen
+import com.brian.weather.presentation.reusablecomposables.LoadingScreen
+import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
 import com.brian.weather.presentation.viewmodels.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -173,7 +174,8 @@ fun ForecastListItem(
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .height(125.dp),
+            .height(125.dp)
+            .pressClickEffect(),
        // elevation = 4.dp,
         onClick = { onClick(date) },
         colors = colors
@@ -260,7 +262,9 @@ fun AlertFab(
     FloatingActionButton(
         onClick = onClick,
         shape = RoundedCornerShape(size = 18.dp),
-        modifier = modifier.size(64.dp),
+        modifier = modifier
+            .size(64.dp)
+            .pressClickEffect(),
         containerColor = Color.Red
     ) {
         Icon(

@@ -17,7 +17,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brian.weather.R
-import com.brian.weather.presentation.screens.reusablecomposables.AutoCompleteTextView
+import com.brian.weather.presentation.animations.pressClickEffect
+import com.brian.weather.presentation.reusablecomposables.AutoCompleteTextView
 import com.brian.weather.presentation.viewmodels.AddWeatherLocationViewModel
 import com.brian.weather.presentation.viewmodels.SearchViewData
 import com.brian.weather.util.Constants
@@ -91,7 +92,7 @@ fun AddWeatherScreen(
 
             Spacer(modifier = modifier.size(120.dp))
 
-            if(value.isBlank()) {
+            if(value == "{location}") {
                 Button(
                     onClick = {
                         coroutineScope.launch(Dispatchers.IO) {
@@ -109,7 +110,7 @@ fun AddWeatherScreen(
                             editWeather(navAction, addWeatherLocationViewModel, location, context)
                         }
                     },
-                    modifier
+                    modifier.pressClickEffect()
                 ) {
                     Text(stringResource(R.string.save))
                 }

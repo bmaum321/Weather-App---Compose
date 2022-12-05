@@ -20,20 +20,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import com.brian.weather.R
 import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.domain.model.WeatherDomainObject
-import com.brian.weather.presentation.screens.reusablecomposables.ErrorScreen
-import com.brian.weather.presentation.screens.reusablecomposables.LoadingScreen
-import com.brian.weather.presentation.screens.reusablecomposables.WeatherConditionIcon
+import com.brian.weather.presentation.animations.bounceClick
+import com.brian.weather.presentation.animations.pressClickEffect
+import com.brian.weather.presentation.reusablecomposables.ErrorScreen
+import com.brian.weather.presentation.reusablecomposables.LoadingScreen
+import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
 import com.brian.weather.presentation.theme.WeatherComposeTheme
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListState
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -105,16 +107,16 @@ fun WeatherListScreen(
     //val refreshState = rememberPullRefreshState(
     //    refreshing = refreshing,
     //    onRefresh = { refresh() }
-   // )
+    // )
 
     val coroutineScope = rememberCoroutineScope()
 
     val listState = rememberLazyListState()
     val showScrollToTopButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
-    val showAddWeatherFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0} }
-   // val scaffoldState = rememberScaffoldState()
+    val showAddWeatherFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+    // val scaffoldState = rememberScaffoldState()
     Scaffold(
-    //    scaffoldState = scaffoldState,
+        //    scaffoldState = scaffoldState,
         floatingActionButton = {
             AnimatedVisibility(
                 visible = showAddWeatherFab,
@@ -129,8 +131,21 @@ fun WeatherListScreen(
         floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
 
-       // Box(modifier = Modifier.pullRefresh(refreshState)) {
+        // Box(modifier = Modifier.pullRefresh(refreshState)) {
         Box() {
+
+            if (weatherDomainObjectList.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Use the button below to start tracking weather!",
+                        fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center
+                    )
+                }
+            }
             LazyColumn(
                 modifier = modifier
                     .fillMaxWidth()
@@ -140,6 +155,7 @@ fun WeatherListScreen(
                 state = listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+
                 items(weatherDomainObjectList) { item ->
 
                     WeatherListItem(
@@ -249,11 +265,11 @@ fun WeatherListScreen(
 
                 }
             }
-           // PullRefreshIndicator(
-          //      refreshing = refreshing,
-           //     state = refreshState,
-           //     Modifier.align(Alignment.TopCenter)
-         //   )
+            // PullRefreshIndicator(
+            //      refreshing = refreshing,
+            //     state = refreshState,
+            //     Modifier.align(Alignment.TopCenter)
+            //   )
 
             AnimatedVisibility(
                 visible = showScrollToTopButton,
@@ -263,10 +279,14 @@ fun WeatherListScreen(
             ) {
 
                 FloatingActionButton(
-                    onClick = {   coroutineScope.launch {
-                    listState.animateScrollToItem(0, 0)
-                } },
-                    modifier = Modifier.size(32.dp)
+                    onClick = {
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(0, 0)
+                        }
+                    },
+                    modifier = Modifier
+                        .size(32.dp)
+                        .pressClickEffect()
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_baseline_expand_less_24),
@@ -289,7 +309,9 @@ fun AddWeatherFab(
     FloatingActionButton(
         onClick = onClick,
         shape = RoundedCornerShape(size = 18.dp),
-        modifier = modifier.size(64.dp)
+        modifier = modifier
+            .size(64.dp)
+            .pressClickEffect()
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_add_24),
@@ -317,20 +339,24 @@ fun WeatherListItem(
     ).collectAsState(initial = "")
     val gradient = Brush.linearGradient(weatherDomainObject.backgroundColors)
 
-    val colors = CardDefaults.cardColors(contentColor = if(preferences?.dynamicColors == true) weatherDomainObject.textColor else LocalContentColor.current)
+    val colors =
+        CardDefaults.cardColors(contentColor = if (preferences?.dynamicColors == true) weatherDomainObject.textColor else LocalContentColor.current)
     Card(
         modifier = Modifier
             .padding(8.dp)
             .height(175.dp)
-            .fillMaxWidth(),
-       // elevation = 4.dp,
+            .fillMaxWidth()
+            .pressClickEffect(),
+        // elevation = 4.dp,
         onClick = { onClick(weatherDomainObject.zipcode) },
         colors = colors
-      //  contentColor = if(preferences?.dynamicColors == true) weatherDomainObject.textColor else LocalContentColor.current
+        //  contentColor = if(preferences?.dynamicColors == true) weatherDomainObject.textColor else LocalContentColor.current
     ) {
-        Box(modifier = if(preferences?.dynamicColors == true) Modifier
-            .background(gradient)
-            .fillMaxSize() else modifier.fillMaxSize()) {
+        Box(
+            modifier = if (preferences?.dynamicColors == true) Modifier
+                .background(gradient)
+                .fillMaxSize() else modifier.fillMaxSize()
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -346,7 +372,8 @@ fun WeatherListItem(
                     Text(
                         text = weatherDomainObject.country,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp)
+                        fontSize = 18.sp
+                    )
                     Text(
                         text = weatherDomainObject.conditionText,
                         fontSize = 24.sp
@@ -380,7 +407,9 @@ fun WeatherListItem(
                             text = ticker.value,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
-                            modifier = Modifier.semantics { testTag = preferences?.clockFormat ?: "" }
+                            modifier = Modifier.semantics {
+                                testTag = preferences?.clockFormat ?: ""
+                            }
                         )
                     }
                     /*
@@ -427,7 +456,7 @@ fun WeatherListScreenPreview() {
         val mockData = List(10) {
             WeatherDomainObject(
                 "Liverpool", "32", "13088", "", "Sunny", 12.0,
-                "SSW", "", emptyList(), 1000, Color.Black, "USA", "32",1
+                "SSW", "", emptyList(), 1000, Color.Black, "USA", "32", 1
             )
         }
         WeatherListScreen(

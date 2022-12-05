@@ -27,10 +27,10 @@ import com.brian.weather.BuildConfig
 import com.brian.weather.R
 import com.brian.weather.presentation.navigation.*
 import com.brian.weather.presentation.screens.*
-import com.brian.weather.presentation.screens.reusablecomposables.CustomAlertDialog
-import com.brian.weather.presentation.screens.reusablecomposables.OverflowMenu
-import com.brian.weather.presentation.screens.reusablecomposables.DeleteDropDownMenuItem
-import com.brian.weather.presentation.screens.reusablecomposables.EditDropDownMenuItem
+import com.brian.weather.presentation.reusablecomposables.CustomAlertDialog
+import com.brian.weather.presentation.reusablecomposables.OverflowMenu
+import com.brian.weather.presentation.reusablecomposables.DeleteDropDownMenuItem
+import com.brian.weather.presentation.reusablecomposables.EditDropDownMenuItem
 import com.brian.weather.presentation.screens.settings.InterfaceSettingsScreen
 import com.brian.weather.presentation.screens.settings.NotificationSettingsScreen
 import com.brian.weather.presentation.screens.settings.UnitSettingsScreen
@@ -75,7 +75,6 @@ fun WeatherAppBar(
         title = { Text(text = title, fontSize = 22.sp, fontWeight = FontWeight.Bold) },
         modifier = modifier
             .fillMaxWidth(),
-          //  .background(color = MaterialTheme.colorScheme.tertiaryContainer),
         navigationIcon = {
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {
@@ -97,7 +96,7 @@ fun WeatherAppBar(
             if (currentScreen == DailyForecast.routeWithArgs) {
                 OverflowMenu {
                     DeleteDropDownMenuItem(onClick = deleteOnClick)
-                    EditDropDownMenuItem(onClick = editOnClick)
+                   // EditDropDownMenuItem(onClick = editOnClick)
                 }
             }
         }

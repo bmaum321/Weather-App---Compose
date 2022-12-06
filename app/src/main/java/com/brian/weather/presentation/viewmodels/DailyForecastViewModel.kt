@@ -50,7 +50,7 @@ class DailyForecastViewModel(
                     emit("Rain: ${chanceOfRain.toInt()} %")
                     delay(3000)
                 }
-                if(chanceOfSnow> 0.0) {
+                if(chanceOfSnow > 0.0) {
                     emit("Snow: ${chanceOfSnow.toInt()} %")
                     delay(3000)
                 }

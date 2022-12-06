@@ -104,7 +104,7 @@ fun WeatherListScreen(
         refreshing = false
     }
 
-    //val refreshState = rememberPullRefreshState(
+    // val refreshState = rememberPullRefreshState(
     //    refreshing = refreshing,
     //    onRefresh = { refresh() }
     // )
@@ -114,7 +114,7 @@ fun WeatherListScreen(
     val listState = rememberLazyListState()
     val showScrollToTopButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     val showAddWeatherFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
-    // val scaffoldState = rememberScaffoldState()
+    //val scaffoldState = rememberScaffoldState()
     Scaffold(
         //    scaffoldState = scaffoldState,
         floatingActionButton = {
@@ -340,7 +340,11 @@ fun WeatherListItem(
     val gradient = Brush.linearGradient(weatherDomainObject.backgroundColors)
 
     val colors =
-        CardDefaults.cardColors(contentColor = if (preferences?.dynamicColors == true) weatherDomainObject.textColor else LocalContentColor.current)
+        CardDefaults.cardColors(
+            contentColor = if (preferences?.dynamicColors == true)
+                weatherDomainObject.textColor
+            else LocalContentColor.current
+        )
     Card(
         modifier = Modifier
             .padding(8.dp)

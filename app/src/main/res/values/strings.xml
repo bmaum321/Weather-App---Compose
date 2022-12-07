@@ -54,7 +54,7 @@
     <string name="forecast_notification_channel_name">Local Forecast Notifications</string>
     <string name="location_services_required_dialog_title">Location Services Required</string>
     <string name="location_services_required_dialog">Please enable location services in settings</string>
-    <string name="show_notifications">show_notifications</string>
+    <string name="show_notifications">Show Notifications?</string>
     <string name="notifications_settings">Notification Settings</string>
     <string name="precipitation_notification_locations">Precipitation Notification Locations</string>
     <string name="choose_precip_locations">Choose which locations to show precipitation notifications</string>
@@ -76,4 +76,11 @@
     <string name="twenty_four_hour_clock_format">kk:mm</string>
     <string name="units">Units</string>
     <string name="about">About</string>
+    <string name="empty_list_action_prompt">Use the button below to start tracking weather!</string>
+    <string name="confirm_deletion">Press Ok to confirm deletion</string>
+    <string name="ok">Ok</string>
+    <string name="dynamic_condition_colors">Dynamic Condition Colors</string>
+    <string name="show_weather_alerts">Show Weather Alerts?</string>
+    <string name="cancel">Cancel</string>
+    <string name="select_precip_locations">Select Precipitation Locations</string>
 </resources>

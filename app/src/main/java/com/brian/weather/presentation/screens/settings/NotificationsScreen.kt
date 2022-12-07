@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -150,8 +151,6 @@ fun PrecipitationLocationsDialog(
                         checked = newlySelectedLocations.value.contains(location),
                         onCheckedChanged = {
                             if(it) newlySelectedLocations.value.add(location) else newlySelectedLocations.value.remove(location)
-                            println("New Locations: ${newlySelectedLocations.value}")
-                            //newlySelectedLocations.value = newLocations
                             coroutineScope.launch {
                                 preferencesRepository.savePrecipitationLocations(newlySelectedLocations.value.toSet())
                             }
@@ -163,14 +162,14 @@ fun PrecipitationLocationsDialog(
         onDismissRequest = onDismissRequest,
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(text = "Cancel")
+                Text(text = stringResource(R.string.cancel))
             }
         },
         confirmButton = {
             TextButton(onClick = {
                 onConfirmed(newlySelectedLocations.value.toSet())
             }) {
-                Text(text = "Ok")
+                Text(text = stringResource(id = R.string.ok))
             }
         },
         shape = RoundedCornerShape(size = 4.dp),
@@ -185,25 +184,25 @@ private fun prepareNotificationSettings(): List<SettingsDrawerItem> {
     itemsList.add(
         SettingsDrawerItem(
             image = painterResource(R.drawable.ic_baseline_notifications_24),
-            label = "Show Notifications?"
+            label = stringResource(id = R.string.show_notifications)
         )
     )
     itemsList.add(
         SettingsDrawerItem(
             image = painterResource(id = R.drawable.ic_location_24),
-            label = "Show Local Forecast?"
+            label = stringResource(id = R.string.show_local_forecast_title)
         )
     )
     itemsList.add(
         SettingsDrawerItem(
             image = painterResource(R.drawable.ic_rain_svgrepo_com),
-            label = "Precipitation Notifications?"
+            label = stringResource(id = R.string.show_precip_title)
         )
     )
     itemsList.add(
         SettingsDrawerItem(
             image = painterResource(id = R.drawable.ic_baseline_menu_24),
-            label = "Select Precipitation Notifications"
+            label = stringResource(R.string.select_precip_locations)
         )
     )
     return itemsList

@@ -104,8 +104,8 @@ fun WeatherListScreen(
         refreshing = false
     }
 
-    // val refreshState = rememberPullRefreshState(
-    //    refreshing = refreshing,
+     //val refreshState = rememberPullRefreshState(
+     //   refreshing = refreshing,
     //    onRefresh = { refresh() }
     // )
 
@@ -141,7 +141,7 @@ fun WeatherListScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Use the button below to start tracking weather!",
+                        text = stringResource(R.string.empty_list_action_prompt),
                         fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center
                     )
                 }

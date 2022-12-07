@@ -162,7 +162,7 @@ fun WeatherApp(
         CustomAlertDialog(
             tag = "Location Delete Dialog",
             title = "Delete $location?",
-            text = "Press Ok to confirm deletion",
+            text = stringResource(R.string.confirm_deletion),
             onDismissRequest = { openLocationOverflowMenu.value = false },
             dismissButtonOnClick = { openLocationOverflowMenu.value = false },
             confirmButtonOnClick = {
@@ -187,7 +187,7 @@ fun WeatherApp(
                     }
                 }
             },
-            confirmText = "Ok"
+            confirmText = stringResource(R.string.ok)
 
         )
     }
@@ -198,7 +198,6 @@ fun WeatherApp(
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = {
                     navController.navigateUp()
-                    println("nav back button clicked ")
                 },
                 currentScreen = currentScreen ?: MainWeatherList.route,
                 deleteOnClick = { openLocationOverflowMenu.value = true },

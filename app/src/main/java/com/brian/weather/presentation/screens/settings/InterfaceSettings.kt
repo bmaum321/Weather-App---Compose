@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.brian.weather.R
 import com.brian.weather.data.settings.PreferencesRepository
@@ -69,13 +70,13 @@ private fun prepareInterfaceSettings(): List<SettingsDrawerItem> {
     itemsList.add(
         SettingsDrawerItem(
             image = painterResource(R.drawable.ic_baseline_color_lens_24),
-            label = "Dynamic Condition Colors"
+            label = stringResource(R.string.dynamic_condition_colors)
         )
     )
     itemsList.add(
         SettingsDrawerItem(
             image = painterResource(id = R.drawable.ic_baseline_crisis_alert_24),
-            label = "Show Weather Alerts?",
+            label = stringResource(R.string.show_weather_alerts),
             showUnreadBubble = false
         )
     )

@@ -176,6 +176,9 @@ class MainActivity : ComponentActivity() {
 
                         JobScheduler(it).scheduleForecastJob(LocalContext.current)
                     }
+                    /**
+                     * Main Entry Point
+                     */
                     WeatherApp(weatherListViewModel, mainViewModel)
 
                 }

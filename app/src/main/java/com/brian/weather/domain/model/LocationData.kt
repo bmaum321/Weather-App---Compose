@@ -8,5 +8,5 @@ data class LocationDataDomainModel(
     val lon: Double,
     val tz_id: String,
     val localtime_epoch: Long,
-    var localtime: String
+    val localtime: String
 )

@@ -7,6 +7,9 @@ import com.brian.weather.data.remote.dto.ForecastForDay
 import com.brian.weather.domain.model.AstroDataDomainObject
 import com.brian.weather.domain.model.DayDomainObject
 import com.brian.weather.domain.model.DaysDomainObject
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 fun Day.toDomainModel(clockFormat: String): DaysDomainObject {
     return DaysDomainObject(
@@ -39,9 +42,13 @@ fun ForecastForDay.toDomainModel(): DayDomainObject {
 fun Astro.toDomainModel(clockFormat: String): AstroDataDomainObject {
     return AstroDataDomainObject(
         moon_phase = moon_phase,
-       // sunrise = LocalTime.parse(sunrise.dropLast(3)).format(DateTimeFormatter.ofPattern(clockFormat)).removePrefix("0"),
-       // sunset = LocalTime.parse(sunset.dropLast(3)).format(DateTimeFormatter.ofPattern(clockFormat)).removePrefix("0")
-    sunrise = sunrise.removePrefix("0"),
-        sunset = sunset.removePrefix("0")
+
+        // TODO If time format is 12 hour remove 0 prefix
+        sunrise = LocalTime
+            .parse(sunrise, DateTimeFormatter.ofPattern("hh:mm a" , Locale.US))
+            .format(DateTimeFormatter.ofPattern(clockFormat)),
+        sunset = LocalTime
+            .parse(sunset, DateTimeFormatter.ofPattern("hh:mm a" , Locale.US))
+            .format(DateTimeFormatter.ofPattern(clockFormat))
     )
 }

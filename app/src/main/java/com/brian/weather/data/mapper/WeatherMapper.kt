@@ -21,7 +21,7 @@ suspend fun WeatherContainer.asDomainModel(
     val preferences = preferencesRepository.getAllPreferences.first()
 
     val locationDataDomainModel = location.toDomainModel()
-    // Get local time for display
+    /* Get local time for display
     locationDataDomainModel.localtime = Instant
         .ofEpochSecond(location.localtime_epoch)
         .atZone(ZoneId.of(location.tz_id))
@@ -31,16 +31,20 @@ suspend fun WeatherContainer.asDomainModel(
         )
         .removePrefix("0")
 
-
-    /**
-     * Change background color of card based off current condition code from API if setting is checked
-     * otherwise, the background is transparent
      */
 
-    //var backgroundColor: Int = R.color.material_dynamic_neutral_variant30
-    //var textColor: Int = R.color.material_dynamic_neutral_variant80
+    val localTime = Instant
+        .ofEpochSecond(location.localtime_epoch)
+        .atZone(ZoneId.of(location.tz_id))
+        .format(
+            DateTimeFormatter
+                .ofPattern(preferences.clockFormat)
+        )
 
-    var backgroundColor = listOf<Color>()
+
+
+
+
     var textColor = Color.White
 
     // Dynamic Material colors not supported on < API 31
@@ -53,7 +57,15 @@ suspend fun WeatherContainer.asDomainModel(
     //          true
     //      )
     //   ) {
-    backgroundColor = when (current.condition.code) {
+    /**
+     * Change background color of card based off current condition code from API if setting is checked
+     * otherwise, the background is transparent
+     */
+
+    //var backgroundColor: Int = R.color.material_dynamic_neutral_variant30
+    //var textColor: Int = R.color.material_dynamic_neutral_variant80
+
+    val backgroundColor: List<Color> = when (current.condition.code) {
         1000 -> {
             if (current.condition.text == resources.getString(R.string.Sunny)) {
                 listOf(Color(0xfff5f242),Color(0xffff9100))// sunny
@@ -96,24 +108,23 @@ suspend fun WeatherContainer.asDomainModel(
             resources.getString(R.string.UK_Acronym)
     }
 
-
-
-
-
     return WeatherDomainObject(
-        time = locationDataDomainModel.localtime,
+        time = if(preferences.clockFormat == "hh:mm a") localTime.removePrefix("0") else localTime,
         location = locationDataDomainModel.name,
         zipcode = zipcode,
-        temp = if(preferences.tempUnit == "Fahrenheit")current.temp_f.toInt().toString() else current.temp_c.toInt().toString(),
+        temp = if(preferences.tempUnit == "Fahrenheit")current.temp_f.toInt().toString()
+        else current.temp_c.toInt().toString(),
         imgSrcUrl = current.condition.icon,
         conditionText = current.condition.text,
-        windSpeed = if(preferences.windUnit == "MPH")current.wind_mph else current.wind_kph,
+        windSpeed = if(preferences.windUnit == "MPH")current.wind_mph
+        else current.wind_kph,
         windDirection = current.wind_dir,
         backgroundColors = backgroundColor,
         code = current.condition.code,
         textColor = textColor,
         country = locationDataDomainModel.country,
-        feelsLikeTemp = if(preferences.tempUnit == "Fahrenheit")current.feelslike_f.toInt().toString() else current.feelslike_c.toInt().toString(),
+        feelsLikeTemp = if(preferences.tempUnit == "Fahrenheit")current.feelslike_f.toInt().toString()
+        else current.feelslike_c.toInt().toString(),
         humidity = current.humidity
     )
 }

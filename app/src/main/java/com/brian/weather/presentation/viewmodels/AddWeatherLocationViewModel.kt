@@ -28,11 +28,6 @@ class AddWeatherLocationViewModel(
     application: Application) :
     AndroidViewModel(application) {
 
-    private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST)
-        .apply {
-            tryEmit(Unit)
-        }
-
     private val queryFlow = MutableSharedFlow<String>(1, 1, BufferOverflow.DROP_OLDEST)
 
     private var searchJob: Job? = null
@@ -87,11 +82,16 @@ class AddWeatherLocationViewModel(
             }.stateIn(viewModelScope, SharingStarted.Lazily, SearchViewData.Loading)
 
 
-    fun setQuery(string: String) {
+    fun setQuery(currentQuery: String) {
+        /**
+         * This will cancel the job every time the query is changed in the search field, if a character
+         * is not typed in 500ms, the queryflow will emit its value. This prevents the API from being
+         * called on every character being typed in the search field
+         */
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
             delay(500)
-            queryFlow.tryEmit(string)
+            queryFlow.tryEmit(currentQuery)
         }
 
     }

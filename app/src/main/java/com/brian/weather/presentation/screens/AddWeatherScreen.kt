@@ -63,11 +63,16 @@ fun AddWeatherScreen(
                 query = location,
                 queryLabel = context.getString(R.string.search_for_places),
                 searchResults =
-                when (searchResults) {
-                    is SearchViewData.Done -> (searchResults as SearchViewData.Done).searchResults
-                    is SearchViewData.Loading -> emptyList()
-                    is SearchViewData.Error -> emptyList()
-                },
+                // This will clear results if query is cleared with backspace key
+                if(location.isBlank()){
+                    emptyList()
+                } else {
+                    when (searchResults) {
+                        is SearchViewData.Done -> (searchResults as SearchViewData.Done).searchResults
+                        is SearchViewData.Loading -> emptyList()
+                        is SearchViewData.Error -> emptyList()
+                    }
+               },
                 onClearClick = {
                     location = ""
                     addWeatherLocationViewModel.clearQueryResults()

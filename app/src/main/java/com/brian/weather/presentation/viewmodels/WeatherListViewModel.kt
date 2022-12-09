@@ -35,10 +35,6 @@ class WeatherListViewModel(
     private val weatherDao: WeatherDao,
     application: Application
 ) : AndroidViewModel(application) {
-    /** The mutable State that stores the status of the most recent request */
-    // Turn this into a flow?
-    var weatherUiState: WeatherListState by mutableStateOf(WeatherListState.Empty)
-
 
     fun weatherTicker(
         windspeed: String,
@@ -58,6 +54,7 @@ class WeatherListViewModel(
                 delay(3000)
             }
         }
+
 
     private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST).apply {
         tryEmit(Unit)

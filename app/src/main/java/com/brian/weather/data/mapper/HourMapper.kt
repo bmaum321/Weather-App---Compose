@@ -2,11 +2,19 @@ package com.brian.weather.data.mapper
 
 import com.brian.weather.data.remote.dto.Hour
 import com.brian.weather.domain.model.HoursDomainObject
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
-fun Hour.toDomainModel(): HoursDomainObject {
+fun Hour.toDomainModel(clockFormat: String): HoursDomainObject {
+
+    val formattedTime = LocalTime.parse(
+        time.substring(11) // Remove date from time
+    ).format(DateTimeFormatter.ofPattern(clockFormat))// Add AM/PM postfix
+
     return HoursDomainObject(
         time_epoch = time_epoch,
-        time = time,
+        time = if(clockFormat == "hh:mm a") formattedTime.removePrefix("0")
+        else formattedTime,
         temp_f = temp_f,
         temp_c = temp_c,
         is_day = is_day,

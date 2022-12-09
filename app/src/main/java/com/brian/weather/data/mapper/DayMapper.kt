@@ -7,15 +7,20 @@ import com.brian.weather.data.remote.dto.ForecastForDay
 import com.brian.weather.domain.model.AstroDataDomainObject
 import com.brian.weather.domain.model.DayDomainObject
 import com.brian.weather.domain.model.DaysDomainObject
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.*
 
 fun Day.toDomainModel(clockFormat: String): DaysDomainObject {
+
+    val today = LocalDate.now().dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+    val dayOfWeek = LocalDate.parse(date).dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
     return DaysDomainObject(
-        date = date,
+        date = if(dayOfWeek == today) "Today" else dayOfWeek,
         day = day.toDomainModel(),
-        hours = hour.map { it.toDomainModel() }.toMutableList(),
+        hours = hour.map { it.toDomainModel(clockFormat) }.toMutableList(),
         astroData = astro.toDomainModel(clockFormat)
     )
 }
@@ -40,15 +45,18 @@ fun ForecastForDay.toDomainModel(): DayDomainObject {
 }
 
 fun Astro.toDomainModel(clockFormat: String): AstroDataDomainObject {
+
+    val sunrise = LocalTime
+        .parse(sunrise, DateTimeFormatter.ofPattern("hh:mm a" , Locale.US))
+        .format(DateTimeFormatter.ofPattern(clockFormat))
+    val sunset = LocalTime
+        .parse(sunset, DateTimeFormatter.ofPattern("hh:mm a" , Locale.US))
+        .format(DateTimeFormatter.ofPattern(clockFormat))
+
+
     return AstroDataDomainObject(
         moon_phase = moon_phase,
-
-        // TODO If time format is 12 hour remove 0 prefix
-        sunrise = LocalTime
-            .parse(sunrise, DateTimeFormatter.ofPattern("hh:mm a" , Locale.US))
-            .format(DateTimeFormatter.ofPattern(clockFormat)),
-        sunset = LocalTime
-            .parse(sunset, DateTimeFormatter.ofPattern("hh:mm a" , Locale.US))
-            .format(DateTimeFormatter.ofPattern(clockFormat))
+        sunrise = if(clockFormat == "hh:mm a") sunrise.removePrefix("0") else sunrise,
+        sunset = if(clockFormat == "hh:mm a") sunset.removePrefix("0") else sunset
     )
 }

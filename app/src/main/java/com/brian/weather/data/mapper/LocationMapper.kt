@@ -5,13 +5,13 @@ import com.brian.weather.domain.model.LocationDataDomainModel
 
 fun LocationData.toDomainModel(): LocationDataDomainModel {
     return LocationDataDomainModel(
-        name,
-        region,
-        country,
-        lat,
-        lon,
-        tz_id,
-        localtime_epoch,
-        localtime
+        name = name,
+        region = region,
+        country = country,
+        lat = lat,
+        lon = lon,
+        tz_id = tz_id,
+        localtime_epoch = localtime_epoch,
+        localtime = localtime
     )
 }

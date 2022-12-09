@@ -21,17 +21,6 @@ suspend fun WeatherContainer.asDomainModel(
     val preferences = preferencesRepository.getAllPreferences.first()
 
     val locationDataDomainModel = location.toDomainModel()
-    /* Get local time for display
-    locationDataDomainModel.localtime = Instant
-        .ofEpochSecond(location.localtime_epoch)
-        .atZone(ZoneId.of(location.tz_id))
-        .format(
-            DateTimeFormatter
-                .ofPattern(preferences.clockFormat)
-        )
-        .removePrefix("0")
-
-     */
 
     val localTime = Instant
         .ofEpochSecond(location.localtime_epoch)
@@ -41,10 +30,6 @@ suspend fun WeatherContainer.asDomainModel(
                 .ofPattern(preferences.clockFormat)
         )
 
-
-
-
-
     var textColor = Color.White
 
     // Dynamic Material colors not supported on < API 31
@@ -52,18 +37,11 @@ suspend fun WeatherContainer.asDomainModel(
         textColor = Color.Black
        // backgroundColor = Color.Transparent
     }
-//    if (sharedPreferences.getBoolean(
-//            resources.getString(R.string.show_current_condition_color),
-    //          true
-    //      )
-    //   ) {
+
     /**
      * Change background color of card based off current condition code from API if setting is checked
      * otherwise, the background is transparent
      */
-
-    //var backgroundColor: Int = R.color.material_dynamic_neutral_variant30
-    //var textColor: Int = R.color.material_dynamic_neutral_variant80
 
     val backgroundColor: List<Color> = when (current.condition.code) {
         1000 -> {
@@ -99,13 +77,15 @@ suspend fun WeatherContainer.asDomainModel(
      * Country formatting
      * */
 
-    when (locationDataDomainModel.country) {
-        resources.getString(R.string.USA) -> locationDataDomainModel.country =
+
+    val formattedCountry = when (locationDataDomainModel.country) {
+        resources.getString(R.string.USA) ->
             resources.getString(R.string.USA_Acronym)
-        resources.getString(R.string.USA2) -> locationDataDomainModel.country =
+        resources.getString(R.string.USA2) ->
             resources.getString(R.string.USA_Acronym)
-        resources.getString(R.string.UK) -> locationDataDomainModel.country =
+        resources.getString(R.string.UK) ->
             resources.getString(R.string.UK_Acronym)
+        else -> locationDataDomainModel.country
     }
 
     return WeatherDomainObject(
@@ -122,7 +102,7 @@ suspend fun WeatherContainer.asDomainModel(
         backgroundColors = backgroundColor,
         code = current.condition.code,
         textColor = textColor,
-        country = locationDataDomainModel.country,
+        country = formattedCountry,
         feelsLikeTemp = if(preferences.tempUnit == "Fahrenheit")current.feelslike_f.toInt().toString()
         else current.feelslike_c.toInt().toString(),
         humidity = current.humidity

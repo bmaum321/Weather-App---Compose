@@ -24,9 +24,9 @@ fun ForecastContainer.asDomainModel(
      */
 
     // Subtracting an hour from current time to see the current hour in the forecast
+   // val forecastDayDomainObjectList = forecast.forecastday.map { it.toDomainModel(clockFormat) }
     val forecastDayDomainObjectList = forecast.forecastday.map { it.toDomainModel(clockFormat) }
-    val currentEpochTime = System
-        .currentTimeMillis() / 1000 - 3600
+    val currentEpochTime = System.currentTimeMillis() / 1000 - 3600
 
     var textColor = Color.White
     forecastDayDomainObjectList.forEach { day ->
@@ -38,23 +38,6 @@ fun ForecastContainer.asDomainModel(
             day.hours.removeAll { hours ->
                     hours.time_epoch < currentEpochTime
                 }
-            day.date = LocalDate
-                .parse(day.date)
-                .dayOfWeek
-                .getDisplayName(
-                    TextStyle.FULL,
-                    Locale.ENGLISH
-                ) // Convert to day of week
-            forecastDayDomainObjectList.first().date = resources.getString(R.string.today)
-            day.hours.forEach { hour ->
-                    hour.time = LocalTime.parse(
-                        hour.time.substring(11) // Remove date from time
-                    )
-                        .format(DateTimeFormatter.ofPattern(clockFormat))// Add AM/PM postfix
-                        .removePrefix("0") // Remove 0 prefix, Ex: Turn 01:00 PM into 1:00PM
-                }
-
-
 
 
         // Dynamic Material colors not supported on < API 31

@@ -4,7 +4,7 @@ import com.brian.weather.data.remote.dto.Condition
 
 data class HoursDomainObject(
     val time_epoch: Int,
-    var time: String, //TODO make this a val, modify it in the mapper(can use copy function on data class too)
+    val time: String,
     val temp_f: Double,
     val temp_c: Double,
     val is_day: Int,

@@ -14,6 +14,7 @@ import com.brian.weather.data.remote.NetworkResult
 import com.brian.weather.data.settings.PreferencesRepository
 import com.brian.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -81,8 +82,8 @@ class WeatherListViewModel(
         }
     }
 
-    //private val _allPreferences = preferencesRepository.getAllPreferences.stateIn(viewModelScope, SharingStarted.Eagerly, null)
-    //val allPreferences = _allPreferences.value
+   // private val _allPreferences = preferencesRepository.getAllPreferences.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+   // val allPreferences = _allPreferences.value
     val allPreferences = preferencesRepository.getAllPreferences.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
 
@@ -93,9 +94,12 @@ class WeatherListViewModel(
     /**
      * Gets Weather info for a list of zipcodes
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getAllWeather(
         resources: Resources
     ): StateFlow<WeatherListState> {
+
+        val zipcodes = getZipCodesFromDatabase()
         return refreshFlow
             .flatMapLatest {
                 getZipCodesFromDatabase()

@@ -71,6 +71,14 @@ class HourlyForecastViewModel(
         return unit
     }
 
+    fun getDynamicColorSetting(): Boolean {
+        var setting = true
+        viewModelScope.launch {
+            setting = preferencesRepository.getDynamicColorsSetting.first() ?: true
+        }
+        return setting
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getHourlyForecast(
         zipcode: String,

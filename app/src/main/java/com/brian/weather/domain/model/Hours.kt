@@ -1,5 +1,6 @@
 package com.brian.weather.domain.model
 
+import androidx.compose.ui.graphics.Color
 import com.brian.weather.data.remote.dto.Condition
 
 data class HoursDomainObject(
@@ -23,5 +24,7 @@ data class HoursDomainObject(
     val feelslike_c: Double,
     val feelslike_f: Double,
     val windchill_c: Double,
-    val windchill_f: Double
+    val windchill_f: Double,
+    val colors: List<Color>,
+    val textColor: Color
 )

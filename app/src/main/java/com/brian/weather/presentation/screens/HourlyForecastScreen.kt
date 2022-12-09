@@ -8,18 +8,23 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -99,12 +104,12 @@ fun HourlyForecastList(
     val showButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     val coroutineScope = rememberCoroutineScope()
 
-   // val state = rememberPullRefreshState(
+    // val state = rememberPullRefreshState(
     //    refreshing = refreshing,
-   //     onRefresh = { refresh() }
-  //  )
+    //     onRefresh = { refresh() }
+    //  )
 
-  //  Box(modifier = Modifier.pullRefresh(state)) {
+    //  Box(modifier = Modifier.pullRefresh(state)) {
     Box() {
         LazyColumn(
             modifier = modifier
@@ -117,7 +122,9 @@ fun HourlyForecastList(
                     hourDomainObject,
                     temperatureUnit = viewModel.getTempUnit(),
                     windUnit = viewModel.getWindUnit(),
-                    measurementUnit = viewModel.getMeasurement()
+                    measurementUnit = viewModel.getMeasurement(),
+                    colors = hourDomainObject.colors,
+                    dynamicColorsEnabled = viewModel.getDynamicColorSetting()
                 )
             }
         }
@@ -129,9 +136,11 @@ fun HourlyForecastList(
             exit = scaleOut()
         ) {
             FloatingActionButton(
-                onClick = {   coroutineScope.launch {
-                    listState.animateScrollToItem(0, 0)
-                } },
+                onClick = {
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(0, 0)
+                    }
+                },
                 modifier = Modifier
                     .size(32.dp)
                     .pressClickEffect()
@@ -142,11 +151,11 @@ fun HourlyForecastList(
                 )
             }
         }
-       // PullRefreshIndicator(
+        // PullRefreshIndicator(
         //    refreshing = refreshing,
-      //      state = state,
-      //      Modifier.align(Alignment.TopCenter)
-     //   )
+        //      state = state,
+        //      Modifier.align(Alignment.TopCenter)
+        //   )
     }
 }
 
@@ -157,63 +166,77 @@ fun HourlyForecastListItem(
     modifier: Modifier = Modifier,
     temperatureUnit: String,
     windUnit: String,
-    measurementUnit: String
+    measurementUnit: String,
+    colors: List<Color>,
+    dynamicColorsEnabled: Boolean
 ) {
+
+    val gradient = Brush.linearGradient(colors)
+    val colors =
+        CardDefaults.cardColors(contentColor = if (dynamicColorsEnabled) hour.textColor else LocalContentColor.current)
     var expanded by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
-            .padding(8.dp)
+            .padding(8.dp),
+        colors = colors
     ) {
-        Column(
-            modifier = Modifier
-                .animateContentSize(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
-                )
+        Box(
+            modifier = if (dynamicColorsEnabled) modifier
+                .background(gradient)
+                .fillMaxSize() else modifier.fillMaxSize()
         ) {
 
-
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
+                    .animateContentSize(
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
+                    )
             ) {
-                Column(modifier = modifier.weight(3f)) {
-                    Text(
-                        text = hour.time,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp
-                    )
-                    Text(
-                        text = hour.condition.text,
-                        fontSize = 18.sp
+
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Column(modifier = modifier.weight(3f)) {
+                        Text(
+                            text = hour.time,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp
+                        )
+                        Text(
+                            text = hour.condition.text,
+                            fontSize = 18.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(.5f))
+
+                    Row {
+                        Text(
+                            text = if (temperatureUnit == "Fahrenheit") "${hour.temp_f.toInt()}\u00B0"
+                            else "${hour.temp_c.toInt()}\u00B0",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
+
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    WeatherConditionIcon(iconUrl = hour.condition.icon, iconSize = 64)
+                    ExpandCardButton(expanded = expanded, onClick = { expanded = !expanded })
+                }
+
+                if (expanded) {
+                    HourlyForecastDetails(
+                        hour = hour,
+                        windUnit = windUnit,
+                        measurementUnit = measurementUnit
                     )
                 }
-                Spacer(modifier = Modifier.weight(.5f))
-
-                Row {
-                    Text(
-                        text = if (temperatureUnit == "Fahrenheit") "${hour.temp_f.toInt()}\u00B0"
-                        else "${hour.temp_c.toInt()}\u00B0",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                WeatherConditionIcon(iconUrl = hour.condition.icon, iconSize = 64)
-                ExpandCardButton(expanded = expanded, onClick = { expanded = !expanded })
-            }
-
-            if (expanded) {
-                HourlyForecastDetails(
-                    hour = hour,
-                    windUnit = windUnit,
-                    measurementUnit = measurementUnit
-                )
             }
         }
     }
@@ -241,19 +264,19 @@ fun HourlyForecastDetails(
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(
             iconId = R.drawable.ic_wind,
-            value = if(windUnit == "MPH") hour.wind_mph.toString() + " MPH" else hour.wind_kph.toString() + " KPH",
+            value = if (windUnit == "MPH") hour.wind_mph.toString() + " MPH" else hour.wind_kph.toString() + " KPH",
             modifier = Modifier.semantics { testTag = windUnit }
         )
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(
             iconId = R.drawable.barometer_svgrepo_com,
-            value = if(measurementUnit == "IN") hour.pressure_in.toString() + " IN" else hour.pressure_mb.toString() +" MB",
+            value = if (measurementUnit == "IN") hour.pressure_in.toString() + " IN" else hour.pressure_mb.toString() + " MB",
             modifier = Modifier.semantics { testTag = measurementUnit }
         )
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(
             iconId = R.drawable.ic_rain_svgrepo_com,
-            value = if(measurementUnit == "IN") hour.precip_in.toString() + " IN" else hour.precip_mm.toString() + " MM",
+            value = if (measurementUnit == "IN") hour.precip_in.toString() + " IN" else hour.precip_mm.toString() + " MM",
             modifier = Modifier.semantics { testTag = measurementUnit }
         )
         Spacer(modifier = modifier.weight(1f))

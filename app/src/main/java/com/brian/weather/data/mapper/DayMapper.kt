@@ -27,15 +27,18 @@ fun Day.toDomainModel(
      */
 
     val currentEpochTime = System.currentTimeMillis() / 1000 - 3600
-    val currentHours = hour.filter { it.time_epoch > currentEpochTime }
     val today = LocalDate.now().dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
     val dayOfWeek = LocalDate.parse(date).dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
 
     return DaysDomainObject(
         date = if(dayOfWeek == today) "Today" else dayOfWeek,
-        day = day.toDomainModel(),
-        hours = currentHours.map { it.toDomainModel(clockFormat, resources) },
-        astroData = astro.toDomainModel(clockFormat)
+        day = day
+            .toDomainModel(),
+        hours =  hour
+            .filter { it.time_epoch > currentEpochTime }
+            .map { it.toDomainModel(clockFormat, resources) },
+        astroData = astro
+            .toDomainModel(clockFormat)
     )
 }
 
@@ -50,7 +53,9 @@ fun ForecastForDay.toDomainModel(): DayDomainObject {
         in 1063..1117 -> listOf(Color(0xff575757),Color(0xff1976d2)) // rain
         in 1150..1207 -> listOf(Color(0xff575757),Color(0xff1976d2))// rain
         in 1210..1237 -> listOf(Color.White, Color.Gray) //snow
-        in 1240..1282 -> listOf(Color(0xff575757),Color(0xff1976d2)) // rain
+        in 1255..1258 -> listOf(Color.White, Color.Gray) // moderate snow
+        in 1240..1254 -> listOf(Color(0xff575757),Color(0xff1976d2)) // rain
+        in 1260..1282 -> listOf(Color(0xff575757),Color(0xff1976d2)) // rain
         else -> listOf(Color.White, Color.Gray)
     }
     if (conditionColors == listOf(Color(0xfff5f242), Color(0xffff9100)) ||

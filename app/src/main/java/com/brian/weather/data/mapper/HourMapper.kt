@@ -34,7 +34,9 @@ fun Hour.toDomainModel(
         in 1063..1117 -> listOf(Color(0xff575757),Color(0xff1976d2)) // rain
         in 1150..1207 -> listOf(Color(0xff575757),Color(0xff1976d2))// rain
         in 1210..1237 -> listOf(Color.White, Color.Gray) //snow
-        in 1240..1282 -> listOf(Color(0xff575757),Color(0xff1976d2)) // rain
+        in 1255..1258 -> listOf(Color.White, Color.Gray) // moderate snow
+        in 1240..1254 -> listOf(Color(0xff575757),Color(0xff1976d2)) // rain
+        in 1260..1282 -> listOf(Color(0xff575757),Color(0xff1976d2)) // rain
         else -> listOf(Color.White, Color.Gray)
     }
 

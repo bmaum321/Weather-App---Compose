@@ -19,14 +19,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import com.brian.weather.R
+import com.brian.weather.data.remote.WeatherApi
+import com.brian.weather.data.remote.onSuccess
+import com.brian.weather.data.settings.PreferencesRepositoryImpl
+import com.brian.weather.repository.WeatherRepositoryImpl
 
 
 /**
  * I dont think I can pass in vals into the constructor here as its invoked by the Job Scheduler
  */
 class DailyLocalWeatherWorker(
-    val weatherRepository: WeatherRepository,
-    val preferencesRepository: PreferencesRepository,
     ctx: Context,
     params: WorkerParameters
 ) : Worker(ctx, params) {
@@ -48,6 +50,7 @@ class DailyLocalWeatherWorker(
         // Only execute and schedule next job if checked in preferences
         val location = inputData.getDoubleArray("location")
         val clockFormat = inputData.getString("clockFormat") ?: "hh:mm a"
+        val tempUnit = inputData.getString("tempUnit") ?: "Fahrenheit"
 
         // Only do work if location returned is not null
         if (location != null) {
@@ -56,7 +59,8 @@ class DailyLocalWeatherWorker(
 
             CoroutineScope(Dispatchers.IO).launch {
 
-                val preferences = preferencesRepository.getAllPreferences.first()
+                val weatherRepository = WeatherRepositoryImpl(WeatherApi)
+
                 when (val response =
                     weatherRepository.getForecast(coordinates)) {
                     is NetworkResult.Success -> {
@@ -64,15 +68,12 @@ class DailyLocalWeatherWorker(
                             clockFormat,
                             resources
                         )
-                        city = weatherRepository.getWeatherListForZipCodes(
-                            listOf(coordinates),
-                            resources,
-                            preferencesRepository
-                        ).first().location
+                        weatherRepository.getSearchResults(coordinates).onSuccess { city = it.first().name }
+
                         //TODO need to check unit settings here
                         var maxTemp = ""
                         var minTemp = ""
-                        if (preferences.tempUnit == "Fahrenheit") {
+                        if (tempUnit == "Fahrenheit") {
                             maxTemp =
                                 forecastDomainObject.days[0].day.maxtemp_f.toInt().toString()
                             minTemp =

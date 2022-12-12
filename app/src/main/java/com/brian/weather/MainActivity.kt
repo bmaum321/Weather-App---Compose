@@ -170,11 +170,9 @@ class MainActivity : ComponentActivity() {
                     val weatherListViewModel = getViewModel<WeatherListViewModel>()
 
                     weatherListViewModel.allPreferences.collectAsState().value?.let {
-                        JobScheduler(
-                            it
-                        ).schedulePrecipitationJob(LocalContext.current)
-
-                        JobScheduler(it).scheduleForecastJob(LocalContext.current)
+                        val jobScheduler = JobScheduler(it)
+                        jobScheduler.schedulePrecipitationJob(LocalContext.current)
+                        jobScheduler.scheduleForecastJob(LocalContext.current)
                     }
                     /**
                      * Main Entry Point

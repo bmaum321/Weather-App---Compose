@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.brian.weather.R
 import com.brian.weather.domain.model.DaysDomainObject
 import com.brian.weather.domain.model.ForecastDomainObject
+import com.brian.weather.presentation.animations.Pulsating
 import com.brian.weather.presentation.animations.PulseAlert
 import com.brian.weather.presentation.animations.pressClickEffect
 import com.brian.weather.presentation.reusablecomposables.ErrorScreen
@@ -110,17 +111,9 @@ fun ForecastList(
     Scaffold(
         floatingActionButton = {
             if (fabVisible) {
-                /*
-                Pulsating {
-                    AlertFab(
-                        onClick = alertFabOnClick
-                    )
-                }
-
-                 */
-                PulseAlert(
-                    onClick = alertFabOnClick
-                )
+               Pulsating() {
+                   AlertFab(onClick = alertFabOnClick)
+               }
             }
         },
         floatingActionButtonPosition = FabPosition.End
@@ -270,14 +263,13 @@ fun AlertFab(
 ) {
     FloatingActionButton(
         onClick = onClick,
-        //shape = RoundedCornerShape(size = 18.dp),
         modifier = modifier
             .size(64.dp)
             .pressClickEffect(),
         containerColor = Color.Red
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_baseline_crisis_alert_24),
+            painter = painterResource(id = R.drawable.ic_baseline_warning_24),
             contentDescription = stringResource(R.string.alert_fab_description)
         )
 

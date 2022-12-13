@@ -274,7 +274,6 @@ fun WeatherApp(
                             location = location,
                             mainViewModel = mainViewModel,
                             alertFabOnClick = { navController.navigateToAlertsScreen(location) },
-
                             )
                     }
                 }

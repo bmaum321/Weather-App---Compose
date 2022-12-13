@@ -50,7 +50,7 @@
         even when the app is closed or not in use. Please allow background location in settings.</string>
     <string name="location_permission_dialog">Location permission is required to show notifications</string>
     <string name="location_permission_dialog_title">Location Permission</string>
-    <string name="background_location_permission_dialog_title">Background Location Permission</string>
+    <string name="background_location_permission_dialog_title">Background Location Required</string>
     <string name="forecast_notification_channel_name">Local Forecast Notifications</string>
     <string name="location_services_required_dialog_title">Location Services Required</string>
     <string name="location_services_required_dialog">Please enable location services in settings</string>
@@ -83,4 +83,7 @@
     <string name="show_weather_alerts">Show Weather Alerts?</string>
     <string name="cancel">Cancel</string>
     <string name="select_precip_locations">Select Precipitation Locations</string>
+    <string name="location">Location</string>
+    <string name="turn_on_location_services">Turn on Location services in Settings</string>
+    <string name="location_services_required">Location Services Required</string>
 </resources>

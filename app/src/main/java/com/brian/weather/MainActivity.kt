@@ -118,21 +118,6 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 }
-                                Manifest.permission.ACCESS_BACKGROUND_LOCATION -> {
-                                    when {
-                                        perm.status.isGranted -> {
-                                            // This should be a dialog
-                                            Text(text = "Background permission granted")
-                                        }
-                                        perm.status.shouldShowRationale -> {
-                                            Text(text = "Background permission is needed for notifications")
-                                        }
-                                        !perm.status.isGranted && !perm.status.shouldShowRationale -> {
-                                            // User declined permission for second time
-                                            Text(text = "Background location permission was permanently denied, you can enable in app settings ")
-                                        }
-                                    }
-                                }
                             }
                         }
 
@@ -141,8 +126,8 @@ class MainActivity : ComponentActivity() {
                     if (showNotificationPermissionRationale.value) {
                         CustomAlertDialog(
                             tag = "Notification Rationale",
-                            title = "Notifications",
-                            text = "Notifications permission needed to show precipitation alerts and local forecast notifications",
+                            title = getString(R.string.notification_permission_dialog_title),
+                            text = getString(R.string.notification_permission_dialog),
                             onDismissRequest = {
                                 showNotificationPermissionRationale.value = false
                             },
@@ -159,8 +144,8 @@ class MainActivity : ComponentActivity() {
                     if (showLocationPermissionRationale.value) {
                         CustomAlertDialog(
                             tag = "Location Rationale",
-                            title = "Location",
-                            text = "Location permission needed to show local forecast notifications",
+                            title = getString(R.string.location),
+                            text = getString(R.string.location_permission_dialog),
                             onDismissRequest = {
                                 showLocationPermissionRationale.value = false
                             },
@@ -170,16 +155,15 @@ class MainActivity : ComponentActivity() {
                                 intent.data = Uri.parse("package:$packageName")
                                 startActivity(intent)
                             },
-                            confirmText = "Ok"
+                            confirmText = getString(R.string.ok)
                         )
                     }
 
                     if (showBackgroundLocationRationale.value) {
                         CustomAlertDialog(
                             tag = "Background Location Rationale",
-                            title = "Background Location Needed",
-                            text = "Weather Tracker collects location data to enable local forecast notifications,\n" +
-                                    "even when the app is closed or not in use. Please allow background location in settings.",
+                            title = getString(R.string.background_location_permission_dialog_title),
+                            text = getString(R.string.background_location_permission_required),
                             onDismissRequest = {
                                 showBackgroundLocationRationale.value = false
                             },
@@ -190,15 +174,15 @@ class MainActivity : ComponentActivity() {
                                 startActivity(intent)
                                 showBackgroundLocationRationale.value = false
                             },
-                            confirmText = "Ok"
+                            confirmText = getString(R.string.ok)
                         )
                     }
 
                     if (showLocationServicesDialog.value) {
                         CustomAlertDialog(
                             tag = "Location Services",
-                            title = "Location Services Required",
-                            text = "Turn on Location services in Settings",
+                            title = getString(R.string.location_services_required),
+                            text = getString(R.string.turn_on_location_services),
                             onDismissRequest = {
                                 showLocationServicesDialog.value = false
                             },
@@ -223,6 +207,11 @@ class MainActivity : ComponentActivity() {
                         jobScheduler.schedulePrecipitationJob(LocalContext.current)
                         jobScheduler.scheduleForecastJob(LocalContext.current) }
 
+                    /**
+                     * If user checks option to show local forecast, check to see if background
+                     * permission enabled. If not show the dialog to enable it. If location services
+                     * are not enabled do the same.
+                     */
                     if(preferences?.showLocalForecast == true) {
                         if (!checkBackgroundLocationPermissions()) {
                                 showBackgroundLocationRationale.value = true

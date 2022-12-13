@@ -13,8 +13,8 @@ android {
         applicationId "com.brian.weather"
         minSdk 26
         targetSdk 33
-        versionCode 12
-        versionName "2.04"
+        versionCode 13
+        versionName "2.05"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

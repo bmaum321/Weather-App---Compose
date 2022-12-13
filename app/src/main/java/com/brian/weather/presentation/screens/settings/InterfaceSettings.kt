@@ -75,7 +75,7 @@ private fun prepareInterfaceSettings(): List<SettingsDrawerItem> {
     )
     itemsList.add(
         SettingsDrawerItem(
-            image = painterResource(id = R.drawable.ic_baseline_crisis_alert_24),
+            image = painterResource(id = R.drawable.ic_baseline_warning_24),
             label = stringResource(R.string.show_weather_alerts),
             showUnreadBubble = false
         )

@@ -7,6 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.material3.Card
 import androidx.compose.runtime.*
@@ -119,7 +121,6 @@ fun WeatherListScreen(
     val listState = rememberLazyListState()
     val showScrollToTopButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     val showAddWeatherFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
-    val state = (1..10).asFlow().onEach { delay(1000) }.collectAsState(initial = "")
     //val scaffoldState = rememberScaffoldState()
     Scaffold(
         //    scaffoldState = scaffoldState,
@@ -331,7 +332,7 @@ fun AddWeatherFab(
             .pressClickEffect()
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_add_24),
+            imageVector = Icons.Filled.Add,
             contentDescription = stringResource(R.string.add_weather_fab_description)
         )
 
@@ -368,7 +369,6 @@ fun WeatherListItem(
             .height(175.dp)
             .fillMaxWidth()
             .pressClickEffect(),
-        // elevation = 4.dp,
         onClick = { onClick(weatherDomainObject.zipcode) },
         colors = colors
         //  contentColor = if(preferences?.dynamicColors == true) weatherDomainObject.textColor else LocalContentColor.current

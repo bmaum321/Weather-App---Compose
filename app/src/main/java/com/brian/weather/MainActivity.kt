@@ -2,7 +2,10 @@ package com.brian.weather
 
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -16,12 +19,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.brian.weather.presentation.WeatherApp
@@ -52,6 +57,8 @@ class MainActivity : ComponentActivity() {
 
                     val showNotificationPermissionRationale = remember { mutableStateOf(false) }
                     val showLocationPermissionRationale = remember { mutableStateOf(false) }
+                    val showBackgroundLocationRationale = remember { mutableStateOf(false) }
+                    val showLocationServicesDialog = remember { mutableStateOf(false) }
                     val permissionState = rememberMultiplePermissionsState(
                         permissions = listOf(
                             Manifest.permission.POST_NOTIFICATIONS,
@@ -166,14 +173,65 @@ class MainActivity : ComponentActivity() {
                             confirmText = "Ok"
                         )
                     }
+
+                    if (showBackgroundLocationRationale.value) {
+                        CustomAlertDialog(
+                            tag = "Background Location Rationale",
+                            title = "Background Location Needed",
+                            text = "Weather Tracker collects location data to enable local forecast notifications,\n" +
+                                    "even when the app is closed or not in use. Please allow background location in settings.",
+                            onDismissRequest = {
+                                showBackgroundLocationRationale.value = false
+                            },
+                            dismissButtonOnClick = { showBackgroundLocationRationale.value = false },
+                            confirmButtonOnClick = {
+                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                intent.data = Uri.parse("package:$packageName")
+                                startActivity(intent)
+                                showBackgroundLocationRationale.value = false
+                            },
+                            confirmText = "Ok"
+                        )
+                    }
+
+                    if (showLocationServicesDialog.value) {
+                        CustomAlertDialog(
+                            tag = "Location Services",
+                            title = "Location Services Required",
+                            text = "Turn on Location services in Settings",
+                            onDismissRequest = {
+                                showLocationServicesDialog.value = false
+                            },
+                            dismissButtonOnClick = { showLocationServicesDialog.value = false },
+                            confirmButtonOnClick = {
+                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                intent.data = Uri.parse("package:$packageName")
+                                startActivity(intent)
+                            },
+                            confirmText = "Ok"
+                        )
+                    }
                     val mainViewModel = getViewModel<MainViewModel>()
                     val weatherListViewModel = getViewModel<WeatherListViewModel>()
 
-                    weatherListViewModel.allPreferences.collectAsState().value?.let {
+                    val preferences by remember {
+                        weatherListViewModel.allPreferences
+                    }.collectAsState()
+
+                    preferences?.let {
                         val jobScheduler = JobScheduler(it)
                         jobScheduler.schedulePrecipitationJob(LocalContext.current)
-                        jobScheduler.scheduleForecastJob(LocalContext.current)
+                        jobScheduler.scheduleForecastJob(LocalContext.current) }
+
+                    if(preferences?.showLocalForecast == true) {
+                        if (!checkBackgroundLocationPermissions()) {
+                                showBackgroundLocationRationale.value = true
+                        } else if (!isLocationEnabled()) {
+                            showLocationServicesDialog.value = true
+                        }
+
                     }
+
                     /**
                      * Main Entry Point
                      */
@@ -183,4 +241,25 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+    // Check if background location is enabled for forecast alerts
+    private fun checkBackgroundLocationPermissions(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
+            == PackageManager.PERMISSION_GRANTED)  {
+            return true
+        }
+        return false
+    }
+
+    private fun isLocationEnabled(): Boolean {
+        val locationManager: LocationManager =
+            getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
+
 }
+

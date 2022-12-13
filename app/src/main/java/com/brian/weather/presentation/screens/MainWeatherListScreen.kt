@@ -26,8 +26,10 @@ import androidx.compose.ui.unit.*
 import com.brian.weather.R
 import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.domain.model.WeatherDomainObject
+import com.brian.weather.presentation.animations.Pulsating
 import com.brian.weather.presentation.animations.bounceClick
 import com.brian.weather.presentation.animations.pressClickEffect
+import com.brian.weather.presentation.animations.tickerAnimation
 import com.brian.weather.presentation.reusablecomposables.ErrorScreen
 import com.brian.weather.presentation.reusablecomposables.LoadingScreen
 import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
@@ -36,6 +38,9 @@ import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListState
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -114,20 +119,32 @@ fun WeatherListScreen(
     val listState = rememberLazyListState()
     val showScrollToTopButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     val showAddWeatherFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+    val state = (1..10).asFlow().onEach { delay(1000) }.collectAsState(initial = "")
     //val scaffoldState = rememberScaffoldState()
     Scaffold(
         //    scaffoldState = scaffoldState,
-        floatingActionButton = {
-            AnimatedVisibility(
-                visible = showAddWeatherFab,
-                enter = scaleIn(),
-                exit = scaleOut()
-            ) {
-                AddWeatherFab(
-                    onClick = addWeatherFabAction
-                )
+        floatingActionButton =
+        {
+            if (weatherDomainObjectList.isEmpty()) {
+                Pulsating {
+                    AddWeatherFab(
+                        onClick = addWeatherFabAction
+                    )
+                }
+
+            } else {
+                AnimatedVisibility(
+                    visible = showAddWeatherFab,
+                    enter = scaleIn(),
+                    exit = scaleOut()
+                ) {
+                    AddWeatherFab(
+                        onClick = addWeatherFabAction
+                    )
+                }
             }
-        },
+        }
+        ,
         floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
 

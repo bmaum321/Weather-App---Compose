@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.brian.weather.R
 import com.brian.weather.domain.model.DaysDomainObject
 import com.brian.weather.domain.model.ForecastDomainObject
+import com.brian.weather.presentation.animations.Pulsating
 import com.brian.weather.presentation.animations.pressClickEffect
 import com.brian.weather.presentation.reusablecomposables.ErrorScreen
 import com.brian.weather.presentation.reusablecomposables.LoadingScreen
@@ -110,9 +111,11 @@ fun ForecastList(
     Scaffold(
         floatingActionButton = {
             if (fabVisible) {
-                AlertFab(
-                    onClick = alertFabOnClick
-                )
+                Pulsating {
+                    AlertFab(
+                        onClick = alertFabOnClick
+                    )
+                }
             }
         }
     ) { innerPadding ->

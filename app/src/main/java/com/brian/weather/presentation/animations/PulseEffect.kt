@@ -13,7 +13,10 @@ import androidx.compose.ui.draw.scale
 
 
 @Composable
-fun Pulsating(pulseFraction: Float = 1.2f, content: @Composable () -> Unit) {
+fun Pulsating(
+    pulseFraction: Float = 1.2f,
+    content: @Composable () -> Unit
+) {
     val infiniteTransition = rememberInfiniteTransition()
 
     val scale by infiniteTransition.animateFloat(

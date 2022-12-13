@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.brian.weather.R
 import com.brian.weather.domain.model.DaysDomainObject
 import com.brian.weather.domain.model.ForecastDomainObject
-import com.brian.weather.presentation.animations.Pulsating
+import com.brian.weather.presentation.animations.PulseAlert
 import com.brian.weather.presentation.animations.pressClickEffect
 import com.brian.weather.presentation.reusablecomposables.ErrorScreen
 import com.brian.weather.presentation.reusablecomposables.LoadingScreen
@@ -111,13 +110,20 @@ fun ForecastList(
     Scaffold(
         floatingActionButton = {
             if (fabVisible) {
+                /*
                 Pulsating {
                     AlertFab(
                         onClick = alertFabOnClick
                     )
                 }
+
+                 */
+                PulseAlert(
+                    onClick = alertFabOnClick
+                )
             }
-        }
+        },
+        floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
 
         Box() {
@@ -264,7 +270,7 @@ fun AlertFab(
 ) {
     FloatingActionButton(
         onClick = onClick,
-        shape = RoundedCornerShape(size = 18.dp),
+        //shape = RoundedCornerShape(size = 18.dp),
         modifier = modifier
             .size(64.dp)
             .pressClickEffect(),

@@ -21,12 +21,15 @@ import androidx.compose.ui.unit.dp
 import com.brian.weather.R
 
 @Composable
-fun OverflowMenu(content: @Composable () -> Unit) {
-    var showMenu by remember { mutableStateOf(false) }
+fun OverflowMenu(
+    showMenu: Boolean,
+    setShowMenu: (Boolean) -> Unit,
+    content: @Composable () -> Unit)
+{
+   // var showMenu by remember { mutableStateOf(false) }
 
-    IconButton(onClick = {
-        showMenu = !showMenu
-    }) {
+    IconButton(onClick = { setShowMenu(true) })
+    {
         Icon(
             imageVector = Icons.Outlined.MoreVert,
             contentDescription = stringResource(R.string.action_menu),
@@ -34,14 +37,16 @@ fun OverflowMenu(content: @Composable () -> Unit) {
     }
     DropdownMenu(
         expanded = showMenu,
-        onDismissRequest = { showMenu = false }
+        onDismissRequest = { setShowMenu(false) }
     ) {
         content()
     }
 }
 
 @Composable
-fun DeleteDropDownMenuItem(onClick: () -> Unit) {
+fun DeleteDropDownMenuItem(
+    onClick: () -> Unit
+) {
     //Drop down menu item with an icon on its left
     DropdownMenuItem(
         onClick = onClick,

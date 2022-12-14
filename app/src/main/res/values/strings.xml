@@ -61,7 +61,7 @@
     <string name="get_local_forecast">Get daily notifications for local forecast</string>
     <string name="show_local_forecast_title">Show Local Forecast?</string>
     <string name="show_precip_title">Precipitation Notifications?</string>
-    <string name="loading_failed">Failed to load</string>
+    <string name="loading_failed">Failed to load… </string>
     <string name="retry">Retry</string>
     <string name="loading">Loading</string>
     <string name="add_weather_fab_description">Add Weather Location</string>

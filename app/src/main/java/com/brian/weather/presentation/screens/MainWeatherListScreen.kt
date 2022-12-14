@@ -371,7 +371,6 @@ fun WeatherListItem(
             .pressClickEffect(),
         onClick = { onClick(weatherDomainObject.zipcode) },
         colors = colors
-        //  contentColor = if(preferences?.dynamicColors == true) weatherDomainObject.textColor else LocalContentColor.current
     ) {
         Box(
             modifier = if (preferences?.dynamicColors == true) Modifier
@@ -433,22 +432,11 @@ fun WeatherListItem(
                             }
                         )
                     }
-                    /*
-                    Text(
-                        text = weatherDomainObject.time,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        modifier = Modifier.semantics { testTag = preferences?.clockFormat ?: "" }
-                    )
-
-                     */
                 }
                 Spacer(modifier = Modifier.size(4.dp))
                 WeatherConditionIcon(iconUrl = weatherDomainObject.imgSrcUrl, iconSize = 64)
             }
         }
-
-
     }
 }
 

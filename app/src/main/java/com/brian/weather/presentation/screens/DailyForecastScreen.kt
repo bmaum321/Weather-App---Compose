@@ -93,9 +93,10 @@ fun ForecastList(
     alertFabOnClick: () -> Unit,
     temperatureUnit: String,
 ) {
-    val dynamicColorsEnabled = remember { mutableStateOf(viewModel.getDynamicColorSetting()) }
+    val dynamicColorsEnabled = viewModel.getDynamicColorSetting()
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
+    val alertsEnabled = viewModel.getAlertsSetting()
 
     fun refresh() = refreshScope.launch {
         refreshing = true
@@ -107,7 +108,7 @@ fun ForecastList(
    //     refreshing = refreshing,
   //      onRefresh = { refresh() }
 //    )
-    val fabVisible by remember { mutableStateOf(forecast.alerts.isNotEmpty() && viewModel.getAlertsSetting()) }
+    val fabVisible by remember { mutableStateOf(forecast.alerts.isNotEmpty() && alertsEnabled) }
     Scaffold(
         floatingActionButton = {
             if (fabVisible) {
@@ -157,7 +158,7 @@ fun ForecastListItem(
     onClick: (String) -> Unit,
     temperatureUnit: String,
     gradientColors: List<Color>,
-    dynamicColorsEnabled: MutableState<Boolean>,
+    dynamicColorsEnabled: Boolean,
     viewModel: DailyForecastViewModel,
 ) {
 
@@ -172,7 +173,7 @@ fun ForecastListItem(
 
     val date = daysDomainObject.date
     val gradient = Brush.linearGradient(gradientColors)
-    val colors = CardDefaults.cardColors(contentColor = if(dynamicColorsEnabled.value) daysDomainObject.day.textColor else LocalContentColor.current)
+    val colors = CardDefaults.cardColors(contentColor = if(dynamicColorsEnabled) daysDomainObject.day.textColor else LocalContentColor.current)
 
     Card(
         modifier = Modifier
@@ -183,7 +184,7 @@ fun ForecastListItem(
         colors = colors
        // contentColor = if (dynamicColorsEnabled.value) daysDomainObject.day.textColor else LocalContentColor.current
     ) {
-        Box(modifier = if (dynamicColorsEnabled.value) modifier
+        Box(modifier = if (dynamicColorsEnabled) modifier
             .background(gradient)
             .fillMaxSize() else modifier.fillMaxSize()) {
             Row(

@@ -11,8 +11,11 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
@@ -62,15 +65,18 @@ fun WeatherAppBar(
     deleteOnClick: () -> Unit,
     editOnClick: () -> Unit,
     title: String,
-    menuOnClick: () -> Unit
+    menuOnClick: () -> Unit,
+    openDeleteMenu: MutableState<Boolean>,
+    showMenu: Boolean,
+    setShowMenu: (Boolean) -> Unit
 
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.smallTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
-        actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
-        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-        titleContentColor = MaterialTheme.colorScheme.onPrimary
+            actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary
         ),
         title = { Text(text = title, fontSize = 22.sp, fontWeight = FontWeight.Bold) },
         modifier = modifier
@@ -93,10 +99,20 @@ fun WeatherAppBar(
             }
         },
         actions = {
+
+           // val (showMenu, setShowMenu) = remember { mutableStateOf(false) }
             if (currentScreen == DailyForecast.routeWithArgs) {
-                OverflowMenu {
-                    DeleteDropDownMenuItem(onClick = deleteOnClick)
-                   // EditDropDownMenuItem(onClick = editOnClick)
+                OverflowMenu(
+                    setShowMenu = setShowMenu,
+                    showMenu = showMenu
+                ) {
+                    DeleteDropDownMenuItem(
+                        onClick = {
+                            setShowMenu(false)
+                            openDeleteMenu.value = true
+                        }
+                    )
+                    // EditDropDownMenuItem(onClick = editOnClick)
                 }
             }
         }
@@ -108,7 +124,7 @@ fun WeatherAppBar(
  */
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun WeatherApp(
     weatherListViewModel: WeatherListViewModel,
@@ -129,13 +145,25 @@ fun WeatherApp(
     val title by mainViewModel.title.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
-    // TODO these dialog states should live in the screens themeselves? otherwise this seems to be like a lot states to track here
+    /**
+     * These dialog states should live in the screens themeselves?
+     * otherwise this seems to be like a lot states to track here.
+     * Initial goal was to hoist as many states as possible to this location to keep sub
+     * composables stateless
+      */
+
     val openAboutDialog = remember { mutableStateOf(false) }
     val openTemperatureUnitDialog = remember { mutableStateOf(false) }
     val openClockFormatDialog = remember { mutableStateOf(false) }
     val openWindspeedDialog = remember { mutableStateOf(false) }
     val openMeasurementDialog = remember { mutableStateOf(false) }
     val openLocationOverflowMenu = remember { mutableStateOf(false) }
+    /**
+     * I haven't seen this declaration used before, but it seems like the second value
+     * is acting as a setter function for the remembered value
+     */
+    val (showMenu, setShowMenu) = remember { mutableStateOf(false) }
+
 
 
     if (openAboutDialog.value) {
@@ -176,8 +204,9 @@ fun WeatherApp(
 
                         //TODO the logic here needs some work, the list getting passed to the worker is not updated
                         // When a location is deleted from the database
-                        weatherListViewModel.updatePrecipitationLocations(weatherListViewModel.allPreferences.value?.precipitationLocations
-                            ?: emptySet()
+                        weatherListViewModel.updatePrecipitationLocations(
+                            weatherListViewModel.allPreferences.value?.precipitationLocations
+                                ?: emptySet()
                         )
                         withContext(Dispatchers.Main) {
                             navController.popBackStack()
@@ -200,12 +229,24 @@ fun WeatherApp(
                     navController.navigateUp()
                 },
                 currentScreen = currentScreen ?: MainWeatherList.route,
-                deleteOnClick = { openLocationOverflowMenu.value = true },
+                deleteOnClick = {
+
+                    openLocationOverflowMenu.value = true
+                },
                 title = title,
                 menuOnClick = {
                     navController.navigate(SettingsMenu.route)
                 },
-                editOnClick = { navController.navigateToEditScreen(backStackEntry?.arguments?.getString(MainWeatherList.locationArg) ?: "") }
+                editOnClick = {
+                    navController.navigateToEditScreen(
+                        backStackEntry?.arguments?.getString(
+                            MainWeatherList.locationArg
+                        ) ?: ""
+                    )
+                },
+                openDeleteMenu = openLocationOverflowMenu,
+                showMenu = showMenu,
+                setShowMenu = setShowMenu
             )
         }
     ) { innerPadding ->
@@ -262,7 +303,7 @@ fun WeatherApp(
                 ) {
                     val location =
                         navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
-                    if (location != null) {
+                    location?.let {
                         DailyForecastScreen(
                             modifier = modifier,
                             onClick = { date ->
@@ -274,7 +315,7 @@ fun WeatherApp(
                             location = location,
                             mainViewModel = mainViewModel,
                             alertFabOnClick = { navController.navigateToAlertsScreen(location) },
-                            )
+                        )
                     }
                 }
             }
@@ -294,6 +335,10 @@ fun WeatherApp(
 
             }
 
+            /**
+             * Not sure if better to create states above and pass to the screen composable,
+             * or to create the states in the screen composable itself
+             */
             composable(route = UnitsMenu.route) {
                 UnitSettingsScreen(
                     onDismissRequest = { openTemperatureUnitDialog.value = false },
@@ -342,29 +387,29 @@ fun WeatherApp(
             composable(route = Alerts.routeWithArgs) { navBackStackEntry ->
                 val location =
                     navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
-                if (location != null) {
+                location?.let {
                     AlertsScreen(mainViewModel = mainViewModel, location = location)
                 }
             }
 
             composable(route = SettingsMenu.route) {
                 SettingsMenu(viewmodel = mainViewModel,
-                itemClick = { itemLabel ->
-                    when (itemLabel) {
-                        ctx.getString(R.string.about) -> {
-                            openAboutDialog.value = true
-                        }
-                        ctx.getString(R.string.units) -> {
-                            navController.navigate(UnitsMenu.route)
-                        }
-                        "Interface" -> {
-                            navController.navigate(InterfaceMenu.route)
-                        }
-                        "Notifications" -> {
-                            navController.navigate(NotificationsMenu.route)
+                    itemClick = { itemLabel ->
+                        when (itemLabel) {
+                            ctx.getString(R.string.about) -> {
+                                openAboutDialog.value = true
+                            }
+                            ctx.getString(R.string.units) -> {
+                                navController.navigate(UnitsMenu.route)
+                            }
+                            "Interface" -> {
+                                navController.navigate(InterfaceMenu.route)
+                            }
+                            "Notifications" -> {
+                                navController.navigate(NotificationsMenu.route)
+                            }
                         }
                     }
-                }
                 )
             }
         }

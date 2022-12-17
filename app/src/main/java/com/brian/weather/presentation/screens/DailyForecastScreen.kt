@@ -30,6 +30,7 @@ import com.brian.weather.presentation.reusablecomposables.LoadingScreen
 import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
 import com.brian.weather.presentation.viewmodels.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.getViewModel
@@ -48,10 +49,7 @@ fun DailyForecastScreen(
 
     // This only seems to work if I pass the viewmodel all the way down from main activity and only have one instance of main view model, grabbing it from Koin doesnt work
     LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            mainViewModel.updateActionBarTitle(dailyForecastViewModel.getWeatherByZipcode(location).cityName)
-        }
-
+        mainViewModel.updateActionBarTitle(dailyForecastViewModel.getWeatherByZipcode(location).first().cityName)
     }
     val context = LocalContext.current
     val temperatureUnit = dailyForecastViewModel.getTemperatureUnit()

@@ -124,9 +124,8 @@ class AddWeatherLocationViewModel(
 
     }
 
-    fun getWeatherByZipcode(location: String): WeatherEntity {
-        return weatherDao.getWeatherByLocation(location)
-    }
+    fun getWeatherByZipcode(location: String) = weatherDao.getWeatherByLocation(location)
+
 
     fun updateWeather(
         id: Long,

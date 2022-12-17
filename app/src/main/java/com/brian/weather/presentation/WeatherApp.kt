@@ -40,6 +40,7 @@ import com.brian.weather.presentation.screens.settings.UnitSettingsScreen
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.get
@@ -195,9 +196,8 @@ fun WeatherApp(
             dismissButtonOnClick = { openLocationOverflowMenu.value = false },
             confirmButtonOnClick = {
                 coroutineScope.launch {
-                    withContext(Dispatchers.IO) {
                         val weatherEntity =
-                            location?.let { weatherListViewModel.getWeatherByZipcode(it) }
+                            location?.let { weatherListViewModel.getWeatherByZipcode(it).first() }
                         if (weatherEntity != null) {
                             weatherListViewModel.deleteWeather(weatherEntity)
                         }
@@ -212,8 +212,6 @@ fun WeatherApp(
                             navController.popBackStack()
                             openLocationOverflowMenu.value = false
                         }
-
-                    }
                 }
             },
             confirmText = stringResource(R.string.ok)

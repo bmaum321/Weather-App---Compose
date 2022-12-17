@@ -61,13 +61,11 @@ class WeatherListViewModel(
         tryEmit(Unit)
     }
 
-    fun getZipCodesFromDatabase(): Flow<List<String>> {
-        return weatherDao.getZipcodesFlow()
-    }
+    fun getZipCodesFromDatabase() = weatherDao.getZipcodesFlow()
 
-    fun getWeatherByZipcode(location: String): WeatherEntity {
-        return weatherDao.getWeatherByLocation(location)
-    }
+
+    fun getWeatherByZipcode(location: String) = weatherDao.getWeatherByLocation(location)
+
 
     fun deleteWeather(weatherEntity: WeatherEntity) {
         viewModelScope.launch(Dispatchers.IO) {

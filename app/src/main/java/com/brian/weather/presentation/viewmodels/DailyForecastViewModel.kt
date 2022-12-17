@@ -74,9 +74,8 @@ class DailyForecastViewModel(
         refreshFlow.tryEmit(Unit)
     }
 
-    fun getWeatherByZipcode(zipcode: String): WeatherEntity {
-        return weatherDao.getWeatherByZipcode(zipcode)
-    }
+    fun getWeatherByZipcode(zipcode: String) = weatherDao.getWeatherByZipcode(zipcode)
+
 
      fun getTemperatureUnit(): String {
          var unit = ""

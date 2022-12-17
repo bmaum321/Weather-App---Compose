@@ -23,6 +23,7 @@ import com.brian.weather.presentation.viewmodels.AddWeatherLocationViewModel
 import com.brian.weather.presentation.viewmodels.SearchViewData
 import com.brian.weather.util.Constants
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.getViewModel
@@ -90,7 +91,9 @@ fun AddWeatherScreen(
                     }
                     location = updatedSearch
                 },
-                itemContent = { Text(text = it, fontSize = 14.sp, modifier = Modifier.animateContentSize()) }
+                itemContent = {
+                    Text(text = it, fontSize = 14.sp, modifier = Modifier.animateContentSize())
+                }
 
             )
 
@@ -157,7 +160,7 @@ private suspend fun editWeather(
     context: Context
 ) {
     withContext(Dispatchers.IO) {
-        val entity = viewModel.getWeatherByZipcode(location)
+        val entity = viewModel.getWeatherByZipcode(location).first()
         if (location.isNotBlank()) {
             viewModel.updateWeather(
                 name = location,

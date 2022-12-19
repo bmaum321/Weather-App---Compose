@@ -155,6 +155,7 @@ fun WeatherApp(
 
     val openAboutDialog = remember { mutableStateOf(false) }
     val openTemperatureUnitDialog = remember { mutableStateOf(false) }
+    val openDateUnitDialog = remember { mutableStateOf(false) }
     val openClockFormatDialog = remember { mutableStateOf(false) }
     val openWindspeedDialog = remember { mutableStateOf(false) }
     val openMeasurementDialog = remember { mutableStateOf(false) }
@@ -164,8 +165,6 @@ fun WeatherApp(
      * is acting as a setter function for the remembered value
      */
     val (showMenu, setShowMenu) = remember { mutableStateOf(false) }
-
-
 
     if (openAboutDialog.value) {
         AlertDialog(
@@ -339,6 +338,7 @@ fun WeatherApp(
              */
             composable(route = UnitsMenu.route) {
                 UnitSettingsScreen(
+                    openDateFormatDialog = openDateUnitDialog,
                     onDismissRequest = { openTemperatureUnitDialog.value = false },
                     openTemperatureDialog = openTemperatureUnitDialog,
                     openClockFormatDialog = openClockFormatDialog,
@@ -360,6 +360,9 @@ fun WeatherApp(
                             }
                             "Clock Format" -> {
                                 openClockFormatDialog.value = true
+                            }
+                            "Date Format" -> {
+                                openDateUnitDialog.value = true
                             }
                         }
                     })

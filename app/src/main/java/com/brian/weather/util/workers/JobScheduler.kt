@@ -31,6 +31,7 @@ class JobScheduler(private val preferences: AppPreferences) {
             val data = Data.Builder()
             data.putStringArray("locations", preferences.precipitationLocations.toTypedArray())
             data.putString("clockFormat", preferences.clockFormat)
+            data.putString("dateFormat", preferences.dateFormat)
             // Set Execution around 06:00:00 AM
             dueDate.set(Calendar.HOUR_OF_DAY, 7)
             dueDate.set(Calendar.MINUTE, 0)
@@ -85,6 +86,7 @@ class JobScheduler(private val preferences: AppPreferences) {
                         doubleArrayOf(location?.latitude ?: 0.0, location?.longitude ?: 0.0)
                     )
                     data.putString("clockFormat", preferences.clockFormat)
+                    data.putString("dateFormat", preferences.dateFormat)
                     data.putString("tempUnit", preferences.tempUnit)
                     // Set Execution around 06:00:00 AM
                     val forecastDueDate = Calendar.getInstance()

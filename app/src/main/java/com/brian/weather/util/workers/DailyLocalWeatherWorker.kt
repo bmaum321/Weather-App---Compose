@@ -50,6 +50,7 @@ class DailyLocalWeatherWorker(
         // Only execute and schedule next job if checked in preferences
         val location = inputData.getDoubleArray("location")
         val clockFormat = inputData.getString("clockFormat") ?: "hh:mm a"
+        val dateFormat = inputData.getString("dateFormat") ?: "MM/DD"
         val tempUnit = inputData.getString("tempUnit") ?: "Fahrenheit"
 
         // Only do work if location returned is not null
@@ -66,6 +67,7 @@ class DailyLocalWeatherWorker(
                     is NetworkResult.Success -> {
                         val forecastDomainObject = response.data.asDomainModel(
                             clockFormat,
+                            dateFormat,
                             resources
                         )
                         weatherRepository.getSearchResults(coordinates).onSuccess { city = it.first().name }

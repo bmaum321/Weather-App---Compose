@@ -22,6 +22,7 @@ class PreferencesRepositoryImpl(
     override val DYNAMIC_COLORS = booleanPreferencesKey("dynamic_colors")
     override val SHOW_WEATHER_ALERTS = booleanPreferencesKey("show_weather_alerts")
     override val CLOCK_FORMAT = stringPreferencesKey("clock_format")
+    override val DATE_FORMAT = stringPreferencesKey("calendar_format")
     override val SHOW_NOTIFICATIONS = booleanPreferencesKey("show_notifications")
     override val SHOW_LOCAL_FORECAST = booleanPreferencesKey("show_local_forecast")
     override val SHOW_PRECIPITATION_NOTIFICATIONS = booleanPreferencesKey("show_precipitation_notifications")
@@ -144,11 +145,23 @@ class PreferencesRepositoryImpl(
         }.map { preferences ->
             preferences[CLOCK_FORMAT] ?: TWELVE_HOUR // default value
         }
+    override val getDateFormat: Flow<String?> = dataStore.data
+    .catch { exception ->
+        // dataStore.data throws an IOException when an error is encountered when reading data
+        if (exception is IOException) {
+            emit(emptyPreferences())
+        } else {
+            throw exception
+        }
+    }.map { preferences ->
+        preferences[DATE_FORMAT] ?: "MM/DD"// default value
+    }
 
     override val getAllPreferences: Flow<AppPreferences> = dataStore.data
         .map { preferences ->
             val tempUnit = preferences[TEMPERATURE_UNIT] ?: "Fahrenheit"
             val clockFormat = preferences[CLOCK_FORMAT] ?: "hh:mm a"
+            val dateFormat = preferences[DATE_FORMAT] ?: "MM/DD"
             val dynamicColors = preferences[DYNAMIC_COLORS] ?: true
             val windSpeedUnit = preferences[WINDSPEED_UNIT] ?: "MPH"
             val showAlerts = preferences[SHOW_WEATHER_ALERTS] ?: true
@@ -165,6 +178,7 @@ class PreferencesRepositoryImpl(
                 measurementUnit = measurmentUnit,
                 windUnit = windSpeedUnit,
                 clockFormat = clockFormat,
+                dateFormat = dateFormat,
                 showAlerts = showAlerts,
                 showLocalForecast = showLocalForecast ,
                 showNotifications = showNotifications,
@@ -196,6 +210,12 @@ class PreferencesRepositoryImpl(
     override suspend fun saveClockFormatSetting(value: String) {
         dataStore.edit { preferences ->
             preferences[CLOCK_FORMAT] = value
+        }
+    }
+
+    override suspend fun saveDateFormatSetting(value: String) {
+        dataStore.edit { preferences ->
+            preferences[DATE_FORMAT] = value
         }
     }
 

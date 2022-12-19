@@ -11,6 +11,7 @@ interface PreferencesRepository {
      val DYNAMIC_COLORS: Preferences.Key<Boolean>
      val SHOW_WEATHER_ALERTS: Preferences.Key<Boolean>
      val CLOCK_FORMAT: Preferences.Key<String>
+     val DATE_FORMAT: Preferences.Key<String>
      val SHOW_NOTIFICATIONS: Preferences.Key<Boolean>
      val SHOW_LOCAL_FORECAST: Preferences.Key<Boolean>
      val SHOW_PRECIPITATION_NOTIFICATIONS: Preferences.Key<Boolean>
@@ -18,6 +19,7 @@ interface PreferencesRepository {
 
      val getAllPreferences: Flow<AppPreferences>
      val getClockFormat: Flow<String?>
+     val getDateFormat: Flow<String?>
      val getTemperatureUnit: Flow<String?>
      val getWindspeedUnit: Flow<String?>
      val getMeasurementUnit: Flow<String?>
@@ -32,6 +34,7 @@ interface PreferencesRepository {
      suspend fun saveMeasurementSetting(value: String)
      suspend fun saveWindspeedSetting(value: String)
      suspend fun saveClockFormatSetting(value: String)
+     suspend fun saveDateFormatSetting(value: String)
      suspend fun saveWeatherAlertSetting(value: Boolean)
      suspend fun saveDynamicColorSetting(value: Boolean)
      suspend fun saveNotificationSetting(value: Boolean)

@@ -94,6 +94,7 @@ class HourlyForecastViewModel(
                                 response.data
                                     .asDomainModel(
                                         preferencesRepository.getClockFormat.first().toString(),
+                                        preferencesRepository.getDateFormat.first().toString(),
                                         resources)
                             )
                         )

@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 fun UnitSettingsScreen(
     openTemperatureDialog: MutableState<Boolean>,
     openClockFormatDialog: MutableState<Boolean>,
+    openDateFormatDialog: MutableState<Boolean>,
     openWindspeedDialog: MutableState<Boolean>,
     openMeasurementDialog: MutableState<Boolean>,
     viewModel: MainViewModel,
@@ -123,6 +124,23 @@ fun UnitSettingsScreen(
         }
 
     }
+
+    val dateFormat = preferencesRepository.getDateFormat.collectAsState(initial = "")
+    if(openDateFormatDialog.value) {
+        DateFormatDialog(
+            optionNames = listOf(
+                Pair("MM/DD", "MM/DD"),
+                Pair("DD/MM", "DD/MM") ),
+            initialSelectedOption = dateFormat.value ?: "",
+            onDismissRequest = { openDateFormatDialog.value = false }
+        ) { selectedOption ->
+            coroutineScope.launch {
+                preferencesRepository.saveDateFormatSetting(selectedOption)
+                openDateFormatDialog.value = false
+            }
+        }
+
+    }
 }
 
 @Composable
@@ -153,6 +171,12 @@ private fun prepareUnitSettings(): List<SettingsDrawerItem> {
         SettingsDrawerItem(
             image = painterResource(id = R.drawable.ic_baseline_access_time_24),
             label = "Clock Format"
+        )
+    )
+    itemsList.add(
+        SettingsDrawerItem(
+            image = painterResource(id = R.drawable.ic_baseline_calendar_month_24),
+            label = "Date Format"
         )
     )
     return itemsList
@@ -317,6 +341,54 @@ fun ClockFormatDialog(
         title = {
             Text(
                 text = "Clock Format",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        },
+        text = {
+            Column {
+                optionNames.forEach { optionName ->
+                    LabeledRadioButton(
+                        selected = optionName.second == selectedOption.value,
+                        onClick = { selectedOption.value = optionName.second } ,
+                        text = optionName.first
+                    )
+                }
+            }
+        },
+        onDismissRequest = onDismissRequest,
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(text = "Cancel")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirmed(selectedOption.value)
+            }) {
+                Text(text = "Ok")
+            }
+        },
+        shape = RoundedCornerShape(size = 4.dp),
+        modifier = modifier
+    )
+
+}
+
+@Composable
+fun DateFormatDialog(
+    optionNames: List<Pair<String, String>>,
+    initialSelectedOption: String,
+    modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit,
+    onConfirmed: (String) -> Unit
+) {
+
+    val selectedOption = rememberSaveable { mutableStateOf(initialSelectedOption) }
+    AlertDialog(
+        title = {
+            Text(
+                text = "Date Format",
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )

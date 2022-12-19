@@ -6,7 +6,10 @@ import com.brian.weather.domain.model.AlertDomainObject
 fun Alert.asDomainModel(): AlertDomainObject {
     return AlertDomainObject(
         category = category,
-        desc = desc.replace("\n", " ").replace("*", "\n**"),
+        desc = desc
+            .replace("\n", " ")
+            .replace("*", "\n**")
+            .substringBefore("Experimental"), // removing the experimental polygon data from response
         effective = effective,
         event = event,
         expires = expires,

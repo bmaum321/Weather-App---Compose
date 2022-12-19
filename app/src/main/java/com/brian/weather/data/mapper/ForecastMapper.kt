@@ -6,10 +6,11 @@ import com.brian.weather.domain.model.ForecastDomainObject
 
 fun ForecastContainer.asDomainModel(
     clockFormat: String,
+    dateFormat: String,
     resources: Resources
 ): ForecastDomainObject {
     return ForecastDomainObject(
-        days = forecast.forecastday.map { it.toDomainModel(clockFormat, resources) },
+        days = forecast.forecastday.map { it.toDomainModel(clockFormat, dateFormat, resources) },
         alerts = alerts.alert.map { it.asDomainModel() }
     )
 }

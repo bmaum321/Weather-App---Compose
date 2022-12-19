@@ -47,6 +47,7 @@ class DailyPrecipitationWorker(
         val weatherRepository = WeatherRepositoryImpl(WeatherApi)
         val locations = inputData.getStringArray("locations") ?: emptyArray()
         val clockFormat = inputData.getString("clockFormat") ?: "hh:mm a"
+        val dateFormat = inputData.getString("dateFormat") ?: "hh:mm a"
 
             CoroutineScope(Dispatchers.IO).launch {
                 // Check if database is empty
@@ -57,6 +58,7 @@ class DailyPrecipitationWorker(
                             is NetworkResult.Success -> {
                                 val forecastDomainObject = response.data.asDomainModel(
                                     clockFormat,
+                                    dateFormat,
                                     resources
                                 )
                                 val willItRainToday = mutableListOf<Int>()

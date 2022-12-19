@@ -23,16 +23,13 @@ import com.brian.weather.R
 import com.brian.weather.domain.model.DaysDomainObject
 import com.brian.weather.domain.model.ForecastDomainObject
 import com.brian.weather.presentation.animations.Pulsating
-import com.brian.weather.presentation.animations.PulseAlert
 import com.brian.weather.presentation.animations.pressClickEffect
 import com.brian.weather.presentation.reusablecomposables.ErrorScreen
 import com.brian.weather.presentation.reusablecomposables.LoadingScreen
 import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
 import com.brian.weather.presentation.viewmodels.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.getViewModel
 
 
@@ -169,7 +166,7 @@ fun ForecastListItem(
         avgHumidity = daysDomainObject.day.avghumidity
     ).collectAsState(initial = "")
 
-    val date = daysDomainObject.date
+    val date = daysDomainObject.dayOfWeek
     val gradient = Brush.linearGradient(gradientColors)
     val colors = CardDefaults.cardColors(contentColor = if(dynamicColorsEnabled) daysDomainObject.day.textColor else LocalContentColor.current)
 
@@ -193,13 +190,19 @@ fun ForecastListItem(
             ) {
                 Column(modifier = modifier.weight(6.5f)) {
                     Text(
-                        text = daysDomainObject.date,
+                        text = daysDomainObject.dayOfWeek,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp
                     )
                     Text(
-                        text = daysDomainObject.day.condition.text,
+                        text = daysDomainObject.date,
+                        fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
+                    )
+                    Text(
+                        text = daysDomainObject.day.condition.text,
+                        fontSize = 18.sp,
+                        //maxLines = 1
                     )
                 }
                 Spacer(modifier = Modifier.weight(.5f))

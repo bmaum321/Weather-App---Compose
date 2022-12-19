@@ -2,7 +2,6 @@ package com.brian.weather.data.mapper
 
 import android.content.res.Resources
 import androidx.compose.ui.graphics.Color
-import com.brian.weather.R
 import com.brian.weather.data.remote.dto.Astro
 import com.brian.weather.data.remote.dto.Day
 import com.brian.weather.data.remote.dto.ForecastForDay
@@ -37,8 +36,9 @@ fun Day.toDomainModel(
         else "$dayOfMonth $month"
 
     return DaysDomainObject(
-        date = if (dayOfWeek == today) "Today"
-        else "$dayOfWeek \n$shortDate",
+        dayOfWeek = if (dayOfWeek == today) "Today"
+        else dayOfWeek,
+        date = shortDate,
         day = day
             .toDomainModel(),
         hours = hour
@@ -57,7 +57,8 @@ fun ForecastForDay.toDomainModel(): DayDomainObject {
         1000 -> listOf(Color(0xfff5f242), Color(0xffff9100))// sunny
         1003 -> listOf(Color(0xffffffff), Color(0xffffbb00)) // partly cloudy day
         in 1006..1030 -> listOf(Color.Gray, Color.DarkGray) // clouds/overcast
-        in 1063..1117 -> listOf(Color(0xff575757), Color(0xff1976d2)) // rain
+        in 1063..1115 -> listOf(Color(0xff575757), Color(0xff1976d2)) // rain
+        1117 -> listOf(Color.White, Color.Gray) // Blizzard
         in 1150..1207 -> listOf(Color(0xff575757), Color(0xff1976d2))// rain
         in 1210..1237 -> listOf(Color.White, Color.Gray) //snow
         in 1255..1258 -> listOf(Color.White, Color.Gray) // moderate snow

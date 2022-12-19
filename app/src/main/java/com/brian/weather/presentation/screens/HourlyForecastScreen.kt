@@ -68,7 +68,7 @@ fun HourlyForecastScreen(
     when (uiState.value) {  //TODO same here new viewmodel with new state
         is HourlyForecastViewData.Loading -> LoadingScreen(modifier)
         is HourlyForecastViewData.Done -> HourlyForecastList(
-            (uiState.value as HourlyForecastViewData.Done).forecastDomainObject.days.first { it.date == date }.hours,
+            (uiState.value as HourlyForecastViewData.Done).forecastDomainObject.days.first { it.dayOfWeek == date }.hours,
             modifier,
             hourlyForecastViewModel
         )

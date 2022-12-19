@@ -61,6 +61,7 @@ fun <T> AutoCompleteTextView(
         modifier = modifier
             .heightIn(max = TextFieldDefaults.MinHeight * 6)
             .animateContentSize()
+            //.border(width = 2.dp, color = MaterialTheme.colorScheme.primary)
             //.background(color = MaterialTheme.colorScheme.primaryContainer)
     ) {
         if (searchResults.isNotEmpty()) {

@@ -19,7 +19,8 @@ import com.brian.weather.presentation.animations.pressClickEffect
 @Composable
 fun ErrorScreen(
     retryAction: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    message: String? = ""
 ) {
 
     Column(

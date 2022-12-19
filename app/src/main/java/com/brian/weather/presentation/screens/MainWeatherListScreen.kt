@@ -76,7 +76,7 @@ fun MainWeatherListScreen(
             addWeatherFabAction,
             weatherListViewModel,
         )
-        is WeatherListState.Error -> ErrorScreen(retryAction, modifier)
+        is WeatherListState.Error -> ErrorScreen(retryAction, modifier, message = weatherUiState.message)
     }
 }
 

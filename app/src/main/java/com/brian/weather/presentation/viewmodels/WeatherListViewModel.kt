@@ -2,9 +2,6 @@ package com.brian.weather.presentation.viewmodels
 
 import android.app.Application
 import android.content.res.Resources
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.brian.weather.data.local.WeatherDao
@@ -25,9 +22,9 @@ import kotlinx.coroutines.launch
  */
 sealed interface WeatherListState {
     data class Success(val weatherDomainObjects: List<WeatherDomainObject>) : WeatherListState
-    object Error : WeatherListState
+    data class Error(val message: String?) : WeatherListState
     object Loading : WeatherListState
-    object Empty: WeatherListState
+    object Empty : WeatherListState
 }
 
 class WeatherListViewModel(
@@ -44,7 +41,7 @@ class WeatherListViewModel(
         humidity: Int
     ) =
         flow {
-            while (true)  {
+            while (true) {
                 emit(time)
                 delay(3000)
                 emit("Wind: $windspeed")
@@ -80,9 +77,13 @@ class WeatherListViewModel(
         }
     }
 
-   // private val _allPreferences = preferencesRepository.getAllPreferences.stateIn(viewModelScope, SharingStarted.Eagerly, null)
-   // val allPreferences = _allPreferences.value
-    val allPreferences = preferencesRepository.getAllPreferences.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    // private val _allPreferences = preferencesRepository.getAllPreferences.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    // val allPreferences = _allPreferences.value
+    val allPreferences = preferencesRepository.getAllPreferences.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        null
+    )
 
 
     fun refresh() {
@@ -96,16 +97,13 @@ class WeatherListViewModel(
     fun getAllWeather(
         resources: Resources
     ): StateFlow<WeatherListState> {
-
-        val zipcodes = getZipCodesFromDatabase()
         return refreshFlow
-            .flatMapLatest {
-                getZipCodesFromDatabase()
+            .flatMapLatest { getZipCodesFromDatabase()
                     .flatMapLatest { zipcodes ->
                         flow {
                             if (zipcodes.isNotEmpty()) {
                                 emit(WeatherListState.Loading)
-                                when (weatherRepository.getWeather(zipcodes.first())) {
+                                when (val response = weatherRepository.getWeather(zipcodes.first())) {
                                     is NetworkResult.Success -> emit(
                                         WeatherListState.Success(
                                             weatherRepository.getWeatherListForZipCodes(
@@ -115,8 +113,12 @@ class WeatherListViewModel(
                                             )
                                         )
                                     )
-                                    is NetworkResult.Failure -> emit(WeatherListState.Error)
-                                    is NetworkResult.Exception -> emit(WeatherListState.Error)
+                                    is NetworkResult.Failure -> emit(WeatherListState.Error(
+                                        message = response.message)
+                                    )
+                                    is NetworkResult.Exception -> emit(WeatherListState.Error(
+                                        message = response.e.message)
+                                    )
                                 }
                             } else emit(WeatherListState.Empty)
                         }

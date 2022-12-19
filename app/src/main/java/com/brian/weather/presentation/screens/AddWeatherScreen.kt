@@ -46,6 +46,7 @@ fun AddWeatherScreen(
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val searchResults by addWeatherLocationViewModel.getSearchResults.collectAsState()
+    var itemClicked by remember { mutableStateOf(false) }
 
 
     Box(
@@ -75,11 +76,13 @@ fun AddWeatherScreen(
                     }
                },
                 onClearClick = {
+                    itemClicked = false
                     location = ""
                     addWeatherLocationViewModel.clearQueryResults()
                 },
                 onDoneActionClick = { keyboardController?.hide() },
                 onItemClick = {
+                    itemClicked = true
                     location = it
                     addWeatherLocationViewModel.clearQueryResults()
                 },
@@ -87,6 +90,7 @@ fun AddWeatherScreen(
                     if (updatedSearch.length >= 3) {
                         addWeatherLocationViewModel.setQuery(updatedSearch)
                     } else if (updatedSearch.isBlank()) {
+                        itemClicked = false
                         addWeatherLocationViewModel.clearQueryResults()
                     }
                     location = updatedSearch
@@ -103,8 +107,10 @@ fun AddWeatherScreen(
             if(value == "{location}") {
                 Button(
                     onClick = {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            addWeather(navAction, addWeatherLocationViewModel, location, context)
+                        if(itemClicked) {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                addWeather(navAction, addWeatherLocationViewModel, location, context)
+                            }
                         }
                     },
                     modifier

@@ -37,7 +37,8 @@ fun QuerySearch(
             },
         value = query,
         onValueChange = onQueryChanged,
-        label = { Text(text = label) },
+        //label = { Text(text = label) },
+        placeholder = { Text(text = label) },
         textStyle = MaterialTheme.typography.bodyMedium,
         singleLine = true,
         trailingIcon = {

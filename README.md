@@ -39,7 +39,5 @@ Some Highlights include:
 
 
 ![alt text](https://play-lh.googleusercontent.com/2uEutGCYAEupu4gfrGQVRahFyWgGdRiuxXjTheIHn4s52OMiVkrT3mALI23zgu98y14=w2560-h1440-rwg)
-![alt text](https://play-lh.googleusercontent.com/yNPdO5A71CONU4GTAREJUMBizB47t6i0rigwqMojWLw97KNvuVlct--6dKSwTFGjgVU=w2560-h1440-rw)
-![alt text](https://play-lh.googleusercontent.com/xAnGBfqnQ1pwvwkOsPrwNlL_Yf8wnsMte_ylxdHEyMQnz4jLP3kD9S3cGFAfuiUKgl4=w2560-h1440-rw)
-![alt text](https://play-lh.googleusercontent.com/v_I2ng8FKJ1pfuTKXM7_OF3YOUG9pebP1tTJD07w5SdF_qQZJuru12ujZTGPSEtvRA=w2560-h1440-rw
+
 

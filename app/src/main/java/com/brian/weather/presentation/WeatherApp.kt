@@ -194,6 +194,11 @@ fun WeatherApp(
             onDismissRequest = { openLocationOverflowMenu.value = false },
             dismissButtonOnClick = { openLocationOverflowMenu.value = false },
             confirmButtonOnClick = {
+                /**
+                 * We don't need to run this coroutine on a different thread because the database
+                 * is returning the object via Flow. Flow return type always run on the Room
+                 * executors, so they are always main-safe.
+                 */
                 coroutineScope.launch {
                         val weatherEntity =
                             location?.let { weatherListViewModel.getWeatherByZipcode(it).first() }
@@ -263,11 +268,8 @@ fun WeatherApp(
                         .fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val weatherUiState by remember {
-                        weatherListViewModel.getAllWeather(
-                            context.resources
-                        )
-                    }.collectAsState()
+                    val weatherUiState by remember { weatherListViewModel.getAllWeather(context.resources) }
+                        .collectAsState()
 
                     MainWeatherListScreen(
                         weatherUiState = weatherUiState,

@@ -10,11 +10,9 @@ import com.brian.weather.data.local.WeatherEntity
 import com.brian.weather.data.remote.NetworkResult
 import com.brian.weather.data.settings.PreferencesRepository
 import com.brian.weather.repository.WeatherRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
 sealed class ForecastViewData {
     object Loading : ForecastViewData()
@@ -45,7 +43,7 @@ class DailyForecastViewModel(
         avgHumidity: Double,
         sunset: String) =
         flow {
-            while (true)  {
+            while (currentCoroutineContext().isActive)  {
                 if(chanceOfRain > 0.0) {
                     emit("Rain: ${chanceOfRain.toInt()} %")
                     delay(3000)
@@ -62,6 +60,7 @@ class DailyForecastViewModel(
                 delay(3000)
                 emit("Sunset: $sunset ")
                 delay(3000)
+
             }
         }
 

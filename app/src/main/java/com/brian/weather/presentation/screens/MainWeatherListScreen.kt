@@ -424,7 +424,7 @@ fun WeatherListItem(
                         }
                     ) { targetString ->
                         Text(
-                            text = ticker.value,
+                            text = targetString,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
                             modifier = Modifier.semantics {

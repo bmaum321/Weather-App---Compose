@@ -22,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +30,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.brian.weather.data.settings.PreferencesRepository
 import com.brian.weather.presentation.WeatherApp
 import com.brian.weather.presentation.reusablecomposables.CustomAlertDialog
 import com.brian.weather.presentation.theme.WeatherComposeTheme
@@ -39,6 +41,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.shouldShowRationale
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.get
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 
 
@@ -55,6 +59,8 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 
+                    val preferencesRepository: PreferencesRepository = get()
+                    val coroutineScope = rememberCoroutineScope()
                     val showNotificationPermissionRationale = remember { mutableStateOf(false) }
                     val showLocationPermissionRationale = remember { mutableStateOf(false) }
                     val showBackgroundLocationRationale = remember { mutableStateOf(false) }
@@ -131,7 +137,9 @@ class MainActivity : ComponentActivity() {
                             onDismissRequest = {
                                 showNotificationPermissionRationale.value = false
                             },
-                            dismissButtonOnClick = { showNotificationPermissionRationale.value = false },
+                            dismissButtonOnClick = {
+                                showNotificationPermissionRationale.value = false
+                            },
                             confirmButtonOnClick = {
                                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                                 intent.data = Uri.parse("package:$packageName")
@@ -149,7 +157,9 @@ class MainActivity : ComponentActivity() {
                             onDismissRequest = {
                                 showLocationPermissionRationale.value = false
                             },
-                            dismissButtonOnClick = { showLocationPermissionRationale.value = false },
+                            dismissButtonOnClick = {
+                                showLocationPermissionRationale.value = false
+                            },
                             confirmButtonOnClick = {
                                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                                 intent.data = Uri.parse("package:$packageName")
@@ -167,7 +177,12 @@ class MainActivity : ComponentActivity() {
                             onDismissRequest = {
                                 showBackgroundLocationRationale.value = false
                             },
-                            dismissButtonOnClick = { showBackgroundLocationRationale.value = false },
+                            dismissButtonOnClick = {
+                                coroutineScope.launch {
+                                    showBackgroundLocationRationale.value = false
+                                    preferencesRepository.saveLocalForecastSetting(false)
+                                }
+                            },
                             confirmButtonOnClick = {
                                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                                 intent.data = Uri.parse("package:$packageName")
@@ -205,16 +220,17 @@ class MainActivity : ComponentActivity() {
                     preferences?.let {
                         val jobScheduler = JobScheduler(it)
                         jobScheduler.schedulePrecipitationJob(LocalContext.current)
-                        jobScheduler.scheduleForecastJob(LocalContext.current) }
+                        jobScheduler.scheduleForecastJob(LocalContext.current)
+                    }
 
                     /**
                      * If user checks option to show local forecast, check to see if background
                      * permission enabled. If not show the dialog to enable it. If location services
                      * are not enabled do the same.
                      */
-                    if(preferences?.showLocalForecast == true) {
+                    if (preferences?.showLocalForecast == true) {
                         if (!checkBackgroundLocationPermissions()) {
-                                showBackgroundLocationRationale.value = true
+                            showBackgroundLocationRationale.value = true
                         } else if (!isLocationEnabled()) {
                             showLocationServicesDialog.value = true
                         }
@@ -230,13 +246,15 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     // Check if background location is enabled for forecast alerts
     private fun checkBackgroundLocationPermissions(): Boolean {
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_BACKGROUND_LOCATION
             )
-            == PackageManager.PERMISSION_GRANTED)  {
+            == PackageManager.PERMISSION_GRANTED
+        ) {
             return true
         }
         return false

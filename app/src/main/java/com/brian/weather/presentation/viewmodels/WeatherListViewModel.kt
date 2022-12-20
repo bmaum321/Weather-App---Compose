@@ -13,8 +13,10 @@ import com.brian.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
@@ -41,7 +43,7 @@ class WeatherListViewModel(
         humidity: Int
     ) =
         flow {
-            while (true) {
+            while (currentCoroutineContext().isActive) {
                 emit(time)
                 delay(3000)
                 emit("Wind: $windspeed")

@@ -41,6 +41,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.shouldShowRationale
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.androidx.viewmodel.ext.android.getViewModel
@@ -175,12 +177,17 @@ class MainActivity : ComponentActivity() {
                             title = getString(R.string.background_location_permission_dialog_title),
                             text = getString(R.string.background_location_permission_required),
                             onDismissRequest = {
-                                showBackgroundLocationRationale.value = false
+                                coroutineScope.launch{
+                                    preferencesRepository.saveLocalForecastSetting(false)
+                                    delay(250)
+                                    showBackgroundLocationRationale.value = false
+                                }
                             },
                             dismissButtonOnClick = {
                                 coroutineScope.launch {
-                                    showBackgroundLocationRationale.value = false
                                     preferencesRepository.saveLocalForecastSetting(false)
+                                    delay(250)
+                                    showBackgroundLocationRationale.value = false
                                 }
                             },
                             confirmButtonOnClick = {

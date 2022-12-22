@@ -38,6 +38,6 @@ Some Highlights include:
 - Navigation and settings tests located under the androidTest Directory 
 
 
-![alt text]([http://url/to/img.png](https://play-lh.googleusercontent.com/2uEutGCYAEupu4gfrGQVRahFyWgGdRiuxXjTheIHn4s52OMiVkrT3mALI23zgu98y14=w2560-h1440-rw))
+![alt text](https://play-lh.googleusercontent.com/2uEutGCYAEupu4gfrGQVRahFyWgGdRiuxXjTheIHn4s52OMiVkrT3mALI23zgu98y14=w2560-h1440-rw)
 
 

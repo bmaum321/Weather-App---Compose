@@ -41,9 +41,9 @@ class JobScheduler(private val preferences: AppPreferences) {
             }
             val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
             val precipitationRequest = PeriodicWorkRequest.Builder(
-                DailyPrecipitationWorker::class.java,
-                12,
-                TimeUnit.HOURS
+                /* workerClass = */ DailyPrecipitationWorker::class.java,
+                /* repeatInterval = */ 12,
+                /* repeatIntervalTimeUnit = */ TimeUnit.HOURS
             )
                 .setConstraints(constraints)
                 .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
@@ -102,9 +102,9 @@ class JobScheduler(private val preferences: AppPreferences) {
                     }
                     val timeDiffForecast = forecastDueDate.timeInMillis - currentDate.timeInMillis
                     val forecastRequest = PeriodicWorkRequest.Builder(
-                        DailyLocalWeatherWorker::class.java,
-                        12,
-                        TimeUnit.HOURS
+                        /* workerClass = */ DailyLocalWeatherWorker::class.java,
+                        /* repeatInterval = */ 12,
+                        /* repeatIntervalTimeUnit = */ TimeUnit.HOURS
                     )
                         .setConstraints(constraints)
                         .setInitialDelay(timeDiffForecast, TimeUnit.MILLISECONDS)

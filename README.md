@@ -38,6 +38,6 @@ Some Highlights include:
 - Navigation and settings tests located under the androidTest Directory 
 
 
-![Alt text](screenshots/unamed.webp?raw=true "Title")
+![plot](./screenshots/unnamed.webp?)
 
 

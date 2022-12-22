@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -46,7 +47,9 @@ fun DailyForecastScreen(
 
     // This only seems to work if I pass the viewmodel all the way down from main activity and only have one instance of main view model, grabbing it from Koin doesnt work
     LaunchedEffect(Unit) {
-        mainViewModel.updateActionBarTitle(dailyForecastViewModel.getWeatherByZipcode(location).first().cityName)
+        mainViewModel.updateActionBarTitle(
+            dailyForecastViewModel.getWeatherByZipcode(location).first().cityName
+        )
     }
     val context = LocalContext.current
     val temperatureUnit = dailyForecastViewModel.getTemperatureUnit()
@@ -78,7 +81,7 @@ fun DailyForecastScreen(
  * Screen displaying Daily Forecast
  */
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun ForecastList(
     forecast: ForecastDomainObject,
@@ -99,17 +102,27 @@ fun ForecastList(
         refreshing = false
     }
 
-   // val state = rememberPullRefreshState(
-   //     refreshing = refreshing,
-  //      onRefresh = { refresh() }
+    // val state = rememberPullRefreshState(
+    //     refreshing = refreshing,
+    //      onRefresh = { refresh() }
 //    )
+    val listState = rememberLazyListState()
+    val showAlertFab by remember {
+        derivedStateOf { listState.firstVisibleItemIndex == 0 }
+    }
     val fabVisible by remember { mutableStateOf(forecast.alerts.isNotEmpty() && alertsEnabled) }
     Scaffold(
         floatingActionButton = {
-            if (fabVisible) {
-               Pulsating() {
-                   AlertFab(onClick = alertFabOnClick)
-               }
+            AnimatedVisibility(
+                visible = showAlertFab,
+                enter = scaleIn(),
+                exit = scaleOut()
+            ) {
+                if (fabVisible) {
+                    Pulsating() {
+                        AlertFab(onClick = alertFabOnClick)
+                    }
+                }
             }
         },
         floatingActionButtonPosition = FabPosition.End
@@ -120,7 +133,8 @@ fun ForecastList(
                 modifier = modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
-                contentPadding = innerPadding
+                contentPadding = innerPadding,
+                state = listState
             ) {
                 items(forecast.days) {
                     ForecastListItem(
@@ -133,11 +147,11 @@ fun ForecastList(
                     )
                 }
             }
-           // PullRefreshIndicator(
-          //      refreshing = refreshing,
-         //       state = state,
-          //      Modifier.align(Alignment.TopCenter)
-          //  )
+            // PullRefreshIndicator(
+            //      refreshing = refreshing,
+            //       state = state,
+            //      Modifier.align(Alignment.TopCenter)
+            //  )
         }
     }
 
@@ -168,20 +182,23 @@ fun ForecastListItem(
 
     val date = daysDomainObject.dayOfWeek
     val gradient = Brush.linearGradient(gradientColors)
-    val colors = CardDefaults.cardColors(contentColor = if(dynamicColorsEnabled) daysDomainObject.day.textColor else LocalContentColor.current)
+    val colors =
+        CardDefaults.cardColors(contentColor = if (dynamicColorsEnabled) daysDomainObject.day.textColor else LocalContentColor.current)
 
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .height(125.dp)
+            .height(135.dp)
             .pressClickEffect(),
         onClick = { onClick(date) },
         colors = colors
-       // contentColor = if (dynamicColorsEnabled.value) daysDomainObject.day.textColor else LocalContentColor.current
+        // contentColor = if (dynamicColorsEnabled.value) daysDomainObject.day.textColor else LocalContentColor.current
     ) {
-        Box(modifier = if (dynamicColorsEnabled) modifier
-            .background(gradient)
-            .fillMaxSize() else modifier.fillMaxSize()) {
+        Box(
+            modifier = if (dynamicColorsEnabled) modifier
+                .background(gradient)
+                .fillMaxSize() else modifier.fillMaxSize()
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

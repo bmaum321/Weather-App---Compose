@@ -13,8 +13,8 @@ android {
         applicationId "com.brian.weather"
         minSdk 26
         targetSdk 33
-        versionCode 14
-        versionName "2.06"
+        versionCode 15
+        versionName "2.07"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -108,6 +108,9 @@ dependencies {
 
     // Accompanist Library for permission handling
     implementation "com.google.accompanist:accompanist-permissions:0.28.0"
+
+    // Drag and drop reorder for Lazy column
+    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
 
 
     // Testing

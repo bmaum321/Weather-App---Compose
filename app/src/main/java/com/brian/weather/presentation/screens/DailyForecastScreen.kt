@@ -1,11 +1,15 @@
 package com.brian.weather.presentation.screens
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brian.weather.R
@@ -27,6 +32,7 @@ import com.brian.weather.presentation.animations.Pulsating
 import com.brian.weather.presentation.animations.pressClickEffect
 import com.brian.weather.presentation.reusablecomposables.ErrorScreen
 import com.brian.weather.presentation.reusablecomposables.LoadingScreen
+import com.brian.weather.presentation.reusablecomposables.MarqueeText
 import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
 import com.brian.weather.presentation.viewmodels.*
 import kotlinx.coroutines.flow.first
@@ -188,7 +194,7 @@ fun ForecastListItem(
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .height(135.dp)
+            .height(125.dp)
             .pressClickEffect(),
         onClick = { onClick(date) },
         colors = colors
@@ -216,11 +222,19 @@ fun ForecastListItem(
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
-                    Text(
-                        text = daysDomainObject.day.condition.text,
-                        fontSize = 18.sp,
-                        //maxLines = 1
-                    )
+
+                    if(daysDomainObject.day.condition.text.length > 13) {
+                        MarqueeText(text = daysDomainObject.day.condition.text, fontSize = 18.sp)
+                    } else {
+                        Text(
+                            text = daysDomainObject.day.condition.text,
+                            fontSize = 18.sp,
+                            //maxLines = 1
+                        )
+                    }
+
+
+
                 }
                 Spacer(modifier = Modifier.weight(.5f))
 

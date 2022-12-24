@@ -32,7 +32,7 @@ interface WeatherDao {
 
     // method to retrieve all weather entities from database
     @Query("SELECT * FROM weather_database ORDER BY sortOrder ASC")
-    fun getAllWeatherEntities(): List<WeatherEntity>
+    fun getAllWeatherEntities(): Flow<List<WeatherEntity>>
 
     // method to retrieve a Weather from the database by id
     @Query("SELECT * FROM weather_database WHERE id = :id")

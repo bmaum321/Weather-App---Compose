@@ -31,8 +31,8 @@ fun Hour.toDomainModel(
             listOf(Color(0xff575757),Color(0x472761CC)) // partly cloud night
         } // partly cloudy night
         in 1006..1030 -> listOf(Color.Gray, Color.DarkGray) // clouds/overcast
-        in 1063..1115 -> listOf(Color(0xff575757), Color(0xff1976d2)) // rain
-        1117 -> listOf(Color.White, Color.Gray) // Blizzard
+        in 1063..1113 -> listOf(Color(0xff575757), Color(0xff1976d2)) // rain
+        in 1114..1117 -> listOf(Color.White, Color.Gray) // Blizzard
         in 1150..1207 -> listOf(Color(0xff575757),Color(0xff1976d2))// rain
         in 1210..1237 -> listOf(Color.White, Color.Gray) //snow
         in 1255..1258 -> listOf(Color.White, Color.Gray) // moderate snow

@@ -62,8 +62,9 @@ class WeatherListViewModel(
 
     fun getZipCodesFromDatabase() = weatherDao.getZipcodesFlow()
 
-
     fun getWeatherByZipcode(location: String) = weatherDao.getWeatherByLocation(location)
+
+    fun getAllWeatherEntities() = weatherDao.getAllWeatherEntities()
 
 
     fun deleteWeather(weatherEntity: WeatherEntity) {
@@ -127,6 +128,24 @@ class WeatherListViewModel(
 
                     }
             }.stateIn(viewModelScope, SharingStarted.Lazily, WeatherListState.Loading)
+    }
+
+    fun updateWeather(
+        id: Long,
+        name: String,
+        zipcode: String,
+        sortOrder: Int
+    ) {
+        val weatherEntity = WeatherEntity(
+            id = id,
+            cityName = name,
+            zipCode = zipcode,
+            sortOrder = sortOrder
+        )
+        viewModelScope.launch(Dispatchers.IO) {
+            // call the DAO method to update a weather object to the database here
+            weatherDao.update(weatherEntity)
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package com.brian.weather.presentation.screens
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +15,7 @@ import androidx.compose.material3.Card
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -29,9 +31,7 @@ import com.brian.weather.R
 import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.domain.model.WeatherDomainObject
 import com.brian.weather.presentation.animations.Pulsating
-import com.brian.weather.presentation.animations.bounceClick
 import com.brian.weather.presentation.animations.pressClickEffect
-import com.brian.weather.presentation.animations.tickerAnimation
 import com.brian.weather.presentation.reusablecomposables.ErrorScreen
 import com.brian.weather.presentation.reusablecomposables.LoadingScreen
 import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
@@ -40,10 +40,13 @@ import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListState
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.first
+import org.burnoutcrew.reorderable.ReorderableItem
+import org.burnoutcrew.reorderable.detectReorderAfterLongPress
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
 import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.viewModel
 
 @Composable
 fun MainWeatherListScreen(
@@ -119,8 +122,44 @@ fun WeatherListScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val listState = rememberLazyListState()
-    val showScrollToTopButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
-    val showAddWeatherFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+    val data = remember { mutableStateOf(weatherDomainObjectList) }
+    val state = rememberReorderableLazyListState(onMove = { from, to ->
+        data.value = data.value.toMutableList().apply {
+            add(to.index, removeAt(from.index))
+        }
+
+        coroutineScope.launch {
+            /**
+             * Updating the db, causes the zipcodes flow to emit a new value, which emits the loading state
+             * This is super janky, can find a better a way
+             */
+            delay(3000)
+            withContext(Dispatchers.IO) {
+                var num = 1
+                data.value.forEach { weather ->
+                    weatherListViewModel.updateWeather(
+                        id = num.toLong(),
+                        zipcode = weather.zipcode,
+                        name = weather.location,
+                        sortOrder = num
+                    )
+                    num++
+                }
+
+            }
+        }
+
+
+
+
+
+    })
+    val showScrollToTopButton by remember { derivedStateOf { state.listState.firstVisibleItemIndex > 0 } }
+    val showAddWeatherFab by remember { derivedStateOf { state.listState.firstVisibleItemIndex == 0 } }
+
+
+
+
     //val scaffoldState = rememberScaffoldState()
     Scaffold(
         //    scaffoldState = scaffoldState,
@@ -168,20 +207,28 @@ fun WeatherListScreen(
                 modifier = modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background)
-                    .padding(top = 8.dp),
+                    .padding(top = 8.dp)
+                    .reorderable(state)
+                    .detectReorderAfterLongPress(state),
                 contentPadding = PaddingValues(4.dp),
-                state = listState,
+                state = state.listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
 
-                items(weatherDomainObjectList) { item ->
+                items(data.value, {it.location}) { item ->
 
-                    WeatherListItem(
-                        weatherDomainObject = item,
-                        onClick = onClick,
-                        preferences = preferences,
-                        viewModel = weatherListViewModel
-                    )
+                    ReorderableItem(reorderableState = state, key = item) { isDragging ->
+                        val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
+                        WeatherListItem(
+                            weatherDomainObject = item,
+                            onClick = onClick,
+                            preferences = preferences,
+                            viewModel = weatherListViewModel,
+                            elevation = elevation
+                        )
+                    }
+
+
                     /*
 
                     // WeatherListItem(item, onClick = onClick)
@@ -347,7 +394,8 @@ fun WeatherListItem(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
     preferences: AppPreferences?,
-    viewModel: WeatherListViewModel
+    viewModel: WeatherListViewModel,
+    elevation: State<Dp>
 ) {
     val ticker = viewModel.weatherTicker(
         humidity = weatherDomainObject.humidity,
@@ -368,7 +416,8 @@ fun WeatherListItem(
             .padding(8.dp)
             .height(175.dp)
             .fillMaxWidth()
-            .pressClickEffect(),
+            .pressClickEffect()
+            .shadow(elevation.value),
         onClick = { onClick(weatherDomainObject.zipcode) },
         colors = colors
     ) {

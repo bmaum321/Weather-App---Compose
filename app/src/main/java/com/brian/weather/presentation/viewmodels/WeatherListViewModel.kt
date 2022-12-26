@@ -18,6 +18,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 
 /**
  * UI state for the Home screen
@@ -60,6 +62,14 @@ class WeatherListViewModel(
         tryEmit(Unit)
     }
 
+    /**
+     * Modified this to return a List instead of a flow to support drag and drop to reorder. Previously,
+     * on drag and drop, the databse would be updated, and the zipcodes flow would emit a new value of
+     * the reordered locations, which would trigger the state to emit a new flow which always emits
+     * loading to begin. So on one drag and drop, the screen would reload
+     *
+     * To support this, had to build a new scope to launch the state flow in
+     */
     fun getZipCodesFromDatabase() = weatherDao.getZipcodesFlow()
 
     fun getWeatherByZipcode(location: String) = weatherDao.getWeatherByLocation(location)
@@ -100,9 +110,10 @@ class WeatherListViewModel(
     fun getAllWeather(
         resources: Resources
     ): StateFlow<WeatherListState> {
+        val scope = viewModelScope + Dispatchers.IO
         return refreshFlow
-            .flatMapLatest { getZipCodesFromDatabase()
-                    .flatMapLatest { zipcodes ->
+            .flatMapLatest {
+                  val zipcodes = getZipCodesFromDatabase()
                         flow {
                             if (zipcodes.isNotEmpty()) {
                                 emit(WeatherListState.Loading)
@@ -126,8 +137,7 @@ class WeatherListViewModel(
                             } else emit(WeatherListState.Empty)
                         }
 
-                    }
-            }.stateIn(viewModelScope, SharingStarted.Lazily, WeatherListState.Loading)
+            }.stateIn(scope, SharingStarted.Lazily, WeatherListState.Loading)
     }
 
     fun updateWeather(

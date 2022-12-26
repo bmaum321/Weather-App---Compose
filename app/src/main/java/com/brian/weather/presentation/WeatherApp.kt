@@ -139,12 +139,26 @@ fun WeatherApp(
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = backStackEntry?.destination?.route
-    val locationsInDatabase =
-        weatherListViewModel.getZipCodesFromDatabase().collectAsState(initial = "")
+
 
     // Get the app bar title from the main view model
     val title by mainViewModel.title.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+
+    /**
+     * WAs collecting as state before, but now this method returns a list instead of a flow. Is there
+     * a better way to do this?
+     */
+
+    val locationsInDatabase = mutableListOf<String>()
+    LaunchedEffect(Unit) {
+        withContext((Dispatchers.IO)) {
+            locationsInDatabase.addAll( weatherListViewModel.getZipCodesFromDatabase())
+        }
+    }
+
+
+
 
     /**
      * These dialog states should live in the screens themeselves?
@@ -379,11 +393,12 @@ fun WeatherApp(
             }
 
             composable(route = NotificationsMenu.route) {
+
                 NotificationSettingsScreen(
                     viewModel = mainViewModel,
                     coroutineScope = coroutineScope,
                     preferencesRepository = get(),
-                    locations = locationsInDatabase.value as List<String>
+                    locations = locationsInDatabase
                 )
             }
 

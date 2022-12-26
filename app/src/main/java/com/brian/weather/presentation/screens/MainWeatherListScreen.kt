@@ -2,6 +2,7 @@ package com.brian.weather.presentation.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateSizeAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -133,7 +134,6 @@ fun WeatherListScreen(
              * Updating the db, causes the zipcodes flow to emit a new value, which emits the loading state
              * This is super janky, can find a better a way
              */
-            delay(3000)
             withContext(Dispatchers.IO) {
                 var num = 1
                 data.value.forEach { weather ->
@@ -149,15 +149,9 @@ fun WeatherListScreen(
             }
         }
 
-
-
-
-
     })
     val showScrollToTopButton by remember { derivedStateOf { state.listState.firstVisibleItemIndex > 0 } }
     val showAddWeatherFab by remember { derivedStateOf { state.listState.firstVisibleItemIndex == 0 } }
-
-
 
 
     //val scaffoldState = rememberScaffoldState()
@@ -218,7 +212,8 @@ fun WeatherListScreen(
                 items(data.value, {it.location}) { item ->
 
                     ReorderableItem(reorderableState = state, key = item) { isDragging ->
-                        val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
+                        val elevation = animateDpAsState(if (isDragging) 200.dp else 0.dp)
+                       // val color = animate(if (isDragging) 1f else .5f)
                         WeatherListItem(
                             weatherDomainObject = item,
                             onClick = onClick,
@@ -419,7 +414,7 @@ fun WeatherListItem(
             .pressClickEffect()
             .shadow(elevation.value),
         onClick = { onClick(weatherDomainObject.zipcode) },
-        colors = colors
+        colors = colors,
     ) {
         Box(
             modifier = if (preferences?.dynamicColors == true) Modifier

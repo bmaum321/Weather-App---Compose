@@ -290,14 +290,14 @@ fun WeatherApp(
                         retryAction = { weatherListViewModel.refresh() },
                         modifier = modifier,
                         onClick = { location -> navController.navigateToDailyForecast(location) },
-                        addWeatherFabAction = { navController.navigate(AddLocation.routeWithArgs) },
+                        addWeatherFabAction = { navController.navigate(AddLocation.route) },
                         weatherListViewModel = weatherListViewModel,
                         mainViewModel = mainViewModel
                     )
                 }
             }
 
-            composable(route = AddLocation.routeWithArgs) {
+            composable(route = AddLocation.route) {
                 val location = it.arguments?.getString("location")
                 AddWeatherScreen(
                     value = location ?: "",

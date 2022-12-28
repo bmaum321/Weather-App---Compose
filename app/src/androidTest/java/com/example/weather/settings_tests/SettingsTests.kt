@@ -19,6 +19,7 @@ import com.brian.weather.R
 import com.brian.weather.data.settings.PreferencesRepositoryImpl
 import com.brian.weather.presentation.WeatherApp
 import com.brian.weather.presentation.navigation.*
+import com.example.weather.repository.FakeWeatherRepository
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,7 +45,8 @@ class SettingsTests {
                 weatherListViewModel = WeatherListViewModel(
                     application = Application(),
                     weatherDao = WeatherDatabase.getDatabase(LocalContext.current).getWeatherDao(),
-                    weatherRepository = WeatherRepositoryImpl(WeatherApi),
+                    weatherRepository = FakeWeatherRepository(),
+                    //weatherRepository = WeatherRepositoryImpl(WeatherApi),
                     preferencesRepository = PreferencesRepositoryImpl(get())
                 ),
                 mainViewModel = mainViewModel,
@@ -63,6 +65,7 @@ class SettingsTests {
         composeTestRule.onNodeWithText("24 hour").performClick()
         composeTestRule.onNodeWithText("Ok").performClick()
         performNavigateUp()
+        performNavigateUp()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         composeTestRule.onAllNodesWithTag(
             testTag = composeTestRule.activity.getString(R.string.twenty_four_hour_clock_format),
@@ -79,6 +82,7 @@ class SettingsTests {
         composeTestRule.onNodeWithText("Clock Format").performClick()
         composeTestRule.onNodeWithText("12 hour").performClick()
         composeTestRule.onNodeWithText("Ok").performClick()
+        performNavigateUp()
         performNavigateUp()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         composeTestRule.onAllNodesWithTag(
@@ -97,6 +101,7 @@ class SettingsTests {
         composeTestRule.onNodeWithText("Fahrenheit").performClick()
         composeTestRule.onNodeWithText("Ok").performClick()
         performNavigateUp()
+        performNavigateUp()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         composeTestRule.onAllNodesWithTag(testTag = "Fahrenheit", true).onFirst().assertExists()
     }
@@ -112,6 +117,7 @@ class SettingsTests {
         composeTestRule.onNodeWithText("Celsius").performClick()
         composeTestRule.onNodeWithText("Ok").performClick()
         performNavigateUp()
+        performNavigateUp()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         composeTestRule.onAllNodesWithTag(testTag = "Celsius", true).onFirst().assertExists()
 
@@ -126,6 +132,7 @@ class SettingsTests {
         composeTestRule.onNodeWithText("Wind").performClick()
         composeTestRule.onNodeWithText("MPH").performClick()
         composeTestRule.onNodeWithText("Ok").performClick()
+        performNavigateUp()
         performNavigateUp()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
@@ -147,6 +154,7 @@ class SettingsTests {
         composeTestRule.onNodeWithText("KPH").performClick()
         composeTestRule.onNodeWithText("Ok").performClick()
         performNavigateUp()
+        performNavigateUp()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
@@ -165,6 +173,7 @@ class SettingsTests {
         composeTestRule.onNodeWithText("Pressure").performClick()
         composeTestRule.onNodeWithText("IN").performClick()
         composeTestRule.onNodeWithText("Ok").performClick()
+        performNavigateUp()
         performNavigateUp()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
@@ -187,6 +196,7 @@ class SettingsTests {
         composeTestRule.onNodeWithText("MM").performClick()
         composeTestRule.onNodeWithText("Ok").performClick()
         performNavigateUp()
+        performNavigateUp()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
@@ -207,6 +217,7 @@ class SettingsTests {
         composeTestRule.onNodeWithTag("Show Weather Alerts?").performClick()
         composeTestRule.onNodeWithTag("Show Weather Alerts?").performClick()
         performNavigateUp()
+        performNavigateUp()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
@@ -222,6 +233,7 @@ class SettingsTests {
     fun interfaceSettings_disableAlerts_ShowsAlertFab() {
         navigateToInterfaceScreen()
         composeTestRule.onNodeWithTag("Show Weather Alerts?").performClick()
+        performNavigateUp()
         performNavigateUp()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()

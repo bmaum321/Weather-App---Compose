@@ -2,12 +2,10 @@ package com.brian.weather.presentation.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateSizeAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -41,13 +39,11 @@ import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListState
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.first
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 import org.koin.androidx.compose.getViewModel
-import org.koin.androidx.compose.viewModel
 
 @Composable
 fun MainWeatherListScreen(
@@ -122,21 +118,20 @@ fun WeatherListScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    val listState = rememberLazyListState()
-    val data = remember { mutableStateOf(weatherDomainObjectList) }
-    val state = rememberReorderableLazyListState(onMove = { from, to ->
-        data.value = data.value.toMutableList().apply {
+    val listData = remember { mutableStateOf(weatherDomainObjectList) }
+    val reorderableLazyListState = rememberReorderableLazyListState(onMove = { from, to ->
+        listData.value = listData.value.toMutableList().apply {
             add(to.index, removeAt(from.index))
         }
 
         coroutineScope.launch {
             /**
-             * Updating the db, causes the zipcodes flow to emit a new value, which emits the loading state
-             * This is super janky, can find a better a way
+             * Changed this zipcodes dao method to return a list instead of a flow to prevent a loading
+             * state to be emitted on every change
              */
             withContext(Dispatchers.IO) {
                 var num = 1
-                data.value.forEach { weather ->
+                listData.value.forEach { weather ->
                     weatherListViewModel.updateWeather(
                         id = num.toLong(),
                         zipcode = weather.zipcode,
@@ -150,8 +145,8 @@ fun WeatherListScreen(
         }
 
     })
-    val showScrollToTopButton by remember { derivedStateOf { state.listState.firstVisibleItemIndex > 0 } }
-    val showAddWeatherFab by remember { derivedStateOf { state.listState.firstVisibleItemIndex == 0 } }
+    val showScrollToTopButton by remember { derivedStateOf { reorderableLazyListState.listState.firstVisibleItemIndex > 0 } }
+    val showAddWeatherFab by remember { derivedStateOf { reorderableLazyListState.listState.firstVisibleItemIndex == 0 } }
 
 
     //val scaffoldState = rememberScaffoldState()
@@ -202,16 +197,16 @@ fun WeatherListScreen(
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(top = 8.dp)
-                    .reorderable(state)
-                    .detectReorderAfterLongPress(state),
+                    .reorderable(reorderableLazyListState)
+                    .detectReorderAfterLongPress(reorderableLazyListState),
                 contentPadding = PaddingValues(4.dp),
-                state = state.listState,
+                state = reorderableLazyListState.listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
 
-                items(data.value, {it.location}) { item ->
+                items(listData.value, {it.location}) { item ->
 
-                    ReorderableItem(reorderableState = state, key = item) { isDragging ->
+                    ReorderableItem(reorderableState = reorderableLazyListState, key = item) { isDragging ->
                         val elevation = animateDpAsState(if (isDragging) 200.dp else 0.dp)
                        // val color = animate(if (isDragging) 1f else .5f)
                         WeatherListItem(
@@ -341,7 +336,7 @@ fun WeatherListScreen(
                 FloatingActionButton(
                     onClick = {
                         coroutineScope.launch {
-                            listState.animateScrollToItem(0, 0)
+                            reorderableLazyListState.listState.animateScrollToItem(0, 0)
                         }
                     },
                     modifier = Modifier

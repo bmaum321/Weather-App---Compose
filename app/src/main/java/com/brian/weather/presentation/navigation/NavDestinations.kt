@@ -25,7 +25,6 @@ object MainWeatherList: NavDestinations {
 
 object AddLocation: NavDestinations {
     override val route = "addLocation"
-    val routeWithArgs = "$route/{${locationArg}}"
 }
 
 object DailyForecast: NavDestinations {

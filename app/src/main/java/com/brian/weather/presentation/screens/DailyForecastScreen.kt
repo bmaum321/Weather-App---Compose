@@ -224,6 +224,9 @@ fun ForecastListItem(
                     )
 
                     if(daysDomainObject.day.condition.text.length > 13) {
+                        /**
+                         * This causes UI tests to idle out
+                         */
                         MarqueeText(text = daysDomainObject.day.condition.text, fontSize = 18.sp)
                     } else {
                         Text(

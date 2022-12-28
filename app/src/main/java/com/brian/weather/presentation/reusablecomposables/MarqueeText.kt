@@ -81,7 +81,7 @@ fun MarqueeText(
 
         do {
             val animation = TargetBasedAnimation(
-                animationSpec = infiniteRepeatable(
+                animationSpec = infiniteRepeatable( // This breaks my UI tests
                     animation = tween(
                         durationMillis = duration,
                         delayMillis = 1000,

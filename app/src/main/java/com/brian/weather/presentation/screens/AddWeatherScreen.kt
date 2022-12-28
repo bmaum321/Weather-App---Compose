@@ -36,12 +36,8 @@ fun AddWeatherScreen(
     modifier: Modifier = Modifier,
     navAction: () -> Unit
 ) {
-    var input = value
-    if(value == "{location}") {
-        input = ""
-    }
     val addWeatherLocationViewModel = getViewModel<AddWeatherLocationViewModel>()
-    var location by remember { mutableStateOf(input) }
+    var location by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -66,7 +62,7 @@ fun AddWeatherScreen(
                 queryLabel = context.getString(R.string.search_for_places),
                 searchResults =
                 // This will clear results if query is cleared with backspace key
-                if(location.isBlank()){
+                if (location.isBlank()) {
                     emptyList()
                 } else {
                     when (searchResults) {
@@ -74,7 +70,7 @@ fun AddWeatherScreen(
                         is SearchViewData.Loading -> emptyList()
                         is SearchViewData.Error -> emptyList()
                     }
-               },
+                },
                 onClearClick = {
                     itemClicked = false
                     location = ""
@@ -104,32 +100,18 @@ fun AddWeatherScreen(
 
             Spacer(modifier = modifier.size(120.dp))
 
-            if(value == "{location}") {
-                Button(
-                    onClick = {
-                        if(itemClicked) {
-                            coroutineScope.launch(Dispatchers.IO) {
-                                addWeather(navAction, addWeatherLocationViewModel, location, context)
-                            }
-                        }
-                    },
-                    modifier
-                ) {
-                    Text(stringResource(R.string.save))
-                }
-            } else {
-                Button(
-                    onClick = {
+            Button(
+                onClick = {
+                    if (itemClicked) {
                         coroutineScope.launch(Dispatchers.IO) {
-                            editWeather(navAction, addWeatherLocationViewModel, location, context)
+                            addWeather(navAction, addWeatherLocationViewModel, location, context)
                         }
-                    },
-                    modifier.pressClickEffect()
-                ) {
-                    Text(stringResource(R.string.save))
-                }
+                    }
+                },
+                modifier
+            ) {
+                Text(stringResource(R.string.save))
             }
-
         }
     }
 }
@@ -159,30 +141,6 @@ private suspend fun addWeather(
 
 }
 
-private suspend fun editWeather(
-    navAction: () -> Unit,
-    viewModel: AddWeatherLocationViewModel,
-    location: String,
-    context: Context
-) {
-    withContext(Dispatchers.IO) {
-        val entity = viewModel.getWeatherByZipcode(location).first()
-        if (location.isNotBlank()) {
-            viewModel.updateWeather(
-                name = location,
-                sortOrder = 0,
-                zipcode = location,
-                id = entity.id
-            )
-    }
-        //Navigate back to main screen
-        withContext(Dispatchers.Main) {
-            run(navAction)
-        }
-
-    }
-
-}
 
 private fun showToast(text: String?, context: Context) {
     val duration = Toast.LENGTH_LONG

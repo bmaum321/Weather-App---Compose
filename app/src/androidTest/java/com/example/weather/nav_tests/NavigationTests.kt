@@ -1,7 +1,10 @@
 package com.example.weather.nav_tests
 
 import android.app.Application
+import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -20,6 +23,7 @@ import com.brian.weather.data.settings.PreferencesRepositoryImpl
 import com.brian.weather.presentation.WeatherApp
 import com.brian.weather.presentation.navigation.*
 import com.brian.weather.presentation.screens.AddWeatherScreen
+import com.example.weather.repository.FakeWeatherRepository
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -30,6 +34,7 @@ import org.koin.androidx.compose.get
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class NavigationTests {
+
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
     private val mainViewModel = MainViewModel()
@@ -45,7 +50,8 @@ class NavigationTests {
                 weatherListViewModel = WeatherListViewModel(
                     application = Application(),
                     weatherDao = WeatherDatabase.getDatabase(LocalContext.current).getWeatherDao(),
-                    weatherRepository = WeatherRepositoryImpl(WeatherApi),
+                    //weatherRepository = WeatherRepositoryImpl(WeatherApi),
+                    weatherRepository = FakeWeatherRepository(),
                     preferencesRepository = PreferencesRepositoryImpl(get())
                 ),
                 mainViewModel = mainViewModel,

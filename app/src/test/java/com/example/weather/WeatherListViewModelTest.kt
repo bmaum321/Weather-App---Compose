@@ -12,8 +12,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.brian.weather.data.local.WeatherDatabase
 import com.brian.weather.presentation.viewmodels.WeatherListState
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
-import com.example.weather.repository.FakePreferencesRepositoryImpl
-import com.example.weather.repository.FakeWeatherRepository
 import kotlinx.coroutines.*
 import org.junit.Assert.*
 import org.junit.Before

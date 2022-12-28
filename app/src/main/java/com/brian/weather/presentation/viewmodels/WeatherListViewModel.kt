@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
-import kotlinx.coroutines.withContext
 
 /**
  * UI state for the Home screen
@@ -70,7 +69,7 @@ class WeatherListViewModel(
      *
      * To support this, had to build a new scope to launch the state flow in
      */
-    fun getZipCodesFromDatabase() = weatherDao.getZipcodesFlow()
+    fun getZipCodesFromDatabase() = weatherDao.getZipcodes()
 
     fun getWeatherByZipcode(location: String) = weatherDao.getWeatherByLocation(location)
 

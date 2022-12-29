@@ -77,6 +77,9 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation "androidx.room:room-ktx:$room_version"
     testImplementation project(path: ':app')
+    androidTestImplementation project(path: ':app')
+    androidTestImplementation project(path: ':app')
+    androidTestImplementation project(path: ':app')
     //This was kapt in other project
     kapt "androidx.room:room-compiler:$room_version"
 

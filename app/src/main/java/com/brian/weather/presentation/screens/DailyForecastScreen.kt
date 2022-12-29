@@ -47,14 +47,16 @@ fun DailyForecastScreen(
     location: String,
     mainViewModel: MainViewModel,
     alertFabOnClick: () -> Unit,
+    dailyForecastViewModel: DailyForecastViewModel
 ) {
-    val dailyForecastViewModel = getViewModel<DailyForecastViewModel>()
+    //val dailyForecastViewModel = getViewModel<DailyForecastViewModel>()
     // update title bar
 
     // This only seems to work if I pass the viewmodel all the way down from main activity and only have one instance of main view model, grabbing it from Koin doesnt work
     LaunchedEffect(Unit) {
         mainViewModel.updateActionBarTitle(
-            dailyForecastViewModel.getWeatherByZipcode(location).first().cityName
+            //dailyForecastViewModel.getWeatherByZipcode(location).first()?.cityName ?: ""
+        location
         )
     }
     val context = LocalContext.current
@@ -223,18 +225,17 @@ fun ForecastListItem(
                         fontSize = 18.sp
                     )
 
-                    if(daysDomainObject.day.condition.text.length > 13) {
+                   // if(daysDomainObject.day.condition.text.length > 13) {
                         /**
                          * This causes UI tests to idle out
                          */
-                        MarqueeText(text = daysDomainObject.day.condition.text, fontSize = 18.sp)
-                    } else {
+                     //   MarqueeText(text = daysDomainObject.day.condition.text, fontSize = 18.sp)
+                  //  } else {
                         Text(
                             text = daysDomainObject.day.condition.text,
                             fontSize = 18.sp,
-                            //maxLines = 1
                         )
-                    }
+                   // }
 
 
 

@@ -1,4 +1,4 @@
-package com.example.weather.repository
+package com.brian.weather.repository.fakedata
 
 import android.content.res.Resources
 import androidx.compose.ui.graphics.Color
@@ -24,7 +24,7 @@ class FakeWeatherRepository: WeatherRepository {
     )
 
     private val currentWeatherData = CurrentWeatherData(
-        condition = Condition(code = 1, icon = "", text = ""),
+        condition = Condition(code = 1003, icon = "//cdn.weatherapi.com/weather/64x64/day/116.png", text = "Cloudy"),
         feelslike_c = 123.2,
         feelslike_f = 12.2,
         humidity = 1,
@@ -32,21 +32,21 @@ class FakeWeatherRepository: WeatherRepository {
         temp_c = 23.3,
         temp_f = 12.2,
         uv = 12.3,
-        wind_dir = "",
+        wind_dir = "SW",
         wind_kph = 12.2,
         wind_mph = 12.2
     )
 
     private val weatherItems = mutableListOf(WeatherDomainObject(
-        zipcode = "13088",
-        time = "",
+        zipcode = "Miami",
+        time = "11:00AM",
         country = "United States of America",
         windDirection = "WNW",
-        code = 1,
-        backgroundColors = emptyList(),
+        code = 1003,
+        backgroundColors = listOf(Color.White,Color.White),
         conditionText = "Cloudy",
         feelsLikeTemp = "52",
-        imgSrcUrl = "",
+        imgSrcUrl = "//cdn.weatherapi.com/weather/64x64/day/116.png",
         location = "Miami",
         temp = "32",
         textColor = Color.Black,
@@ -56,8 +56,9 @@ class FakeWeatherRepository: WeatherRepository {
 
     private val forecastDay = ForecastDay(
         mutableListOf(Day(
-            date = "Today", day = ForecastForDay(
-                condition = Condition(code = 1, icon = "", text = "Cloudy"),
+            date = "2022-12-28",
+            day = ForecastForDay(
+                condition = Condition(code = 1003, icon = "//cdn.weatherapi.com/weather/64x64/day/116.png", text = "Cloudy"),
                 avgtemp_f = 0.0,
                 maxtemp_f = 0.0,
                 mintemp_f = 0.0,
@@ -69,10 +70,36 @@ class FakeWeatherRepository: WeatherRepository {
                 totalprecip_in = 0.0,
                 totalprecip_mm = 0.0,
                 avghumidity = 0.0,
-            ), hour = listOf(), astro = Astro(
-                sunrise = "",
-                sunset = "",
-                moon_phase = "",
+            ),
+            hour = listOf(
+                Hour(
+                    time_epoch = 2102194181, // change this
+                    time = "2022-12-28 00:00",
+                    temp_f = 0.0,
+                    temp_c = 0.0,
+                    is_day = 0,
+                    condition = Condition(code = 1003, icon = "//cdn.weatherapi.com/weather/64x64/day/116.png", text = "Cloudy"),
+                    wind_mph = 0.0,
+                    wind_kph = 0.0,
+                    wind_dir = "SW",
+                    chance_of_rain = 0,
+                    pressure_mb = 0.0,
+                    pressure_in = 0.0,
+                    will_it_rain = 0,
+                    chance_of_snow = 0.0,
+                    will_it_snow = 0,
+                    precip_mm = 0.0,
+                    precip_in = 0.0,
+                    feelslike_c = 0.0,
+                    feelslike_f = 0.0,
+                    windchill_c = 0.0,
+                    windchill_f = 0.0
+                )
+            ),
+            astro = Astro(
+                sunrise = "07:06 AM",
+                sunset = "07:06 AM",
+                moon_phase = "Waxing Crescent",
             )
 
         ))
@@ -80,13 +107,13 @@ class FakeWeatherRepository: WeatherRepository {
 
     private val alertList = AlertList(
         mutableListOf(Alert(
-            headline = "",
-            category = "",
-            severity = "",
-            event = "",
+            headline = "Flood",
+            category = "Flood",
+            severity = "3",
+            event = "Flood",
             effective = "",
             expires = "",
-            desc = ""
+            desc = "Flood"
         ))
     )
 
@@ -115,7 +142,17 @@ class FakeWeatherRepository: WeatherRepository {
         return if(shouldReturnNetworkError) {
             NetworkResult.Failure(code = 400, message = "Error")
         } else {
-            NetworkResult.Success(data = emptyList())
+            NetworkResult.Success(data = listOf(
+                Search(
+                    id = 2557386,
+                    name = "Miami",
+                    region = "Florida",
+                    country = "United States of America",
+                    lat = 25.77,
+                    lon = -80.19,
+                    url = "miami-florida-united-states-of-america"
+                )
+            ))
         }
     }
 

@@ -37,6 +37,8 @@ import com.brian.weather.presentation.reusablecomposables.EditDropDownMenuItem
 import com.brian.weather.presentation.screens.settings.InterfaceSettingsScreen
 import com.brian.weather.presentation.screens.settings.NotificationSettingsScreen
 import com.brian.weather.presentation.screens.settings.UnitSettingsScreen
+import com.brian.weather.presentation.viewmodels.DailyForecastViewModel
+import com.brian.weather.presentation.viewmodels.HourlyForecastViewModel
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.Dispatchers
@@ -124,11 +126,16 @@ fun WeatherAppBar(
  * Main entry point composable for app
  */
 
-
+/**
+ * I could pass all my viewmodels here, this would allow me to inject fake repositories for testing
+ * to all screens
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun WeatherApp(
     weatherListViewModel: WeatherListViewModel,
+    dailyForecastViewModel: DailyForecastViewModel,
+    hourlyForecastViewModel: HourlyForecastViewModel,
     mainViewModel: MainViewModel,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
@@ -328,6 +335,7 @@ fun WeatherApp(
                             location = location,
                             mainViewModel = mainViewModel,
                             alertFabOnClick = { navController.navigateToAlertsScreen(location) },
+                            dailyForecastViewModel = dailyForecastViewModel
                         )
                     }
                 }
@@ -342,7 +350,8 @@ fun WeatherApp(
                         modifier = modifier,
                         date = date,
                         location = location,
-                        mainViewModel = mainViewModel
+                        mainViewModel = mainViewModel,
+                        hourlyForecastViewModel = hourlyForecastViewModel
                     )
                 }
 

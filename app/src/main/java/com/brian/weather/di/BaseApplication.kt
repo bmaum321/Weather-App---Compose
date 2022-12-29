@@ -14,6 +14,7 @@ import com.brian.weather.data.settings.PreferencesRepositoryImpl
 import com.brian.weather.repository.WeatherRepository
 import com.brian.weather.repository.WeatherRepositoryImpl
 import com.brian.weather.presentation.viewmodels.*
+import com.brian.weather.repository.fakedata.FakeWeatherRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -50,6 +51,7 @@ class BaseApplication : Application() {
             // Singleton for the Weather Repository implementation passed to all viewmodels
             single<WeatherRepository> {
                 WeatherRepositoryImpl(get())
+                //FakeWeatherRepository()
             }
 
             // Singleton for WeatherApi Object passed to the weather repository

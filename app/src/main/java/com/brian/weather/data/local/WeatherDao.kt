@@ -40,7 +40,7 @@ interface WeatherDao {
 
     // method to retrieve a Weather from the database by zipcode
     @Query("SELECT * FROM weather_database WHERE zipCode = :zipcode")
-    fun getWeatherByZipcode(zipcode: String): Flow<WeatherEntity>
+    fun getWeatherByZipcode(zipcode: String): Flow<WeatherEntity?>
 
     // method to retrieve a Weather from the database by location and return as object
     @Query("SELECT * FROM weather_database WHERE zipCode = :location")

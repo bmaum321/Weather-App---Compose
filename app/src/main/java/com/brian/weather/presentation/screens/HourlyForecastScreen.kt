@@ -50,9 +50,10 @@ fun HourlyForecastScreen(
     modifier: Modifier = Modifier,
     location: String,
     date: String,
-    mainViewModel: MainViewModel
+    mainViewModel: MainViewModel,
+    hourlyForecastViewModel: HourlyForecastViewModel
 ) {
-    val hourlyForecastViewModel = getViewModel<HourlyForecastViewModel>()
+    //val hourlyForecastViewModel = getViewModel<HourlyForecastViewModel>()
     // update title bar
     LaunchedEffect(Unit) {
         mainViewModel.updateActionBarTitle(date)

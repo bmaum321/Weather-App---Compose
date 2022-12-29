@@ -34,6 +34,8 @@ import com.brian.weather.data.settings.PreferencesRepository
 import com.brian.weather.presentation.WeatherApp
 import com.brian.weather.presentation.reusablecomposables.CustomAlertDialog
 import com.brian.weather.presentation.theme.WeatherComposeTheme
+import com.brian.weather.presentation.viewmodels.DailyForecastViewModel
+import com.brian.weather.presentation.viewmodels.HourlyForecastViewModel
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
 import com.brian.weather.util.workers.JobScheduler
@@ -219,6 +221,8 @@ class MainActivity : ComponentActivity() {
                     }
                     val mainViewModel = getViewModel<MainViewModel>()
                     val weatherListViewModel = getViewModel<WeatherListViewModel>()
+                    val dailyForecastViewModel = getViewModel<DailyForecastViewModel>()
+                    val hourlyForecastViewModel = getViewModel<HourlyForecastViewModel>()
 
                     val preferences by remember {
                         weatherListViewModel.allPreferences
@@ -247,7 +251,12 @@ class MainActivity : ComponentActivity() {
                     /**
                      * Main Entry Point
                      */
-                    WeatherApp(weatherListViewModel, mainViewModel)
+                    WeatherApp(
+                        weatherListViewModel = weatherListViewModel,
+                        dailyForecastViewModel = dailyForecastViewModel,
+                        mainViewModel = mainViewModel,
+                        hourlyForecastViewModel = hourlyForecastViewModel
+                    )
 
                 }
             }

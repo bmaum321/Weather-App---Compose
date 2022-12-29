@@ -11,15 +11,15 @@ import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.brian.weather.data.local.WeatherDatabase
-import com.brian.weather.data.remote.WeatherApi
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
-import com.brian.weather.repository.WeatherRepositoryImpl
 import com.brian.weather.R
 import com.brian.weather.data.settings.PreferencesRepositoryImpl
 import com.brian.weather.presentation.WeatherApp
 import com.brian.weather.presentation.navigation.*
-import com.example.weather.repository.FakeWeatherRepository
+import com.brian.weather.presentation.viewmodels.DailyForecastViewModel
+import com.brian.weather.presentation.viewmodels.HourlyForecastViewModel
+import com.brian.weather.repository.fakedata.FakeWeatherRepository
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -32,22 +32,38 @@ import org.koin.androidx.compose.get
 class SettingsTests {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    private val application = Application()
     private val mainViewModel = MainViewModel()
     private lateinit var navController: TestNavHostController
 
     @Before
     fun setupWeatherNavHost() {
         composeTestRule.setContent {
+            val fakeWeatherRepository = FakeWeatherRepository()
+            val preferencesRepository = PreferencesRepositoryImpl(get())
+            val weatherDao = WeatherDatabase.getDatabase(LocalContext.current).getWeatherDao()
             navController = TestNavHostController(LocalContext.current).apply {
                 navigatorProvider.addNavigator(ComposeNavigator())
             }
             WeatherApp(
                 weatherListViewModel = WeatherListViewModel(
-                    application = Application(),
-                    weatherDao = WeatherDatabase.getDatabase(LocalContext.current).getWeatherDao(),
-                    weatherRepository = FakeWeatherRepository(),
+                    application = application,
+                    weatherDao = weatherDao,
+                    weatherRepository = fakeWeatherRepository,
                     //weatherRepository = WeatherRepositoryImpl(WeatherApi),
-                    preferencesRepository = PreferencesRepositoryImpl(get())
+                    preferencesRepository = preferencesRepository
+                ),
+                dailyForecastViewModel = DailyForecastViewModel(
+                    weatherRepository = fakeWeatherRepository,
+                    preferencesRepository =  preferencesRepository,
+                    weatherDao = weatherDao,
+                    application = application
+                ),
+                hourlyForecastViewModel = HourlyForecastViewModel(
+                    weatherRepository = fakeWeatherRepository,
+                    preferencesRepository = preferencesRepository,
+                    weatherDao = weatherDao,
+                    application = application
                 ),
                 mainViewModel = mainViewModel,
                 navController = navController

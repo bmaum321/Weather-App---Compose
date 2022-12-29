@@ -1,63 +1,123 @@
 package com.example.weather.nav_tests
 
 import android.app.Application
-import android.os.Bundle
+import android.content.Context
 import androidx.activity.ComponentActivity
-import androidx.compose.material3.Text
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.brian.weather.data.local.WeatherDatabase
-import com.brian.weather.data.remote.WeatherApi
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
-import com.brian.weather.repository.WeatherRepositoryImpl
 import com.brian.weather.R
+import com.brian.weather.data.local.WeatherDao
+import com.brian.weather.data.local.WeatherEntity
 import com.brian.weather.data.settings.PreferencesRepositoryImpl
 import com.brian.weather.presentation.WeatherApp
 import com.brian.weather.presentation.navigation.*
 import com.brian.weather.presentation.screens.AddWeatherScreen
-import com.example.weather.repository.FakeWeatherRepository
+import com.brian.weather.presentation.viewmodels.DailyForecastViewModel
+import com.brian.weather.presentation.viewmodels.HourlyForecastViewModel
+import com.brian.weather.repository.fakedata.FakeWeatherRepository
+import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.androidx.compose.get
+import java.io.IOException
 
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class NavigationTests {
 
+
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
     private val mainViewModel = MainViewModel()
+    private val application = Application()
     private lateinit var navController: TestNavHostController
+    private lateinit var weatherDao: WeatherDao
+    private lateinit var weatherDatabase: WeatherDatabase
+
+
+    /**
+     * It seems like if I create a fake database, I cant insert anything into it reliably before
+     * running a navigation test
+     */
+
+    @Before
+    fun createDb() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        weatherDatabase = Room.inMemoryDatabaseBuilder(
+            context, WeatherDatabase::class.java
+        )
+            // Allow main thread queries just for testing
+            .allowMainThreadQueries()
+            .build()
+        weatherDao = weatherDatabase.getWeatherDao()
+
+        runBlocking {
+            weatherDao.insert(WeatherEntity(id = 1, zipCode = "Miami, Florida", sortOrder = 1, cityName = "Miami"))
+        }
+    }
+
 
     @Before
     fun setupWeatherNavHost() {
+
         composeTestRule.setContent {
+           // val weatherDao = WeatherDatabase.getDatabase(LocalContext.current).getWeatherDao()
+            val fakeWeatherRepository = FakeWeatherRepository()
+            val preferencesRepository = PreferencesRepositoryImpl(get())
             navController = TestNavHostController(LocalContext.current).apply {
                 navigatorProvider.addNavigator(ComposeNavigator())
             }
             WeatherApp(
                 weatherListViewModel = WeatherListViewModel(
-                    application = Application(),
-                    weatherDao = WeatherDatabase.getDatabase(LocalContext.current).getWeatherDao(),
-                    //weatherRepository = WeatherRepositoryImpl(WeatherApi),
-                    weatherRepository = FakeWeatherRepository(),
-                    preferencesRepository = PreferencesRepositoryImpl(get())
+                    application = application,
+                    weatherDao = weatherDao,
+                    weatherRepository = fakeWeatherRepository,
+                    preferencesRepository = preferencesRepository
+                ),
+                dailyForecastViewModel = DailyForecastViewModel(
+                    weatherRepository = fakeWeatherRepository,
+                    preferencesRepository = preferencesRepository,
+                    weatherDao = weatherDao,
+                    application = application
+                ),
+                hourlyForecastViewModel = HourlyForecastViewModel(
+                    weatherRepository = fakeWeatherRepository,
+                    preferencesRepository = preferencesRepository,
+                    weatherDao = weatherDao,
+                    application = application
                 ),
                 mainViewModel = mainViewModel,
                 navController = navController
             )
         }
+    }
+
+
+
+
+   //  private suspend fun insertWeatherIntoDb() {
+    //    weatherDao.insert(WeatherEntity(id = 1, zipCode = "Miami, Florida", sortOrder = 1, cityName = "Miami"))
+  //  }
+
+    @After
+    @Throws(IOException::class)
+    fun closeDb() {
+        weatherDatabase.close()
     }
 
     /**
@@ -102,7 +162,7 @@ class NavigationTests {
      *  A good naming convention for test methods is the following: thingUnderTest_TriggerOfTest_ResultOfTest
      */
     @Test
-    fun weatherNavHost_clickAlertFab_navigatesToAlertsScreen() {
+    fun weatherNavHost_clickAlertFab_navigatesToAlertsScreen(): Unit = runBlocking {
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
@@ -191,6 +251,7 @@ class NavigationTests {
     fun weatherNavHost_clickOnPlace_verifyTitleUpdate() {
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         navigateToDailyForecastScreen()
+        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
         composeTestRule.onNodeWithText("Miami").assertExists()
     }
 

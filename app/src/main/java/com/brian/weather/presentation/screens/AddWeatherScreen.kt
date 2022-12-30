@@ -34,9 +34,10 @@ fun AddWeatherScreen(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    navAction: () -> Unit
+    navAction: () -> Unit,
+    addWeatherLocationViewModel: AddWeatherLocationViewModel
 ) {
-    val addWeatherLocationViewModel = getViewModel<AddWeatherLocationViewModel>()
+    //val addWeatherLocationViewModel = getViewModel<AddWeatherLocationViewModel>()
     var location by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -105,8 +106,8 @@ fun AddWeatherScreen(
                    // if (itemClicked) {
                         coroutineScope.launch(Dispatchers.IO) {
                             addWeather(navAction, addWeatherLocationViewModel, location, context)
-                        }
-                   // }
+                      //  }
+                    }
                 },
                 modifier
             ) {
@@ -149,10 +150,4 @@ private fun showToast(text: String?, context: Context) {
 }
 
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun AddWeatherPreview() {
-    AddWeatherScreen(value = "", onValueChange = {}) {
 
-    }
-}

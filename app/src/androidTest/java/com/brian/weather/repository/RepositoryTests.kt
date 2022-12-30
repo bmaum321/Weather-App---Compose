@@ -25,6 +25,7 @@ import com.brian.weather.data.local.WeatherDatabase
 import com.brian.weather.data.local.WeatherEntity
 import com.brian.weather.data.settings.PreferencesRepositoryImpl
 import com.brian.weather.presentation.WeatherApp
+import com.brian.weather.presentation.viewmodels.AddWeatherLocationViewModel
 import com.brian.weather.presentation.viewmodels.DailyForecastViewModel
 import com.brian.weather.presentation.viewmodels.HourlyForecastViewModel
 import com.brian.weather.presentation.viewmodels.MainViewModel
@@ -53,12 +54,12 @@ class RepositoryTests {
     lateinit var navController: TestNavHostController
     lateinit var weatherDatabase: WeatherDatabase
     private val fakeWeatherRepository = FakeWeatherRepository()
+    private lateinit var weatherDao: WeatherDao
 
     @Before
     fun setupWeatherNavHost() {
 
         composeTestRule.setContent {
-            val weatherDao = WeatherDatabase.getDatabase(LocalContext.current).getWeatherDao()
             val preferencesRepository = PreferencesRepositoryImpl(get())
             fakeWeatherRepository.setShouldReturnNetworkError(true)
             navController = TestNavHostController(LocalContext.current).apply {
@@ -83,11 +84,44 @@ class RepositoryTests {
                     weatherDao = weatherDao,
                     application = application
                 ),
+                addWeatherLocationViewModel = AddWeatherLocationViewModel(
+                    weatherRepository = fakeWeatherRepository,
+                    weatherDao = weatherDao,
+                    application = application
+                ),
                 mainViewModel = mainViewModel,
                 navController = navController
             )
         }
     }
+
+
+    @Before
+    fun createDb() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        weatherDatabase = Room.inMemoryDatabaseBuilder(
+            context, WeatherDatabase::class.java
+        )
+            // Allow main thread queries just for testing
+            .allowMainThreadQueries()
+            .build()
+        weatherDao = weatherDatabase.getWeatherDao()
+
+
+        runBlocking {
+            weatherDao.insert(WeatherEntity(id = 1, zipCode = "Miami, Florida", sortOrder = 1, cityName = "Miami"))
+        }
+
+
+    }
+
+
+    @After
+    @Throws(IOException::class)
+    fun closeDb() {
+        weatherDatabase.close()
+    }
+
 
     /**
      * Verify error screen is shown when repository returns a network failure result
@@ -119,6 +153,7 @@ class RepositoryTests {
         composeTestRule.onNodeWithText("Today").assertExists()
     }
 
+
     /**
      * Verify error screen is shown on add weather screen when repository returns a network failure result
      * Confirm retry button will reload content after repository returns a success result
@@ -126,6 +161,7 @@ class RepositoryTests {
      * The only way for an error message to occur here is if there was a network disconnect after
      * a successful search result and the user attempted to hit save
      */
+
     @Test
     fun weatherRepository_repositoryReturnsFailure_addWeatherScreenShowsError() {
         fakeWeatherRepository.setShouldReturnNetworkError(false)
@@ -137,9 +173,12 @@ class RepositoryTests {
         fakeWeatherRepository.setShouldReturnNetworkError(true)
         composeTestRule.onNodeWithText("Save").performClick()
         composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
+        Thread.sleep(1000)
         composeTestRule.onNodeWithText("Retry").assertExists()
         // Can't find a way to match text on a Toast being shown
     }
+
+
 
 
     /**

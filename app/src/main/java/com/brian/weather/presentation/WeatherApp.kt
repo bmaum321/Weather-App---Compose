@@ -37,6 +37,7 @@ import com.brian.weather.presentation.reusablecomposables.EditDropDownMenuItem
 import com.brian.weather.presentation.screens.settings.InterfaceSettingsScreen
 import com.brian.weather.presentation.screens.settings.NotificationSettingsScreen
 import com.brian.weather.presentation.screens.settings.UnitSettingsScreen
+import com.brian.weather.presentation.viewmodels.AddWeatherLocationViewModel
 import com.brian.weather.presentation.viewmodels.DailyForecastViewModel
 import com.brian.weather.presentation.viewmodels.HourlyForecastViewModel
 import com.brian.weather.presentation.viewmodels.MainViewModel
@@ -137,6 +138,7 @@ fun WeatherApp(
     weatherListViewModel: WeatherListViewModel,
     dailyForecastViewModel: DailyForecastViewModel,
     hourlyForecastViewModel: HourlyForecastViewModel,
+    addWeatherLocationViewModel: AddWeatherLocationViewModel,
     mainViewModel: MainViewModel,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
@@ -305,7 +307,8 @@ fun WeatherApp(
                 AddWeatherScreen(
                     value = location ?: "",
                     onValueChange = { },
-                    navAction = { navController.popBackStack() }
+                    navAction = { navController.popBackStack() },
+                    addWeatherLocationViewModel = addWeatherLocationViewModel
                 )
             }
 

@@ -1,6 +1,5 @@
 package com.brian.weather.db_tests
 
-import android.content.ClipData
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider

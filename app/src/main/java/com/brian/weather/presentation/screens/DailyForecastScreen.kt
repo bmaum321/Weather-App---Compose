@@ -55,8 +55,8 @@ fun DailyForecastScreen(
     // This only seems to work if I pass the viewmodel all the way down from main activity and only have one instance of main view model, grabbing it from Koin doesnt work
     LaunchedEffect(Unit) {
         mainViewModel.updateActionBarTitle(
-            //dailyForecastViewModel.getWeatherByZipcode(location).first()?.cityName ?: ""
-        location
+            dailyForecastViewModel.getWeatherByZipcode(location).first()?.cityName ?: ""
+       // location
         )
     }
     val context = LocalContext.current
@@ -127,7 +127,7 @@ fun ForecastList(
                 exit = scaleOut()
             ) {
                 if (fabVisible) {
-                    Pulsating() {
+                    Pulsating {
                         AlertFab(onClick = alertFabOnClick)
                     }
                 }
@@ -136,7 +136,7 @@ fun ForecastList(
         floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
 
-        Box() {
+        Box {
             LazyColumn(
                 modifier = modifier
                     .fillMaxWidth()

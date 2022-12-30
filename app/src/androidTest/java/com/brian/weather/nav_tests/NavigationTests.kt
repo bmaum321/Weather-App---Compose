@@ -23,6 +23,7 @@ import com.brian.weather.data.settings.PreferencesRepositoryImpl
 import com.brian.weather.presentation.WeatherApp
 import com.brian.weather.presentation.navigation.*
 import com.brian.weather.presentation.screens.AddWeatherScreen
+import com.brian.weather.presentation.viewmodels.AddWeatherLocationViewModel
 import com.brian.weather.presentation.viewmodels.DailyForecastViewModel
 import com.brian.weather.presentation.viewmodels.HourlyForecastViewModel
 import com.brian.weather.repository.FakeWeatherRepository
@@ -98,6 +99,11 @@ class NavigationTests {
                 hourlyForecastViewModel = HourlyForecastViewModel(
                     weatherRepository = fakeWeatherRepository,
                     preferencesRepository = preferencesRepository,
+                    weatherDao = weatherDao,
+                    application = application
+                ),
+                addWeatherLocationViewModel = AddWeatherLocationViewModel(
+                    weatherRepository = fakeWeatherRepository,
                     weatherDao = weatherDao,
                     application = application
                 ),

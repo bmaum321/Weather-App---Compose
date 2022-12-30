@@ -112,7 +112,7 @@ fun HourlyForecastList(
     //  )
 
     //  Box(modifier = Modifier.pullRefresh(state)) {
-    Box() {
+    Box {
         LazyColumn(
             modifier = modifier
                 .fillMaxWidth(),
@@ -341,7 +341,7 @@ private fun WeatherStatistic(
 @Preview(showSystemUi = true)
 @Composable
 private fun WeatherStatisticPreview() {
-    WeatherComposeTheme() {
+    WeatherComposeTheme {
         WeatherStatistic(iconId = R.drawable.barometer_svgrepo_com, value = "12 MPH")
     }
 }

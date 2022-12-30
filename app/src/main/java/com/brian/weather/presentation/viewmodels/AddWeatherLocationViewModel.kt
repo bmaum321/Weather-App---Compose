@@ -47,6 +47,12 @@ class AddWeatherLocationViewModel(
         return dbSortOrderValue
     }
 
+    private suspend fun checkIfLocationAlreadyInDb(location: String): Boolean {
+        val weather = weatherDao.getWeatherByZipcode(location).first()
+        return weather != null
+    }
+
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val getSearchResults: StateFlow<SearchViewData> =
         queryFlow
@@ -102,20 +108,23 @@ class AddWeatherLocationViewModel(
 
     suspend fun storeNetworkDataInDatabase(zipcode: String): Boolean {
         /**
-         * This runs on a background thread by default so any value modified within this scoupe cannot
+         * This runs on a background thread by default so any value modified within this scope cannot
          * be returned outside of the scope
          */
 
         val networkError: Boolean =
             when (val response = weatherRepository.getWeather(zipcode)) {
                 is NetworkResult.Success -> {
-                    weatherDao.insert(
-                        response.data.asDatabaseModel(
-                            zipcode,
-                            getLastEntrySortValue()
+                    if (!checkIfLocationAlreadyInDb(zipcode)) {
+                        weatherDao.insert(
+                            response.data.asDatabaseModel(
+                                zipcode,
+                                getLastEntrySortValue()
+                            )
                         )
-                    )
-                    true
+                        true
+                    } else false
+
                 }
                 is NetworkResult.Failure -> false
                 is NetworkResult.Exception -> false

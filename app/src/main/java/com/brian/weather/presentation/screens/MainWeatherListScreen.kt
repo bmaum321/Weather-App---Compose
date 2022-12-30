@@ -179,7 +179,7 @@ fun WeatherListScreen(
     ) { innerPadding ->
 
         // Box(modifier = Modifier.pullRefresh(refreshState)) {
-        Box() {
+        Box {
 
             if (weatherDomainObjectList.isEmpty()) {
                 Column(
@@ -205,8 +205,8 @@ fun WeatherListScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
 
-                //TODO the key is needed here to animate the re-order, there is a bug here though, can cause a crash
-                items(listData.value, {it.location}) { item ->
+                //TODO the key is needed here to animate the re-order, there is a bug here though, can cause a when duplicate locations added
+                items(listData.value, {it.zipcode}) { item ->
 
                     ReorderableItem(reorderableState = reorderableLazyListState, key = item) { isDragging ->
                         val elevation = animateDpAsState(if (isDragging) 200.dp else 0.dp)

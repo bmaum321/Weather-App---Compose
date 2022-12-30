@@ -63,7 +63,7 @@ fun SettingsListItemWithSwitch(
 @Preview(showSystemUi = true)
 @Composable
 fun CheckboxPreview() {
-    WeatherComposeTheme() {
+    WeatherComposeTheme {
         SettingsListItemWithSwitch(
             item = SettingsDrawerItem(
                 image = painterResource(R.drawable.ic_baseline_color_lens_24),

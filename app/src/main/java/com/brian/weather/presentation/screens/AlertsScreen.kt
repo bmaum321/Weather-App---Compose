@@ -95,7 +95,7 @@ fun AlertsList(
     val coroutineScope = rememberCoroutineScope()
 
        // Box(modifier = Modifier.pullRefresh(refreshState)) {
-    Box() {
+    Box {
             LazyColumn(
                 modifier = modifier
                     .fillMaxWidth(),
@@ -146,7 +146,7 @@ fun AlertListItem(
        // elevation = 4.dp,
 
     ) {
-        Column() {
+        Column {
             Text(
                 text = alert.headline,
                 fontWeight = FontWeight.Bold,

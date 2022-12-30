@@ -35,7 +35,12 @@ Some Highlights include:
 - A data layer with a repository. Repositories abstracted using interfaces
 
 ## Testing
-- Navigation and settings tests located under the androidTest Directory 
+- Navigation, dabtabase, repository and settings tests located under the androidTest Directory here:
+[Instrumentation Tests (Android Tests)](/app/src/androidTest/java/com/brian/weather/)
+- Unit tests are located in the Test Directory here:
+[Unit Tests](/app/src/test/java/com/brian/weather/)
+
+
 
 
 ![plot](./screenshots/1.png) ![plot](./screenshots/2.png) ![plot](./screenshots/3.png) ![plot](./screenshots/4.png)

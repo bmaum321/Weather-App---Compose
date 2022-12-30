@@ -8,6 +8,7 @@ import com.brian.weather.data.settings.PreferencesRepository
 import com.brian.weather.domain.model.DayDomainObject
 import com.brian.weather.domain.model.WeatherDomainObject
 import com.brian.weather.repository.WeatherRepository
+import java.time.LocalDateTime
 
 class FakeWeatherRepository: WeatherRepository {
     private var shouldReturnNetworkError = false
@@ -56,7 +57,7 @@ class FakeWeatherRepository: WeatherRepository {
 
     private val forecastDay = ForecastDay(
         mutableListOf(Day(
-            date = "2022-12-28",
+            date = LocalDateTime.now().toLocalDate().toString(),
             day = ForecastForDay(
                 condition = Condition(code = 1003, icon = "//cdn.weatherapi.com/weather/64x64/day/116.png", text = "Cloudy"),
                 avgtemp_f = 0.0,
@@ -73,7 +74,8 @@ class FakeWeatherRepository: WeatherRepository {
             ),
             hour = listOf(
                 Hour(
-                    time_epoch = 2102194181, // change this
+                   // time_epoch = 2102194181, // this is far in the future so shouldnt be filtered by the domain mapper function
+                    time_epoch = System.currentTimeMillis() / 1000 + 3600,
                     time = "2022-12-28 00:00",
                     temp_f = 0.0,
                     temp_c = 0.0,

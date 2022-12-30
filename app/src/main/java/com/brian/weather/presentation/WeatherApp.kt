@@ -42,6 +42,7 @@ import com.brian.weather.presentation.viewmodels.HourlyForecastViewModel
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -157,15 +158,10 @@ fun WeatherApp(
      * a better way to do this?
      */
 
-    val locationsInDatabase = mutableListOf<String>()
-    LaunchedEffect(Unit) {
-        withContext((Dispatchers.IO)) {
-            locationsInDatabase.addAll( weatherListViewModel.getZipCodesFromDatabase())
-        }
-    }
-
-
-
+    val locationsInDatabase = weatherListViewModel.getZipcodesFromDatabaseAsFlow().collectAsState(
+        initial = ""
+    )
+    
 
     /**
      * These dialog states should live in the screens themeselves?
@@ -407,7 +403,7 @@ fun WeatherApp(
                     viewModel = mainViewModel,
                     coroutineScope = coroutineScope,
                     preferencesRepository = get(),
-                    locations = locationsInDatabase
+                    locations = locationsInDatabase.value as List<String>
                 )
             }
 

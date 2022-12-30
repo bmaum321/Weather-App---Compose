@@ -1,5 +1,6 @@
 package com.brian.weather.data.mapper
 
+import android.app.Application
 import android.content.res.Resources
 import androidx.compose.ui.graphics.Color
 import com.brian.weather.data.remote.dto.Astro

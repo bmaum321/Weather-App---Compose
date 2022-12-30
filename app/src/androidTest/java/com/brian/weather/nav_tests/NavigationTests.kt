@@ -109,16 +109,12 @@ class NavigationTests {
 
 
 
-
-   //  private suspend fun insertWeatherIntoDb() {
-    //    weatherDao.insert(WeatherEntity(id = 1, zipCode = "Miami, Florida", sortOrder = 1, cityName = "Miami"))
-  //  }
-
     @After
     @Throws(IOException::class)
     fun closeDb() {
         weatherDatabase.close()
     }
+
 
     /**
      * Verify the start destination

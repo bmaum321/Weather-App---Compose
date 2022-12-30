@@ -30,6 +30,9 @@ interface WeatherDao {
     @Query("SELECT zipCode FROM weather_database ORDER BY sortOrder ASC")
     fun getZipcodes(): List<String>
 
+    @Query("SELECT zipCode FROM weather_database ORDER BY sortOrder ASC")
+    fun getZipcodesFlow(): Flow<List<String>>
+
     // method to retrieve all weather entities from database
     @Query("SELECT * FROM weather_database ORDER BY sortOrder ASC")
     fun getAllWeatherEntities(): Flow<List<WeatherEntity>>

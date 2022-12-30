@@ -33,6 +33,7 @@ import com.brian.weather.presentation.animations.Pulsating
 import com.brian.weather.presentation.animations.pressClickEffect
 import com.brian.weather.presentation.reusablecomposables.ErrorScreen
 import com.brian.weather.presentation.reusablecomposables.LoadingScreen
+import com.brian.weather.presentation.reusablecomposables.MarqueeText
 import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
 import com.brian.weather.presentation.theme.WeatherComposeTheme
 import com.brian.weather.presentation.viewmodels.MainViewModel
@@ -199,11 +200,12 @@ fun WeatherListScreen(
                     .padding(top = 8.dp)
                     .reorderable(reorderableLazyListState)
                     .detectReorderAfterLongPress(reorderableLazyListState),
-                contentPadding = PaddingValues(4.dp),
+                contentPadding = innerPadding,
                 state = reorderableLazyListState.listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
 
+                //TODO the key is needed here to animate the re-order, there is a bug here though, can cause a crash
                 items(listData.value, {it.location}) { item ->
 
                     ReorderableItem(reorderableState = reorderableLazyListState, key = item) { isDragging ->
@@ -423,22 +425,34 @@ fun WeatherListItem(
                     .align(Alignment.Center)
             ) {
                 Column(modifier = modifier.weight(10f)) {
-                    Text(
-                        text = weatherDomainObject.location,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp,
-                    )
+                    if (weatherDomainObject.location.length > 13) {
+                        MarqueeText(text = weatherDomainObject.location,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 28.sp
+                        )
+                    } else {
+                        Text(
+                            text = weatherDomainObject.location,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 28.sp,
+                        )
+                    }
                     Text(
                         text = weatherDomainObject.country,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
-                    Text(
-                        text = weatherDomainObject.conditionText,
-                        fontSize = 24.sp
-                    )
+                    if(weatherDomainObject.conditionText.length > 13) {
+                        MarqueeText(text = weatherDomainObject.conditionText, fontSize = 24.sp)
+                    } else {
+                        Text(
+                            text = weatherDomainObject.conditionText,
+                            fontSize = 24.sp
+                        )
+                    }
+
                 }
-                Spacer(modifier = Modifier.weight(.1f))
+                Spacer(modifier = Modifier.weight(.5f))
 
                 Column(modifier = Modifier.weight(7.5f)) {
                     Text(

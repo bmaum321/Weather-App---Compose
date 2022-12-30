@@ -71,6 +71,8 @@ class WeatherListViewModel(
      */
     fun getZipCodesFromDatabase() = weatherDao.getZipcodes()
 
+    fun getZipcodesFromDatabaseAsFlow() = weatherDao.getZipcodesFlow()
+
     fun getWeatherByZipcode(location: String) = weatherDao.getWeatherByLocation(location)
 
     fun getAllWeatherEntities() = weatherDao.getAllWeatherEntities()

@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import com.brian.weather.data.remote.dto.Condition
 
 data class HoursDomainObject(
-    val time_epoch: Int,
+    val time_epoch: Long,
     val time: String,
     val temp_f: Double,
     val temp_c: Double,

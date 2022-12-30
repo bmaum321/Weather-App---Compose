@@ -3,6 +3,7 @@ package com.brian.weather
 import android.app.Application
 import android.content.Context
 import android.content.res.Resources
+import androidx.compose.runtime.collectAsState
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
@@ -12,9 +13,13 @@ import androidx.test.core.app.ApplicationProvider
 import com.brian.weather.data.local.WeatherDatabase
 import com.brian.weather.presentation.viewmodels.WeatherListState
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
+import com.brian.weather.repository.FakePreferencesRepositoryImpl
+import com.brian.weather.repository.FakeWeatherRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -59,7 +64,7 @@ class WeatherListViewModelTest {
     @Config(manifest= Config.NONE)
     fun `call get weather_success object contains data`() = runBlocking {
         val response = viewModel.getAllWeather(resources).value
-        val failure = viewModel.getZipCodesFromDatabase()
+      //  val failure = viewModel.getZipCodesFromDatabase()
         when (response) {
             // is WeatherListState.Success -> assertTrue((response.value as WeatherListState.Success).weatherDomainObjects.isNotEmpty())
             // else -> assertTrue((response.value as WeatherListState.Success).weatherDomainObjects.isEmpty())

@@ -39,6 +39,7 @@ import com.brian.weather.domain.model.HoursDomainObject
 import com.brian.weather.presentation.animations.pressClickEffect
 import com.brian.weather.presentation.reusablecomposables.ErrorScreen
 import com.brian.weather.presentation.reusablecomposables.LoadingScreen
+import com.brian.weather.presentation.reusablecomposables.MarqueeText
 import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
 import com.brian.weather.presentation.theme.WeatherComposeTheme
 import com.brian.weather.presentation.viewmodels.*
@@ -209,10 +210,15 @@ fun HourlyForecastListItem(
                             fontWeight = FontWeight.Bold,
                             fontSize = 24.sp
                         )
-                        Text(
-                            text = hour.condition.text,
-                            fontSize = 18.sp
-                        )
+                        if(hour.condition.text.length > 13) {
+                            MarqueeText(text = hour.condition.text, fontSize = 18.sp)
+                        } else {
+                            Text(
+                                text = hour.condition.text,
+                                fontSize = 18.sp
+                            )
+                        }
+
                     }
                     Spacer(modifier = Modifier.weight(.5f))
 

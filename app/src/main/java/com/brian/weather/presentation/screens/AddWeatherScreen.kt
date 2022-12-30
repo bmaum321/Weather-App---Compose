@@ -102,11 +102,11 @@ fun AddWeatherScreen(
 
             Button(
                 onClick = {
-                    if (itemClicked) {
+                   // if (itemClicked) {
                         coroutineScope.launch(Dispatchers.IO) {
                             addWeather(navAction, addWeatherLocationViewModel, location, context)
                         }
-                    }
+                   // }
                 },
                 modifier
             ) {

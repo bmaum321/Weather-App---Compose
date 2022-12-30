@@ -66,7 +66,7 @@ data class ForecastForDay(
 
 @Serializable
 data class Hour(
-    val time_epoch: Int,
+    val time_epoch: Long,
     val time: String,
     val temp_f: Double,
     val temp_c: Double,

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import com.brian.weather.data.local.WeatherDao
 import com.brian.weather.data.local.WeatherDatabase
 import com.brian.weather.data.local.WeatherEntity

@@ -376,7 +376,7 @@ fun WeatherApp(
                             "Temperature" -> {
                                 openTemperatureUnitDialog.value = true
                             }
-                            "Pressure" -> {
+                            "Precipitation / Pressure" -> {
                                 openMeasurementDialog.value = true
                             }
                             "Wind" -> {

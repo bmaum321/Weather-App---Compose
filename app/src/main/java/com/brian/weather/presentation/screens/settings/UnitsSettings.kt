@@ -156,7 +156,7 @@ private fun prepareUnitSettings(): List<SettingsDrawerItem> {
     itemsList.add(
         SettingsDrawerItem(
             image = painterResource(id = R.drawable.barometer_svgrepo_com),
-            label = "Pressure",
+            label = "Precipitation / Pressure",
             showUnreadBubble = false
         )
     )

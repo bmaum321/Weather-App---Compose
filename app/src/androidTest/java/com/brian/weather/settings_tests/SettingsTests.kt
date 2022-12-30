@@ -192,7 +192,7 @@ class SettingsTests {
     @Test
     fun unitSettings_clickUseIn_changesUnitCorrectly() {
         navigateToUnitsScreen()
-        composeTestRule.onNodeWithText("Pressure").performClick()
+        composeTestRule.onNodeWithText("Precipitation / Pressure").performClick()
         composeTestRule.onNodeWithText("IN").performClick()
         composeTestRule.onNodeWithText("Ok").performClick()
         performNavigateUp()
@@ -214,7 +214,7 @@ class SettingsTests {
     @Test
     fun unitSettings_clickUseMm_changesUnitCorrectly() {
         navigateToUnitsScreen()
-        composeTestRule.onNodeWithText("Pressure").performClick()
+        composeTestRule.onNodeWithText("Precipitation / Pressure").performClick()
         composeTestRule.onNodeWithText("MM").performClick()
         composeTestRule.onNodeWithText("Ok").performClick()
         performNavigateUp()

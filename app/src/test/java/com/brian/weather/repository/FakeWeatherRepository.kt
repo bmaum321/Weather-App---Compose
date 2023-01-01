@@ -4,6 +4,7 @@ import android.content.res.Resources
 import androidx.compose.ui.graphics.Color
 import com.brian.weather.data.remote.NetworkResult
 import com.brian.weather.data.remote.dto.*
+import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.data.settings.PreferencesRepository
 import com.brian.weather.domain.model.DayDomainObject
 import com.brian.weather.domain.model.WeatherDomainObject
@@ -159,7 +160,7 @@ class FakeWeatherRepository: WeatherRepository {
     override suspend fun getWeatherListForZipCodes(
         zipcodes: List<String>,
         resources: Resources,
-        preferencesRepository: PreferencesRepository
+        preferences: AppPreferences
     ): List<WeatherDomainObject> {
         return weatherItems
     }

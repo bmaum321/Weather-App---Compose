@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.compose.ui.graphics.Color
 import com.brian.weather.R
 import com.brian.weather.data.remote.dto.WeatherContainer
+import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.data.settings.PreferencesRepository
 import com.brian.weather.domain.model.WeatherDomainObject
 import kotlinx.coroutines.flow.first
@@ -12,13 +13,14 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-suspend fun WeatherContainer.asDomainModel(
+fun WeatherContainer.asDomainModel(
     zipcode: String,
     resources: Resources,
-    preferencesRepository: PreferencesRepository,
+    //preferencesRepository: PreferencesRepository,
+    preferences: AppPreferences
 ): WeatherDomainObject {
 
-    val preferences = preferencesRepository.getAllPreferences.first()
+   // val preferences = preferencesRepository.getAllPreferences.first()
 
     val locationDataDomainModel = location.toDomainModel()
 

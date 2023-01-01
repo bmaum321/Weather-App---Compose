@@ -124,7 +124,7 @@ class WeatherListViewModel(
                                             weatherRepository.getWeatherListForZipCodes(
                                                 zipcodes,
                                                 resources,
-                                                preferencesRepository
+                                                preferencesRepository.getAllPreferences.first()
                                             )
                                         )
                                     )

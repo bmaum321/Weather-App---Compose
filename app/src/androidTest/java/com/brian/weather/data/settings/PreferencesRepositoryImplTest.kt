@@ -25,16 +25,20 @@ import org.junit.runner.RunWith
 class PreferencesRepositoryImplTest {
 
 
-    val context: Context = ApplicationProvider.getApplicationContext<Context>()
-    val app = Application()
-    val dataStore = PreferenceDataStoreFactory.create(
-        corruptionHandler = ReplaceFileCorruptionHandler(
-            produceNewData = { emptyPreferences() }
-        ),
-        migrations = listOf(SharedPreferencesMigration(context, "TestPreferences")),
-        scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-        produceFile = { context.preferencesDataStoreFile("TestPreferences") })
-    private val preferencesRepository = FakePreferencesRepositoryImpl(dataStore)
+    //datastore needs to be singleton for testing, this can probably be made via koin
+    companion object {
+
+        val context: Context = ApplicationProvider.getApplicationContext<Context>()
+        val dataStore = PreferenceDataStoreFactory.create(
+            corruptionHandler = ReplaceFileCorruptionHandler(
+                produceNewData = { emptyPreferences() }
+            ),
+            migrations = listOf(SharedPreferencesMigration(context, "TestPreferences")),
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+            produceFile = { context.preferencesDataStoreFile("TestPreferences") })
+        private val preferencesRepository = FakePreferencesRepositoryImpl(dataStore)
+    }
+
 
     @After
     fun clearPreferences() {

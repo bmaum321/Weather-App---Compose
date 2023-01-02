@@ -113,9 +113,8 @@ class DailyForecastViewModel(
                             ForecastViewData.Done(
                                 response.data
                                     .asDomainModel(
-                                        preferencesRepository.getClockFormat.first().toString(),
-                                        preferencesRepository.getDateFormat.first().toString(),
-                                        resources
+                                        resources,
+                                        preferencesRepository.getAllPreferences.first()
                                     )
                             )
                         )

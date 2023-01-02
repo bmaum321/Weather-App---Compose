@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 import com.brian.weather.data.remote.dto.Astro
 import com.brian.weather.data.remote.dto.Day
 import com.brian.weather.data.remote.dto.ForecastForDay
+import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.domain.model.AstroDataDomainObject
 import com.brian.weather.domain.model.DayDomainObject
 import com.brian.weather.domain.model.DaysDomainObject
@@ -16,9 +17,8 @@ import java.time.format.TextStyle
 import java.util.*
 
 fun Day.toDomainModel(
-    clockFormat: String,
-    dateFormat: String,
-    resources: Resources
+    resources: Resources,
+    preferences: AppPreferences
 ): DaysDomainObject {
 
     /**
@@ -33,7 +33,7 @@ fun Day.toDomainModel(
     val month = LocalDate.parse(date).month.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
     val dayOfMonth = LocalDate.parse(date).dayOfMonth.toString()
     val shortDate =
-        if (dateFormat == "MM/DD") "$month $dayOfMonth"
+        if (preferences.dateFormat == "MM/DD") "$month $dayOfMonth"
         else "$dayOfMonth $month"
 
     return DaysDomainObject(
@@ -41,16 +41,16 @@ fun Day.toDomainModel(
         else dayOfWeek,
         date = shortDate,
         day = day
-            .toDomainModel(),
+            .toDomainModel(preferences),
         hours = hour
             .filter { it.time_epoch > currentEpochTime }
-            .map { it.toDomainModel(clockFormat, resources) },
+            .map { it.toDomainModel(preferences, resources) },
         astroData = astro
-            .toDomainModel(clockFormat)
+            .toDomainModel(preferences.clockFormat)
     )
 }
 
-fun ForecastForDay.toDomainModel(): DayDomainObject {
+fun ForecastForDay.toDomainModel(preferences: AppPreferences): DayDomainObject {
 
     var textColor = Color.White
 
@@ -78,18 +78,14 @@ fun ForecastForDay.toDomainModel(): DayDomainObject {
 
     return DayDomainObject(
         condition = condition,
-        avgtemp_c = avgtemp_c,
-        avgtemp_f = avgtemp_f,
-        maxtemp_c = maxtemp_c,
-        maxtemp_f = maxtemp_f,
-        mintemp_c = mintemp_c,
-        mintemp_f = mintemp_f,
+        avgtemp = if(preferences.tempUnit == "Fahrenheit")avgtemp_f else avgtemp_c,
+        mintemp = if(preferences.tempUnit == "Fahrenheit")mintemp_f else mintemp_c,
+        maxtemp = if(preferences.tempUnit == "Fahrenheit")maxtemp_f else maxtemp_c,
         daily_chance_of_rain = daily_chance_of_rain,
         backgroundColors = conditionColors,
         textColor = textColor,
         daily_chance_of_snow = daily_chance_of_snow,
-        totalprecip_in = totalprecip_in,
-        totalprecip_mm = totalprecip_mm,
+        totalprecip = if(preferences.measurementUnit == "IN")totalprecip_in else totalprecip_mm,
         avghumidity = avghumidity
     )
 }

@@ -9,6 +9,7 @@ import com.brian.weather.data.remote.dto.Condition
 import com.brian.weather.data.remote.dto.Day
 import com.brian.weather.data.remote.dto.ForecastForDay
 import com.brian.weather.data.remote.dto.Hour
+import com.brian.weather.data.settings.AppPreferences
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -35,6 +36,34 @@ class DayMapperKtTest {
     //val context: Context = ApplicationProvider.getApplicationContext()
     //val context = mock(Context::class.java)
     private val resources: Resources = mock(Resources::class.java)
+
+    private val preferences = AppPreferences(
+        tempUnit = "Fahrenheit",
+        clockFormat = "hh:mm a",
+        dateFormat = "MM/DD",
+        windUnit = "MPH",
+        dynamicColors = false,
+        showAlerts = false,
+        measurementUnit = "IN",
+        showNotifications = false,
+        showLocalForecast = false,
+        showPrecipitationNotifications = false,
+        precipitationLocations = setOf()
+    )
+
+    private val preferences2 = AppPreferences(
+        tempUnit = "Celsius",
+        clockFormat = "kk:mm",
+        dateFormat = "DD/MM",
+        windUnit = "KPH",
+        dynamicColors = false,
+        showAlerts = false,
+        measurementUnit = "MM",
+        showNotifications = false,
+        showLocalForecast = false,
+        showPrecipitationNotifications = false,
+        precipitationLocations = setOf()
+    )
     private val forecastForDay = ForecastForDay(
         condition = Condition(code = 1000, icon = "//cdn.weatherapi.com/weather/64x64/day/116.png", text = "Sunny"),
         avgtemp_f = 1.5,
@@ -107,15 +136,12 @@ class DayMapperKtTest {
         )
 
     )
-    var dateFormat = "MM/DD"
-    var clockFormat = "hh:mm"
     var daysDomainObject = day.toDomainModel(
-        clockFormat = clockFormat,
-        dateFormat = dateFormat,
-        resources = resources
+        resources = resources,
+        preferences = preferences
     )
 
-    val dayDomainObject = forecastForDay.toDomainModel()
+    private val dayDomainObject = forecastForDay.toDomainModel()
 
     @Test
     fun daysDto_toDomainModel_returnsCorrectDayOfWeek() {
@@ -124,7 +150,6 @@ class DayMapperKtTest {
 
     @Test
     fun daysDto_ToDomainModel_returnsCorrectDateMMDD() {
-        dateFormat = "MM/DD"
         val month = LocalDate.parse(day.date).month.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
         val dayOfMonth = LocalDate.parse(day.date).dayOfMonth.toString()
         assertTrue(daysDomainObject.date == "$month $dayOfMonth")
@@ -132,11 +157,9 @@ class DayMapperKtTest {
 
     @Test
     fun daysDto_ToDomainModel_returnsCorrectDateDDMM() {
-        dateFormat = "DD/MM"
         daysDomainObject = day.toDomainModel(
-            clockFormat = clockFormat,
-            dateFormat = dateFormat,
-            resources = resources
+            resources = resources,
+            preferences = preferences2
         )
         val month = LocalDate.parse(day.date).month.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
         val dayOfMonth = LocalDate.parse(day.date).dayOfMonth.toString()

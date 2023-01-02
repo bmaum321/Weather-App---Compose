@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import com.brian.weather.R
 import com.brian.weather.data.remote.WeatherApi
 import com.brian.weather.data.remote.onSuccess
+import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.data.settings.PreferencesRepositoryImpl
 import com.brian.weather.repository.WeatherRepositoryImpl
 
@@ -66,25 +67,37 @@ class DailyLocalWeatherWorker(
                     weatherRepository.getForecast(coordinates)) {
                     is NetworkResult.Success -> {
                         val forecastDomainObject = response.data.asDomainModel(
-                            clockFormat,
-                            dateFormat,
-                            resources
+                            resources,
+                            preferences = AppPreferences(
+                                tempUnit = "Fahrenheit",
+                                clockFormat = "hh:mm a",
+                                dateFormat = "MM/DD",
+                                windUnit = "MPH",
+                                dynamicColors = false,
+                                showAlerts = true,
+                                measurementUnit = "IN",
+                                showNotifications = true,
+                                showLocalForecast = true,
+                                showPrecipitationNotifications = true,
+                                precipitationLocations = setOf()
+                            )
                         )
                         weatherRepository.getSearchResults(coordinates).onSuccess { city = it.first().name }
 
-                        //TODO need to check unit settings here
+                        //TODO this no longer observes the temperature unit setting because I passed
+                        //the whole preferences object to the mapper function
                         var maxTemp = ""
                         var minTemp = ""
                         if (tempUnit == "Fahrenheit") {
                             maxTemp =
-                                forecastDomainObject.days[0].day.maxtemp_f.toInt().toString()
+                                forecastDomainObject.days[0].day.maxtemp.toInt().toString()
                             minTemp =
-                                forecastDomainObject.days[0].day.mintemp_f.toInt().toString()
+                                forecastDomainObject.days[0].day.mintemp.toInt().toString()
                         } else {
                             maxTemp =
-                                forecastDomainObject.days[0].day.maxtemp_c.toInt().toString()
+                                forecastDomainObject.days[0].day.maxtemp.toInt().toString()
                             minTemp =
-                                forecastDomainObject.days[0].day.mintemp_c.toInt().toString()
+                                forecastDomainObject.days[0].day.mintemp.toInt().toString()
                         }
                         val condition = forecastDomainObject.days[0].day.condition.text
                         imgUrl = forecastDomainObject.days[0].day.condition.icon

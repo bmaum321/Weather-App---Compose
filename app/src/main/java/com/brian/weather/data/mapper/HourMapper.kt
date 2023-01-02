@@ -4,19 +4,20 @@ import android.content.res.Resources
 import androidx.compose.ui.graphics.Color
 import com.brian.weather.R
 import com.brian.weather.data.remote.dto.Hour
+import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.domain.model.HoursDomainObject
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 fun Hour.toDomainModel(
-    clockFormat: String,
+    preferences: AppPreferences,
     resources: Resources
 ): HoursDomainObject {
 
 
     val formattedTime = LocalTime.parse(
         time.substring(11) // Remove date from time
-    ).format(DateTimeFormatter.ofPattern(clockFormat))// Add AM/PM postfix
+    ).format(DateTimeFormatter.ofPattern(preferences.clockFormat))// Add AM/PM postfix
     var textColor = Color.White
 
     val conditionColors = when(condition.code) {
@@ -53,27 +54,21 @@ fun Hour.toDomainModel(
 
     return HoursDomainObject(
         time_epoch = time_epoch,
-        time = if(clockFormat == "hh:mm a") formattedTime.removePrefix("0")
+        time = if(preferences.clockFormat == "hh:mm a") formattedTime.removePrefix("0")
         else formattedTime,
-        temp_f = temp_f,
-        temp_c = temp_c,
+        temp = if(preferences.tempUnit == "Fahrenheit")temp_f else temp_c,
         is_day = is_day,
         condition = condition,
-        wind_mph = wind_mph,
-        wind_kph = wind_kph,
+        windspeed = if(preferences.windUnit == "MPH") "$wind_mph MPH" else "$wind_kph KPH",
         wind_dir = wind_dir,
         chance_of_rain = chance_of_rain,
-        pressure_mb = pressure_mb,
-        pressure_in = pressure_in,
+        pressure = if(preferences.measurementUnit == "IN")"$pressure_in IN" else "$pressure_mb MB",
         will_it_rain = will_it_rain,
         chance_of_snow = chance_of_snow,
         will_it_snow = will_it_snow,
-        precip_mm = precip_mm,
-        precip_in = precip_in,
-        feelslike_c = feelslike_c,
-        feelslike_f = feelslike_f,
-        windchill_c = windchill_c,
-        windchill_f = windchill_f,
+        precip = if(preferences.measurementUnit == "IN")"$precip_in IN" else "$precip_mm MM",
+        feelslike = if(preferences.tempUnit == "Fahrenheit")feelslike_f else feelslike_c,
+        windchill = if(preferences.tempUnit == "Fahrenheit")windchill_f else windchill_c,
         colors = conditionColors,
         textColor = textColor
     )

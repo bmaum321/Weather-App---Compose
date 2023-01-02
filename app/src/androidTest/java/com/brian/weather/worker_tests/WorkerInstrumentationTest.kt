@@ -43,6 +43,11 @@ class WorkerInstrumentationTest {
      * TestListenableWorkerBuilder is used for coroutine workers
      * TestWorkerBuilder is used for other cases
      */
+
+    /**
+     * Verify that worker returns a success result.
+     * Verify that all input data passed to worker successfully
+     */
     @Test
     fun dailyPrecipitationWorker_doWork_resultSuccess() {
         val data = Data.Builder()
@@ -64,6 +69,11 @@ class WorkerInstrumentationTest {
         }
     }
 
+
+    /**
+     * Verify that worker returns a success result.
+     * Verify that all input data passed to worker successfully
+     */
     @Test
     fun dailyLocalForecastWorker_doWork_resultSuccess() {
         val coordinates = doubleArrayOf(24.44, 25.55)

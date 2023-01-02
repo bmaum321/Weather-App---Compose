@@ -52,7 +52,7 @@ class HourlyForecastViewModel(
         viewModelScope.launch {
             unit = preferencesRepository.getTemperatureUnit.first().toString()
         }
-      return unit
+        return unit
     }
 
     fun getWindUnit(): String {
@@ -93,9 +93,9 @@ class HourlyForecastViewModel(
                             HourlyForecastViewData.Done(
                                 response.data
                                     .asDomainModel(
-                                        preferencesRepository.getClockFormat.first().toString(),
-                                        preferencesRepository.getDateFormat.first().toString(),
-                                        resources)
+                                        resources,
+                                        preferencesRepository.getAllPreferences.first()
+                                    )
                             )
                         )
                         is NetworkResult.Failure -> emit(
@@ -128,7 +128,12 @@ class HourlyForecastViewModel(
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(HourlyForecastViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return HourlyForecastViewModel(weatherRepository, preferencesRepository, weatherDao, app) as T
+                return HourlyForecastViewModel(
+                    weatherRepository,
+                    preferencesRepository,
+                    weatherDao,
+                    app
+                ) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

@@ -19,6 +19,7 @@ import com.brian.weather.repository.WeatherRepositoryImpl
 import com.brian.weather.util.Constants
 import com.brian.weather.util.sendPrecipitationNotification
 import com.brian.weather.R
+import com.brian.weather.data.settings.AppPreferences
 
 class DailyPrecipitationWorker(
     ctx: Context,
@@ -58,9 +59,20 @@ class DailyPrecipitationWorker(
                         weatherRepository.getForecast(location)) {
                         is NetworkResult.Success -> {
                             val forecastDomainObject = response.data.asDomainModel(
-                                clockFormat,
-                                dateFormat,
-                                resources
+                                resources,
+                                preferences = AppPreferences(
+                                    tempUnit = "Fahrenheit",
+                                    clockFormat = "hh:mm a",
+                                    dateFormat = "MM/DD",
+                                    windUnit = "MPH",
+                                    dynamicColors = false,
+                                    showAlerts = true,
+                                    measurementUnit = "IN",
+                                    showNotifications = true,
+                                    showLocalForecast = true,
+                                    showPrecipitationNotifications = true,
+                                    precipitationLocations = setOf()
+                                )
                             )
                             val willItRainToday = mutableListOf<Int>()
                             forecastDomainObject.days.first().hours.forEach { hour ->

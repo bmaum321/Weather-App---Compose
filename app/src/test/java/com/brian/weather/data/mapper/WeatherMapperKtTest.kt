@@ -14,6 +14,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin
 import org.mockito.Mockito.mock
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @RunWith(AndroidJUnit4::class)
 class WeatherMapperKtTest {
@@ -26,8 +29,6 @@ class WeatherMapperKtTest {
     fun before() {
         stopKoin()
     }
-
-
 
     private val resources: Resources = mock(Resources::class.java)
     private val preferences = AppPreferences(
@@ -151,6 +152,36 @@ class WeatherMapperKtTest {
 
         assertEquals(10.0, weatherDomainObject.windSpeed, 0.0)
 
+    }
+
+    @Test
+    fun weatherDto_toDomainModel_returnsCorrectTime() {
+        val time = Instant
+            .ofEpochSecond(weather.location.localtime_epoch)
+            .atZone(ZoneId.of(weather.location.tz_id))
+            .format(
+                DateTimeFormatter
+                    .ofPattern(preferences.clockFormat)
+            )
+        assertEquals(time.removePrefix("0"), weatherDomainObject.time)
+    }
+
+    @Test
+    fun weatherDto_toDomainModel_returnsCorrect24HrTime() {
+
+        weatherDomainObject = weather.asDomainModel(
+            zipcode = "13088",
+            resources = resources,
+            preferences = preferences2
+        )
+        val time = Instant
+            .ofEpochSecond(weather.location.localtime_epoch)
+            .atZone(ZoneId.of(weather.location.tz_id))
+            .format(
+                DateTimeFormatter
+                    .ofPattern(preferences2.clockFormat)
+            )
+        assertEquals(time, weatherDomainObject.time)
     }
 
 }

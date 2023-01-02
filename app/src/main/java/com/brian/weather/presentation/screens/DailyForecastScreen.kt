@@ -182,7 +182,7 @@ fun ForecastListItem(
     val ticker = viewModel.dailyForecastTicker(
         chanceOfRain = daysDomainObject.day.daily_chance_of_rain,
         chanceOfSnow = daysDomainObject.day.daily_chance_of_snow,
-        avgTemp = daysDomainObject.day.avgtemp_f,
+        avgTemp = daysDomainObject.day.avgtemp,
         sunrise = daysDomainObject.astroData.sunrise,
         sunset = daysDomainObject.astroData.sunset,
         avgHumidity = daysDomainObject.day.avghumidity
@@ -250,14 +250,12 @@ fun ForecastListItem(
                     ) {
 
                         Text(
-                            text = if (temperatureUnit == "Fahrenheit") "${daysDomainObject.day.mintemp_f.toInt()}\u00B0 ·"
-                            else "${daysDomainObject.day.mintemp_c.toInt()}\u00B0 ·",
+                            text =  "${daysDomainObject.day.mintemp.toInt()}\u00B0 ·",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = if (temperatureUnit == "Fahrenheit") " ${daysDomainObject.day.maxtemp_f.toInt()}\u00B0"
-                            else " ${daysDomainObject.day.maxtemp_c.toInt()}\u00B0",
+                            text = "${daysDomainObject.day.maxtemp.toInt()}\u00B0",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )

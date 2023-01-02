@@ -23,8 +23,7 @@ class FakePreferencesRepositoryImpl(
     override val DYNAMIC_COLORS = booleanPreferencesKey("dynamic_colors")
     override val SHOW_WEATHER_ALERTS = booleanPreferencesKey("show_weather_alerts")
     override val CLOCK_FORMAT = stringPreferencesKey("clock_format")
-    override val DATE_FORMAT: Preferences.Key<String>
-        get() = TODO("Not yet implemented")
+    override val DATE_FORMAT = stringPreferencesKey("date_format")
     override val SHOW_NOTIFICATIONS = booleanPreferencesKey("show_notifications")
     override val SHOW_LOCAL_FORECAST = booleanPreferencesKey("show_local_forecast")
     override val SHOW_PRECIPITATION_NOTIFICATIONS = booleanPreferencesKey("show_precipitation_notifications")
@@ -216,7 +215,9 @@ class FakePreferencesRepositoryImpl(
     }
 
     override suspend fun saveDateFormatSetting(value: String) {
-        TODO("Not yet implemented")
+        dataStore.edit { preferences ->
+            preferences[DATE_FORMAT] = value
+        }
     }
 
     override suspend fun saveWeatherAlertSetting(value: Boolean) {

@@ -332,6 +332,7 @@ private fun WeatherStatistic(
             painter = painterResource(id = iconId),
             contentDescription = iconId.toString()
         )
+        Spacer(modifier = Modifier.size(4.dp))
 
         Text(text = value)
     }

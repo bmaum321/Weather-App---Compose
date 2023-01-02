@@ -270,6 +270,10 @@ class SettingsTests {
         composeTestRule
             .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.alert_fab_description))
             .assertDoesNotExist()
+        //Turn setting back on
+        performNavigateUp()
+        navigateToInterfaceScreen()
+        composeTestRule.onNodeWithTag("Show Weather Alerts?").performClick()
     }
 
 

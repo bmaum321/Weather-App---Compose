@@ -108,8 +108,8 @@ class HourMapperKtTest {
 
     @Test
     fun hourDto_toDomainModel_returnsCorrectPrecipitation() {
-        assertEquals(hoursDomainObjectImperialUnits.precip, "10")
-        assertEquals(hoursDomainObjectMetricUnits.precip, "20")
+        assertEquals(hoursDomainObjectImperialUnits.precip, "10.0")
+        assertEquals(hoursDomainObjectMetricUnits.precip, "20.0")
     }
 
     @Test

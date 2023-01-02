@@ -243,7 +243,7 @@ fun ForecastListItem(
                     ) {
 
                         Text(
-                            text =  "${daysDomainObject.day.minTemp.toInt()}\u00B0 ·",
+                            text =  "${daysDomainObject.day.minTemp.toInt()}\u00B0 · ",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )

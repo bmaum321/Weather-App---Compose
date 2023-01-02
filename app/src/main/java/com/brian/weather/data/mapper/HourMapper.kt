@@ -69,8 +69,8 @@ fun Hour.toDomainModel(
         will_it_rain = will_it_rain,
         chance_of_snow = chance_of_snow,
         will_it_snow = will_it_snow,
-        precip = if(preferences.measurementUnit == "IN")precip_in.toInt().toString()
-        else precip_mm.toInt().toString(),
+        precip = if(preferences.measurementUnit == "IN")precip_in.toString()
+        else precip_mm.toString(),
         feelslike = if(preferences.tempUnit == "Fahrenheit")feelslike_f else feelslike_c,
         windchill = if(preferences.tempUnit == "Fahrenheit")windchill_f else windchill_c,
         colors = conditionColors,

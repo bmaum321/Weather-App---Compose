@@ -141,7 +141,7 @@ class DayMapperKtTest {
         preferences = preferences
     )
 
-    private val dayDomainObject = forecastForDay.toDomainModel()
+    private val dayDomainObject = forecastForDay.toDomainModel(preferences)
 
     @Test
     fun daysDto_toDomainModel_returnsCorrectDayOfWeek() {

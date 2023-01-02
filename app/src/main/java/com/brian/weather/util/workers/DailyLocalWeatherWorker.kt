@@ -11,18 +11,14 @@ import androidx.core.content.PermissionChecker
 import androidx.work.*
 import com.brian.weather.data.mapper.asDomainModel
 import com.brian.weather.data.remote.NetworkResult
-import com.brian.weather.data.settings.PreferencesRepository
-import com.brian.weather.repository.WeatherRepository
 import com.brian.weather.util.sendForecastNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import com.brian.weather.R
 import com.brian.weather.data.remote.WeatherApi
 import com.brian.weather.data.remote.onSuccess
 import com.brian.weather.data.settings.AppPreferences
-import com.brian.weather.data.settings.PreferencesRepositoryImpl
 import com.brian.weather.repository.WeatherRepositoryImpl
 
 
@@ -90,14 +86,14 @@ class DailyLocalWeatherWorker(
                         var minTemp = ""
                         if (tempUnit == "Fahrenheit") {
                             maxTemp =
-                                forecastDomainObject.days[0].day.maxtemp.toInt().toString()
+                                forecastDomainObject.days[0].day.maxTemp.toInt().toString()
                             minTemp =
-                                forecastDomainObject.days[0].day.mintemp.toInt().toString()
+                                forecastDomainObject.days[0].day.minTemp.toInt().toString()
                         } else {
                             maxTemp =
-                                forecastDomainObject.days[0].day.maxtemp.toInt().toString()
+                                forecastDomainObject.days[0].day.maxTemp.toInt().toString()
                             minTemp =
-                                forecastDomainObject.days[0].day.mintemp.toInt().toString()
+                                forecastDomainObject.days[0].day.minTemp.toInt().toString()
                         }
                         val condition = forecastDomainObject.days[0].day.condition.text
                         imgUrl = forecastDomainObject.days[0].day.condition.icon

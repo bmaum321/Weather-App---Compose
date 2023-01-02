@@ -5,14 +5,14 @@ import com.brian.weather.data.remote.dto.Condition
 
 data class DayDomainObject(
     val condition: Condition,
-    val avgtemp: Double,
-    val maxtemp: Double,
-    val mintemp: Double,
+    val avgTemp: Double,
+    val maxTemp: Double,
+    val minTemp: Double,
     val daily_chance_of_rain: Double,
     val backgroundColors: List<Color>,
     val textColor: Color,
     val daily_chance_of_snow: Double,
-    val totalprecip: Double,
-    val avghumidity: Double
+    val totalPrecipitation: Double,
+    val avgHumidity: Double
 )
 

@@ -1,6 +1,5 @@
 package com.brian.weather.data.mapper
 
-import android.app.Application
 import android.content.res.Resources
 import androidx.compose.ui.graphics.Color
 import com.brian.weather.data.remote.dto.Astro
@@ -78,15 +77,15 @@ fun ForecastForDay.toDomainModel(preferences: AppPreferences): DayDomainObject {
 
     return DayDomainObject(
         condition = condition,
-        avgtemp = if(preferences.tempUnit == "Fahrenheit")avgtemp_f else avgtemp_c,
-        mintemp = if(preferences.tempUnit == "Fahrenheit")mintemp_f else mintemp_c,
-        maxtemp = if(preferences.tempUnit == "Fahrenheit")maxtemp_f else maxtemp_c,
+        avgTemp = if(preferences.tempUnit == "Fahrenheit")avgtemp_f else avgtemp_c,
+        minTemp = if(preferences.tempUnit == "Fahrenheit")mintemp_f else mintemp_c,
+        maxTemp = if(preferences.tempUnit == "Fahrenheit")maxtemp_f else maxtemp_c,
         daily_chance_of_rain = daily_chance_of_rain,
         backgroundColors = conditionColors,
         textColor = textColor,
         daily_chance_of_snow = daily_chance_of_snow,
-        totalprecip = if(preferences.measurementUnit == "IN")totalprecip_in else totalprecip_mm,
-        avghumidity = avghumidity
+        totalPrecipitation = if(preferences.measurementUnit == "IN")totalprecip_in else totalprecip_mm,
+        avgHumidity = avghumidity
     )
 }
 

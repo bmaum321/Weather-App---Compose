@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brian.weather.R
 import com.brian.weather.data.settings.PreferencesRepository
-import com.brian.weather.presentation.SettingsDrawerItem
-import com.brian.weather.presentation.SettingsListItem
+import com.brian.weather.presentation.screens.SettingsDrawerItem
+import com.brian.weather.presentation.screens.SettingsListItem
 import com.brian.weather.presentation.reusablecomposables.LabeledCheckBox
 import com.brian.weather.presentation.reusablecomposables.SettingsListItemWithSwitch
 import com.brian.weather.presentation.viewmodels.MainViewModel

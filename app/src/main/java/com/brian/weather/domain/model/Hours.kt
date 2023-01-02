@@ -6,7 +6,7 @@ import com.brian.weather.data.remote.dto.Condition
 data class HoursDomainObject(
     val time_epoch: Long,
     val time: String,
-    val temp: Double,
+    val temp: String,
     val is_day: Int,
     val condition: Condition,
     val windspeed: String,

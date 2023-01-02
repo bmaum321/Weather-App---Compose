@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.brian.weather.presentation.SettingsDrawerItem
+import com.brian.weather.presentation.screens.SettingsDrawerItem
 import com.brian.weather.presentation.theme.WeatherComposeTheme
 import com.brian.weather.R
 

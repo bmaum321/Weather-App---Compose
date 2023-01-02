@@ -1,16 +1,11 @@
 package com.brian.weather.presentation.screens
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,7 +17,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brian.weather.R
@@ -37,7 +31,6 @@ import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
 import com.brian.weather.presentation.viewmodels.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.getViewModel
 
 
 @Composable
@@ -182,10 +175,10 @@ fun ForecastListItem(
     val ticker = viewModel.dailyForecastTicker(
         chanceOfRain = daysDomainObject.day.daily_chance_of_rain,
         chanceOfSnow = daysDomainObject.day.daily_chance_of_snow,
-        avgTemp = daysDomainObject.day.avgtemp,
+        avgTemp = daysDomainObject.day.avgTemp,
         sunrise = daysDomainObject.astroData.sunrise,
         sunset = daysDomainObject.astroData.sunset,
-        avgHumidity = daysDomainObject.day.avghumidity
+        avgHumidity = daysDomainObject.day.avgHumidity
     ).collectAsState(initial = "")
 
     val date = daysDomainObject.dayOfWeek
@@ -250,12 +243,12 @@ fun ForecastListItem(
                     ) {
 
                         Text(
-                            text =  "${daysDomainObject.day.mintemp.toInt()}\u00B0 ·",
+                            text =  "${daysDomainObject.day.minTemp.toInt()}\u00B0 ·",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "${daysDomainObject.day.maxtemp.toInt()}\u00B0",
+                            text = "${daysDomainObject.day.maxTemp.toInt()}\u00B0",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )

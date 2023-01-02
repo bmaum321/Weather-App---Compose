@@ -56,17 +56,21 @@ fun Hour.toDomainModel(
         time_epoch = time_epoch,
         time = if(preferences.clockFormat == "hh:mm a") formattedTime.removePrefix("0")
         else formattedTime,
-        temp = if(preferences.tempUnit == "Fahrenheit")temp_f else temp_c,
+        temp = if(preferences.tempUnit == "Fahrenheit")temp_f.toInt().toString()
+        else temp_c.toInt().toString(),
         is_day = is_day,
         condition = condition,
-        windspeed = if(preferences.windUnit == "MPH") "$wind_mph MPH" else "$wind_kph KPH",
+        windspeed = if(preferences.windUnit == "MPH") wind_mph.toInt().toString()
+        else wind_kph.toInt().toString(),
         wind_dir = wind_dir,
         chance_of_rain = chance_of_rain,
-        pressure = if(preferences.measurementUnit == "IN")"$pressure_in IN" else "$pressure_mb MB",
+        pressure = if(preferences.measurementUnit == "IN")pressure_in.toInt().toString()
+        else pressure_mb.toInt().toString(),
         will_it_rain = will_it_rain,
         chance_of_snow = chance_of_snow,
         will_it_snow = will_it_snow,
-        precip = if(preferences.measurementUnit == "IN")"$precip_in IN" else "$precip_mm MM",
+        precip = if(preferences.measurementUnit == "IN")precip_in.toInt().toString()
+        else precip_mm.toInt().toString(),
         feelslike = if(preferences.tempUnit == "Fahrenheit")feelslike_f else feelslike_c,
         windchill = if(preferences.tempUnit == "Fahrenheit")windchill_f else windchill_c,
         colors = conditionColors,

@@ -224,7 +224,7 @@ fun HourlyForecastListItem(
 
                     Row {
                         Text(
-                            text = "${hour.temp.toInt()}\u00B0",
+                            text = "${hour.temp}\u00B0",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -270,19 +270,19 @@ fun HourlyForecastDetails(
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(
             iconId = R.drawable.ic_wind,
-            value = hour.windspeed,
+            value = if (windUnit == "MPH") hour.windspeed + " MPH" else hour.windspeed + " KPH",
             modifier = Modifier.semantics { testTag = windUnit }
         )
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(
             iconId = R.drawable.barometer_svgrepo_com,
-            value = hour.pressure,
+            value = if (measurementUnit == "IN") hour.pressure + " IN" else hour.pressure + " MB",
             modifier = Modifier.semantics { testTag = measurementUnit }
         )
         Spacer(modifier = modifier.weight(1f))
         WeatherStatistic(
             iconId = R.drawable.ic_rain_svgrepo_com,
-            value =  hour.precip,
+            value = if (measurementUnit == "IN") hour.precip + " IN" else hour.precip + " MM",
             modifier = Modifier.semantics { testTag = measurementUnit }
         )
         Spacer(modifier = modifier.weight(1f))

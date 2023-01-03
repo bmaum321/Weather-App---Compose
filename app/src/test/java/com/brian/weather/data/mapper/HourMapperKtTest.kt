@@ -29,10 +29,6 @@ class HourMapperKtTest {
     }
 
 
-    //val context: Context = ApplicationProvider.getApplicationContext()
-    //val context = mock(Context::class.java)
-    private val resources: Resources = mock(Resources::class.java)
-
     private val preferencesImperial = AppPreferences(
         tempUnit = "Fahrenheit",
         clockFormat = "hh:mm a",
@@ -85,8 +81,8 @@ class HourMapperKtTest {
         windchill_f = 10.0
     )
 
-    private val hoursDomainObjectImperialUnits = hour.toDomainModel(preferencesImperial, resources)
-    private val hoursDomainObjectMetricUnits = hour.toDomainModel(preferencesMetric, resources)
+    private val hoursDomainObjectImperialUnits = hour.toDomainModel(preferencesImperial)
+    private val hoursDomainObjectMetricUnits = hour.toDomainModel(preferencesMetric)
 
     @Test
     fun hourDto_toDomainModel_returnsCorrectTemperature() {

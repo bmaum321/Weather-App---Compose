@@ -16,7 +16,6 @@ import java.time.format.TextStyle
 import java.util.*
 
 fun Day.toDomainModel(
-    resources: Resources,
     preferences: AppPreferences
 ): DaysDomainObject {
 
@@ -43,7 +42,7 @@ fun Day.toDomainModel(
             .toDomainModel(preferences),
         hours = hour
             .filter { it.time_epoch > currentEpochTime }
-            .map { it.toDomainModel(preferences, resources) },
+            .map { it.toDomainModel(preferences) },
         astroData = astro
             .toDomainModel(preferences.clockFormat)
     )

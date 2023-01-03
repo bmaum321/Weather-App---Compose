@@ -4,9 +4,9 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.brian.weather.data.local.WeatherDao
 import com.brian.weather.data.local.WeatherEntity
-import com.brian.weather.data.mapper.toDomainModel
 import com.brian.weather.data.remote.dto.asDatabaseModel
 import com.brian.weather.data.remote.NetworkResult
+import com.brian.weather.domain.usecase.CreateSearchStateUseCase
 import com.brian.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,7 +25,9 @@ import kotlinx.coroutines.launch
 class AddWeatherLocationViewModel(
     private val weatherRepository: WeatherRepository,
     private val weatherDao: WeatherDao,
-    application: Application) :
+    private val createSearchStateUseCase: CreateSearchStateUseCase,
+    application: Application
+) :
     AndroidViewModel(application) {
 
     private val queryFlow = MutableSharedFlow<String>(1, 1, BufferOverflow.DROP_OLDEST)
@@ -54,38 +56,13 @@ class AddWeatherLocationViewModel(
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val getSearchResults: StateFlow<SearchViewData> =
+    val getSearchResults: StateFlow<SearchState> =
         queryFlow
             .flatMapLatest { currentQuery ->
                 flow {
-                    when (val response = weatherRepository.getSearchResults(currentQuery)) {
-                        is NetworkResult.Success -> {
-                            val newSearchResults =
-                                response.data.map { it.toDomainModel() }
-                                    .map { searchDomainObject ->
-                                        searchDomainObject.name + "," + " " + searchDomainObject.region
-                                    }
-                            emit(SearchViewData.Done(newSearchResults))
-                        }
-                        is NetworkResult.Failure -> {
-                            emit(
-                                SearchViewData.Error(
-                                    code = response.code,
-                                    message = response.message
-                                )
-                            )
-                        }
-                        is NetworkResult.Exception -> {
-                            emit(
-                                SearchViewData.Error(
-                                    code = response.e.hashCode(),
-                                    message = response.e.message
-                                )
-                            )
-                        }
-                    }
+                    emit(createSearchStateUseCase(currentQuery))
                 }
-            }.stateIn(viewModelScope, SharingStarted.Lazily, SearchViewData.Loading)
+            }.stateIn(viewModelScope, SharingStarted.Lazily, SearchState.Loading)
 
 
     fun setQuery(currentQuery: String) {
@@ -153,7 +130,7 @@ class AddWeatherLocationViewModel(
             weatherDao.insert(weatherEntity)
         }
     }
-
+/*
 
 // create a view model factory that takes a WeatherDao as a property and
 //  creates a WeatherViewModel
@@ -172,10 +149,12 @@ class AddWeatherLocationViewModel(
         }
     }
 
+ */
+
 }
 
-sealed class SearchViewData {
-    object Loading : SearchViewData()
-    data class Error(val code: Int, val message: String?) : SearchViewData()
-    data class Done(val searchResults: List<String>) : SearchViewData()
+sealed class SearchState {
+    object Loading : SearchState()
+    data class Error(val code: Int, val message: String?) : SearchState()
+    data class Success(val searchResults: List<String>) : SearchState()
 }

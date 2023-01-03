@@ -63,7 +63,6 @@ class DailyLocalWeatherWorker(
                     weatherRepository.getForecast(coordinates)) {
                     is NetworkResult.Success -> {
                         val forecastDomainObject = response.data.asDomainModel(
-                            resources,
                             preferences = AppPreferences(
                                 tempUnit = "Fahrenheit",
                                 clockFormat = "hh:mm a",

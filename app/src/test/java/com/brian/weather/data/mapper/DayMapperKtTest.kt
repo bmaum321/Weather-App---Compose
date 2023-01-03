@@ -137,7 +137,6 @@ class DayMapperKtTest {
 
     )
     var daysDomainObject = day.toDomainModel(
-        resources = resources,
         preferences = preferences
     )
 
@@ -158,7 +157,6 @@ class DayMapperKtTest {
     @Test
     fun daysDto_ToDomainModel_returnsCorrectDateDDMM() {
         daysDomainObject = day.toDomainModel(
-            resources = resources,
             preferences = preferences2
         )
         val month = LocalDate.parse(day.date).month.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)

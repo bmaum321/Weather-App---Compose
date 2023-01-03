@@ -20,6 +20,9 @@ import com.brian.weather.R
 import com.brian.weather.data.local.WeatherDao
 import com.brian.weather.data.local.WeatherEntity
 import com.brian.weather.data.settings.PreferencesRepositoryImpl
+import com.brian.weather.domain.usecase.CreateDailyForecastStateUseCase
+import com.brian.weather.domain.usecase.CreateHourlyForecastStateUseCase
+import com.brian.weather.domain.usecase.CreateSearchStateUseCase
 import com.brian.weather.domain.usecase.CreateWeatherListStateUsecase
 import com.brian.weather.presentation.WeatherApp
 import com.brian.weather.presentation.navigation.*
@@ -96,18 +99,19 @@ class NavigationTests {
                     weatherRepository = fakeWeatherRepository,
                     preferencesRepository = preferencesRepository,
                     weatherDao = weatherDao,
-                    application = application
+                    application = application,
+                    createDailyForecastStateUseCase = CreateDailyForecastStateUseCase(fakeWeatherRepository,preferencesRepository)
                 ),
                 hourlyForecastViewModel = HourlyForecastViewModel(
-                    weatherRepository = fakeWeatherRepository,
                     preferencesRepository = preferencesRepository,
-                    weatherDao = weatherDao,
-                    application = application
+                    application = application,
+                    createHourlyForecastStateUseCase = CreateHourlyForecastStateUseCase(fakeWeatherRepository,preferencesRepository)
                 ),
                 addWeatherLocationViewModel = AddWeatherLocationViewModel(
                     weatherRepository = fakeWeatherRepository,
                     weatherDao = weatherDao,
-                    application = application
+                    application = application,
+                    createSearchStateUseCase = CreateSearchStateUseCase(fakeWeatherRepository,preferencesRepository)
                 ),
                 mainViewModel = mainViewModel,
                 navController = navController

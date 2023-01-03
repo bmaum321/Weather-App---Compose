@@ -9,9 +9,9 @@ import com.brian.weather.domain.model.HoursDomainObject
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
+
 fun Hour.toDomainModel(
     preferences: AppPreferences,
-    resources: Resources
 ): HoursDomainObject {
 
 
@@ -22,7 +22,7 @@ fun Hour.toDomainModel(
 
     val conditionColors = when(condition.code) {
         1000 -> {
-            if (condition.text == resources.getString(R.string.Sunny)) {
+            if (is_day == 1) {
                 listOf(Color(0xfff5f242),Color(0xffff9100))// sunny
             } else listOf(Color(0xff000000),Color(0x472761CC)) // clear night
         }

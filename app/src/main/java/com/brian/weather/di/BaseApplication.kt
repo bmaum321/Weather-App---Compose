@@ -11,6 +11,9 @@ import com.brian.weather.data.local.WeatherDatabase
 import com.brian.weather.data.remote.WeatherApi
 import com.brian.weather.data.settings.PreferencesRepository
 import com.brian.weather.data.settings.PreferencesRepositoryImpl
+import com.brian.weather.domain.usecase.CreateDailyForecastStateUseCase
+import com.brian.weather.domain.usecase.CreateHourlyForecastStateUseCase
+import com.brian.weather.domain.usecase.CreateSearchStateUseCase
 import com.brian.weather.domain.usecase.CreateWeatherListStateUsecase
 import com.brian.weather.repository.WeatherRepository
 import com.brian.weather.repository.WeatherRepositoryImpl
@@ -87,6 +90,18 @@ class BaseApplication : Application() {
                 CreateWeatherListStateUsecase(get(), get())
             }
 
+            single {
+                CreateDailyForecastStateUseCase(get(), get())
+            }
+
+            single {
+                CreateHourlyForecastStateUseCase(get(), get())
+            }
+
+            single {
+                CreateSearchStateUseCase(get(), get())
+            }
+
             // Use factory to create multiple instances for each viewmodel
             viewModel {
                 MainViewModel()
@@ -95,13 +110,13 @@ class BaseApplication : Application() {
                 WeatherListViewModel(get(), get(), get(), get(), get())
             }
             viewModel {
-                DailyForecastViewModel(get(), get(), get(), get())
+                DailyForecastViewModel(get(), get(), get(), get(), get())
             }
             viewModel {
-                HourlyForecastViewModel(get(), get(), get(), get())
+                HourlyForecastViewModel(get(), get(), get())
             }
             viewModel {
-                AddWeatherLocationViewModel(get(), get(), get())
+                AddWeatherLocationViewModel(get(), get(), get(), get())
             }
         }
 

@@ -7,6 +7,7 @@ import com.brian.weather.data.remote.dto.*
 import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.data.settings.PreferencesRepository
 import com.brian.weather.domain.model.DayDomainObject
+import com.brian.weather.domain.model.ForecastDomainObject
 import com.brian.weather.domain.model.WeatherDomainObject
 import com.brian.weather.repository.WeatherRepository
 
@@ -143,7 +144,9 @@ class FakeWeatherRepository: WeatherRepository {
         }else if(shouldReturnException) {
             NetworkResult.Exception(e = Throwable())
         } else {
+           // NetworkResult.Success(data = ForecastContainer(locationData, forecastDay, alertList))
             NetworkResult.Success(data = ForecastContainer(locationData, forecastDay, alertList))
+
         }
     }
 

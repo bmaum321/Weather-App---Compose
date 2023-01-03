@@ -7,13 +7,11 @@ import com.brian.weather.domain.model.AlertDomainObject
 import com.brian.weather.domain.model.ForecastDomainObject
 
 fun ForecastContainer.asDomainModel(
-    resources: Resources,
     preferences: AppPreferences
 ): ForecastDomainObject {
     return ForecastDomainObject(
         days = forecast.forecastday
             .map { it.toDomainModel(
-                        resources,
                         preferences
                     )
             },

@@ -1,27 +1,22 @@
 package com.brian.weather.presentation.viewmodels
 
 import android.app.Application
-import android.content.res.Resources
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.*
-import com.brian.weather.data.local.WeatherDao
+import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.domain.model.ForecastDomainObject
-import com.brian.weather.data.mapper.asDomainModel
-import com.brian.weather.data.remote.NetworkResult
 import com.brian.weather.data.settings.PreferencesRepository
-import com.brian.weather.repository.WeatherRepository
+import com.brian.weather.domain.usecase.CreateHourlyForecastStateUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 
-sealed class HourlyForecastViewData {
-    class Done(val forecastDomainObject: ForecastDomainObject) : HourlyForecastViewData()
-    class Error(val code: Int, val message: String?) : HourlyForecastViewData()
-    object Loading : HourlyForecastViewData()
+sealed class HourlyForecastState {
+    data class Success(val forecastDomainObject: ForecastDomainObject) : HourlyForecastState()
+    data class Error(val code: Int, val message: String?) : HourlyForecastState()
+    object Loading : HourlyForecastState()
 }
 
 /**
@@ -30,14 +25,12 @@ sealed class HourlyForecastViewData {
 
 // Pass an application as a parameter to the viewmodel constructor which is the context passed to the singleton database object
 class HourlyForecastViewModel(
-    private val weatherRepository: WeatherRepository,
+    private val createHourlyForecastStateUseCase: CreateHourlyForecastStateUseCase,
     private val preferencesRepository: PreferencesRepository,
-    private val weatherDao: WeatherDao,
     application: Application
 ) :
     AndroidViewModel(application) {
 
-    var hourlyForecastUiState: HourlyForecastViewData by mutableStateOf(HourlyForecastViewData.Loading)
 
     private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST).apply {
         tryEmit(Unit)
@@ -47,74 +40,36 @@ class HourlyForecastViewModel(
         refreshFlow.tryEmit(Unit)
     }
 
-    fun getTempUnit(): String {
-        var unit = ""
-        viewModelScope.launch {
-            unit = preferencesRepository.getTemperatureUnit.first().toString()
-        }
-        return unit
-    }
-
-    fun getWindUnit(): String {
-        var unit = ""
-        viewModelScope.launch {
-            unit = preferencesRepository.getWindspeedUnit.first().toString()
-        }
-        return unit
-    }
-
-    fun getMeasurement(): String {
-        var unit = ""
-        viewModelScope.launch {
-            unit = preferencesRepository.getMeasurementUnit.first().toString()
-        }
-        return unit
-    }
-
-    fun getDynamicColorSetting(): Boolean {
-        var setting = true
-        viewModelScope.launch {
-            setting = preferencesRepository.getDynamicColorsSetting.first() ?: true
-        }
-        return setting
-    }
+    fun getPreferences() = preferencesRepository.getAllPreferences.stateIn(viewModelScope, SharingStarted.Lazily,
+        AppPreferences(
+        tempUnit = "",
+        clockFormat = "",
+        dateFormat = "",
+        windUnit = "",
+        dynamicColors = false,
+        showAlerts = false,
+        measurementUnit = "",
+        showNotifications = false,
+        showLocalForecast = false,
+        showPrecipitationNotifications = false,
+        precipitationLocations = setOf()
+    )
+    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getHourlyForecast(
-        zipcode: String,
-        resources: Resources
-    ): StateFlow<HourlyForecastViewData> {
+        location: String,
+    ): StateFlow<HourlyForecastState> {
         return refreshFlow
             .flatMapLatest {
                 flow {
-                    emit(HourlyForecastViewData.Loading)
-                    when (val response = weatherRepository.getForecast(zipcode)) {
-                        is NetworkResult.Success -> emit(
-                            HourlyForecastViewData.Done(
-                                response.data
-                                    .asDomainModel(
-                                        resources,
-                                        preferencesRepository.getAllPreferences.first()
-                                    )
-                            )
-                        )
-                        is NetworkResult.Failure -> emit(
-                            HourlyForecastViewData.Error(
-                                message = response.message,
-                                code = response.code
-                            )
-                        )
-                        is NetworkResult.Exception -> emit(
-                            HourlyForecastViewData.Error(
-                                message = response.e.message,
-                                code = response.e.hashCode()
-                            )
-                        )
-                    }
+                    //emit(HourlyForecastState.Loading)
+                    emit(createHourlyForecastStateUseCase(location))
                 }
-            }.stateIn(viewModelScope, SharingStarted.Lazily, HourlyForecastViewData.Loading)
+            }.stateIn(viewModelScope, SharingStarted.Lazily, HourlyForecastState.Loading)
     }
 
+    /*
 // create a view model factory that takes a WeatherDao as a property and
 //  creates a WeatherViewModel
 
@@ -138,6 +93,8 @@ class HourlyForecastViewModel(
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
+
+     */
 }
 
 

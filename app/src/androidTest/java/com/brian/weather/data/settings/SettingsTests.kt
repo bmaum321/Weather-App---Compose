@@ -31,6 +31,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import com.brian.weather.R
+import com.brian.weather.domain.usecase.CreateDailyForecastStateUseCase
+import com.brian.weather.domain.usecase.CreateHourlyForecastStateUseCase
+import com.brian.weather.domain.usecase.CreateSearchStateUseCase
 import com.brian.weather.domain.usecase.CreateWeatherListStateUsecase
 import org.koin.androidx.compose.get
 
@@ -65,18 +68,19 @@ class SettingsTests {
                     weatherRepository = fakeWeatherRepository,
                     preferencesRepository =  preferencesRepository,
                     weatherDao = weatherDao,
-                    application = application
+                    application = application,
+                    createDailyForecastStateUseCase = CreateDailyForecastStateUseCase(fakeWeatherRepository, preferencesRepository)
                 ),
                 hourlyForecastViewModel = HourlyForecastViewModel(
-                    weatherRepository = fakeWeatherRepository,
                     preferencesRepository = preferencesRepository,
-                    weatherDao = weatherDao,
-                    application = application
+                    application = application,
+                    createHourlyForecastStateUseCase = CreateHourlyForecastStateUseCase(fakeWeatherRepository,preferencesRepository)
                 ),
                 addWeatherLocationViewModel = AddWeatherLocationViewModel(
                     weatherRepository = fakeWeatherRepository,
                     weatherDao = weatherDao,
-                    application = application
+                    application = application,
+                    createSearchStateUseCase = CreateSearchStateUseCase(fakeWeatherRepository,preferencesRepository)
                 ),
                 mainViewModel = mainViewModel,
                 navController = navController

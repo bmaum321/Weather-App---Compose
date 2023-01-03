@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,17 +49,16 @@ fun AlertsScreen(
             mainViewModel.updateActionBarTitle("Weather Alerts")
         }
     }
-    val context = LocalContext.current
-    val state by remember {dailyForecastViewModel.getForecastForZipcode(location, context.resources) }.collectAsState()
+    val state by remember {dailyForecastViewModel.getForecastForZipcode(location) }.collectAsState()
 
     when (state) {
-        is ForecastViewData.Loading -> LoadingScreen(modifier)
-        is ForecastViewData.Done -> AlertsList(
-            (state as ForecastViewData.Done).forecastDomainObject,
+        is ForecastState.Loading -> LoadingScreen(modifier)
+        is ForecastState.Success -> AlertsList(
+            (state as ForecastState.Success).forecastDomainObject,
             modifier,
             dailyForecastViewModel
         )
-        is ForecastViewData.Error -> ErrorScreen({ dailyForecastViewModel.refresh() }, modifier)
+        is ForecastState.Error -> ErrorScreen({ dailyForecastViewModel.refresh() }, modifier)
     }
 }
 

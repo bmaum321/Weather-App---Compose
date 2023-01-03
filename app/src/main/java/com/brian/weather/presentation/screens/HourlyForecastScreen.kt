@@ -25,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -35,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brian.weather.R
+import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.domain.model.HoursDomainObject
 import com.brian.weather.presentation.animations.pressClickEffect
 import com.brian.weather.presentation.reusablecomposables.ErrorScreen
@@ -44,7 +44,6 @@ import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
 import com.brian.weather.presentation.theme.WeatherComposeTheme
 import com.brian.weather.presentation.viewmodels.*
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun HourlyForecastScreen(
@@ -59,22 +58,20 @@ fun HourlyForecastScreen(
     LaunchedEffect(Unit) {
         mainViewModel.updateActionBarTitle(date)
     }
-    val context = LocalContext.current
     val uiState = remember {
         hourlyForecastViewModel.getHourlyForecast(
-            location,
-            context.resources
+            location
         )
     }.collectAsState()
 
     when (uiState.value) {  //TODO same here new viewmodel with new state
-        is HourlyForecastViewData.Loading -> LoadingScreen(modifier)
-        is HourlyForecastViewData.Done -> HourlyForecastList(
-            (uiState.value as HourlyForecastViewData.Done).forecastDomainObject.days.first { it.dayOfWeek == date }.hours,
+        is HourlyForecastState.Loading -> LoadingScreen(modifier)
+        is HourlyForecastState.Success -> HourlyForecastList(
+            (uiState.value as HourlyForecastState.Success).forecastDomainObject.days.first { it.dayOfWeek == date }.hours,
             modifier,
             hourlyForecastViewModel
         )
-        is HourlyForecastViewData.Error -> ErrorScreen(
+        is HourlyForecastState.Error -> ErrorScreen(
             { hourlyForecastViewModel.refresh() },
             modifier
         )
@@ -122,11 +119,8 @@ fun HourlyForecastList(
             items(hoursList) { hourDomainObject ->
                 HourlyForecastListItem(
                     hourDomainObject,
-                    temperatureUnit = viewModel.getTempUnit(),
-                    windUnit = viewModel.getWindUnit(),
-                    measurementUnit = viewModel.getMeasurement(),
                     colors = hourDomainObject.colors,
-                    dynamicColorsEnabled = viewModel.getDynamicColorSetting()
+                    preferences = viewModel.getPreferences().collectAsState().value
                 )
             }
         }
@@ -166,16 +160,13 @@ fun HourlyForecastList(
 fun HourlyForecastListItem(
     hour: HoursDomainObject,
     modifier: Modifier = Modifier,
-    temperatureUnit: String,
-    windUnit: String,
-    measurementUnit: String,
     colors: List<Color>,
-    dynamicColorsEnabled: Boolean
+    preferences: AppPreferences
 ) {
 
     val gradient = Brush.linearGradient(colors)
     val colors =
-        CardDefaults.cardColors(contentColor = if (dynamicColorsEnabled) hour.textColor else LocalContentColor.current)
+        CardDefaults.cardColors(contentColor = if (preferences.dynamicColors) hour.textColor else LocalContentColor.current)
     var expanded by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
@@ -183,7 +174,7 @@ fun HourlyForecastListItem(
         colors = colors
     ) {
         Box(
-            modifier = if (dynamicColorsEnabled) modifier
+            modifier = if (preferences.dynamicColors) modifier
                 .background(gradient)
                 .fillMaxSize() else modifier.fillMaxSize()
         ) {
@@ -239,8 +230,8 @@ fun HourlyForecastListItem(
                 if (expanded) {
                     HourlyForecastDetails(
                         hour = hour,
-                        windUnit = windUnit,
-                        measurementUnit = measurementUnit
+                        windUnit = preferences.windUnit,
+                        measurementUnit = preferences.measurementUnit
                     )
                 }
             }

@@ -1,23 +1,25 @@
 package com.brian.weather.presentation.viewmodels
 
 import android.app.Application
-import android.content.res.Resources
 import androidx.lifecycle.*
 import com.brian.weather.data.local.WeatherDao
+import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.domain.model.ForecastDomainObject
-import com.brian.weather.data.mapper.asDomainModel
-import com.brian.weather.data.local.WeatherEntity
-import com.brian.weather.data.remote.NetworkResult
 import com.brian.weather.data.settings.PreferencesRepository
+import com.brian.weather.domain.usecase.CreateDailyForecastStateUseCase
 import com.brian.weather.repository.WeatherRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 
-sealed class ForecastViewData {
-    object Loading : ForecastViewData()
-    class Error(val code: Int, val message: String?) : ForecastViewData()
-    class Done(val forecastDomainObject: ForecastDomainObject) : ForecastViewData()
+
+/**
+ * The classes contained need to be data classes in order to perform unit testing assertions
+ */
+sealed class ForecastState {
+    object Loading : ForecastState()
+    data class Error(val code: Int, val message: String?) : ForecastState()
+    data class Success(val forecastDomainObject: ForecastDomainObject) : ForecastState()
 }
 
 /**
@@ -29,7 +31,9 @@ class DailyForecastViewModel(
     private val weatherRepository: WeatherRepository,
     private val preferencesRepository: PreferencesRepository,
     private val weatherDao: WeatherDao,
-    application: Application) :
+    private val createDailyForecastStateUseCase: CreateDailyForecastStateUseCase,
+    application: Application
+) :
     AndroidViewModel(application) {
 
     //The data source this viewmodel will fetch results from
@@ -41,14 +45,15 @@ class DailyForecastViewModel(
         avgTemp: Double,
         sunrise: String,
         avgHumidity: Double,
-        sunset: String) =
+        sunset: String
+    ) =
         flow {
-            while (currentCoroutineContext().isActive)  {
-                if(chanceOfRain > 0.0) {
+            while (currentCoroutineContext().isActive) {
+                if (chanceOfRain > 0.0) {
                     emit("Rain: ${chanceOfRain.toInt()} %")
                     delay(3000)
                 }
-                if(chanceOfSnow > 0.0) {
+                if (chanceOfSnow > 0.0) {
                     emit("Snow: ${chanceOfSnow.toInt()} %")
                     delay(3000)
                 }
@@ -75,84 +80,38 @@ class DailyForecastViewModel(
 
     fun getWeatherByZipcode(zipcode: String) = weatherDao.getWeatherByZipcode(zipcode)
 
-
-     fun getTemperatureUnit(): String {
-         var unit = ""
-         viewModelScope.launch {
-            unit = preferencesRepository.getTemperatureUnit.first().toString()
-         }
-         return unit
-     }
-
-    fun getAlertsSetting(): Boolean {
-        var setting = true
-        viewModelScope.launch {
-            setting = preferencesRepository.getWeatherAlertsSetting.first() ?: true
-        }
-        return setting
-    }
-
-    fun getDynamicColorSetting(): Boolean {
-        var setting = true
-        viewModelScope.launch {
-            setting = preferencesRepository.getDynamicColorsSetting.first() ?: true
-        }
-        return setting
-    }
+    fun getPreferences() = preferencesRepository
+        .getAllPreferences
+        .stateIn(
+            viewModelScope, SharingStarted.Lazily,
+            AppPreferences(
+                tempUnit = "",
+                clockFormat = "",
+                dateFormat = "",
+                windUnit = "",
+                dynamicColors = false,
+                showAlerts = false,
+                measurementUnit = "",
+                showNotifications = false,
+                showLocalForecast = false,
+                showPrecipitationNotifications = false,
+                precipitationLocations = setOf()
+            )
+        )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getForecastForZipcode(zipcode: String,
-                              resources: Resources)
-    : StateFlow<ForecastViewData> {
+    fun getForecastForZipcode(zipcode: String)
+            : StateFlow<ForecastState> {
         return refreshFlow
             .flatMapLatest {
                 flow {
-                    emit(ForecastViewData.Loading)
-                    when (val response = weatherRepository.getForecast(zipcode)) {
-                        is NetworkResult.Success -> emit(
-                            ForecastViewData.Done(
-                                response.data
-                                    .asDomainModel(
-                                        resources,
-                                        preferencesRepository.getAllPreferences.first()
-                                    )
-                            )
-                        )
-                        is NetworkResult.Failure -> emit(
-                            ForecastViewData.Error(
-                                code = response.code,
-                                message = response.message
-                            )
-                        )
-                        is NetworkResult.Exception -> emit(
-                            ForecastViewData.Error(
-                                code = 0,
-                                message = response.e.message
-                            )
-                        )
-                    }
+                    // We shouldnt need to emit a loading state when using the state in method
+                    //emit(ForecastState.Loading)
+                    emit(createDailyForecastStateUseCase(zipcode))
                 }
-            }.stateIn(viewModelScope, SharingStarted.Lazily, ForecastViewData.Loading)
+            }.stateIn(viewModelScope, SharingStarted.Lazily, ForecastState.Loading)
     }
 
-
-// create a view model factory that takes a WeatherDao as a property and
-//  creates a WeatherViewModel
-
-    class DailyForecastViewModelFactory
-        (private val weatherRepository: WeatherRepository,
-         private val preferencesRepository: PreferencesRepository,
-         private val weatherDao: WeatherDao,
-         val app: Application) :
-        ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(DailyForecastViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return DailyForecastViewModel(weatherRepository, preferencesRepository, weatherDao, app) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
 }
 
 

@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brian.weather.R
+import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.domain.model.DaysDomainObject
 import com.brian.weather.domain.model.ForecastDomainObject
 import com.brian.weather.presentation.animations.Pulsating
@@ -52,28 +53,26 @@ fun DailyForecastScreen(
        // location
         )
     }
-    val context = LocalContext.current
-    val temperatureUnit = dailyForecastViewModel.getTemperatureUnit()
+    val preferences = dailyForecastViewModel.getPreferences().collectAsState().value
     val state by remember {
         dailyForecastViewModel.getForecastForZipcode(
-            location,
-            context.resources
+            location
         )
     }.collectAsState()
 
     when (state) {
-        is ForecastViewData.Loading -> LoadingScreen(modifier)
-        is ForecastViewData.Done -> {
+        is ForecastState.Loading -> LoadingScreen(modifier)
+        is ForecastState.Success -> {
             ForecastList(
-                (state as ForecastViewData.Done).forecastDomainObject,
+                (state as ForecastState.Success).forecastDomainObject,
                 modifier,
                 onClick,
                 dailyForecastViewModel,
                 alertFabOnClick,
-                temperatureUnit,
+                preferences
             )
         }
-        is ForecastViewData.Error -> ErrorScreen({ dailyForecastViewModel.refresh() }, modifier)
+        is ForecastState.Error -> ErrorScreen({ dailyForecastViewModel.refresh() }, modifier)
     }
 }
 
@@ -90,12 +89,10 @@ fun ForecastList(
     onClick: (String) -> Unit,
     viewModel: DailyForecastViewModel,
     alertFabOnClick: () -> Unit,
-    temperatureUnit: String,
+    preferences: AppPreferences
 ) {
-    val dynamicColorsEnabled = viewModel.getDynamicColorSetting()
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
-    val alertsEnabled = viewModel.getAlertsSetting()
 
     fun refresh() = refreshScope.launch {
         refreshing = true
@@ -111,7 +108,7 @@ fun ForecastList(
     val showAlertFab by remember {
         derivedStateOf { listState.firstVisibleItemIndex == 0 }
     }
-    val fabVisible by remember { mutableStateOf(forecast.alerts.isNotEmpty() && alertsEnabled) }
+    val fabVisible by remember { mutableStateOf(forecast.alerts.isNotEmpty() && preferences.showAlerts) }
     Scaffold(
         floatingActionButton = {
             AnimatedVisibility(
@@ -141,10 +138,9 @@ fun ForecastList(
                     ForecastListItem(
                         it,
                         onClick = onClick,
-                        temperatureUnit = temperatureUnit,
                         gradientColors = it.day.backgroundColors,
-                        dynamicColorsEnabled = dynamicColorsEnabled,
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        preferences = preferences
                     )
                 }
             }
@@ -155,10 +151,7 @@ fun ForecastList(
             //  )
         }
     }
-
-
 }
-
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -166,10 +159,9 @@ fun ForecastListItem(
     daysDomainObject: DaysDomainObject,
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
-    temperatureUnit: String,
     gradientColors: List<Color>,
-    dynamicColorsEnabled: Boolean,
     viewModel: DailyForecastViewModel,
+    preferences: AppPreferences
 ) {
 
     val ticker = viewModel.dailyForecastTicker(
@@ -184,7 +176,7 @@ fun ForecastListItem(
     val date = daysDomainObject.dayOfWeek
     val gradient = Brush.linearGradient(gradientColors)
     val colors =
-        CardDefaults.cardColors(contentColor = if (dynamicColorsEnabled) daysDomainObject.day.textColor else LocalContentColor.current)
+        CardDefaults.cardColors(contentColor = if (preferences.dynamicColors) daysDomainObject.day.textColor else LocalContentColor.current)
 
     Card(
         modifier = Modifier
@@ -196,7 +188,7 @@ fun ForecastListItem(
         // contentColor = if (dynamicColorsEnabled.value) daysDomainObject.day.textColor else LocalContentColor.current
     ) {
         Box(
-            modifier = if (dynamicColorsEnabled) modifier
+            modifier = if (preferences.dynamicColors) modifier
                 .background(gradient)
                 .fillMaxSize() else modifier.fillMaxSize()
         ) {

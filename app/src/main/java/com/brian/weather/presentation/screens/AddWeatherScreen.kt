@@ -13,20 +13,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brian.weather.R
-import com.brian.weather.presentation.animations.pressClickEffect
 import com.brian.weather.presentation.reusablecomposables.AutoCompleteTextView
 import com.brian.weather.presentation.viewmodels.AddWeatherLocationViewModel
-import com.brian.weather.presentation.viewmodels.SearchViewData
+import com.brian.weather.presentation.viewmodels.SearchState
 import com.brian.weather.util.Constants
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -67,9 +63,9 @@ fun AddWeatherScreen(
                     emptyList()
                 } else {
                     when (searchResults) {
-                        is SearchViewData.Done -> (searchResults as SearchViewData.Done).searchResults
-                        is SearchViewData.Loading -> emptyList()
-                        is SearchViewData.Error -> emptyList()
+                        is SearchState.Success -> (searchResults as SearchState.Success).searchResults
+                        is SearchState.Loading -> emptyList()
+                        is SearchState.Error -> emptyList()
                     }
                 },
                 onClearClick = {

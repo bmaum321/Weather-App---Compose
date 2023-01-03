@@ -36,27 +36,8 @@ class HourlyForecastViewModelTest {
 
     }
 
-    /*
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `weather ticker emits data in correct order`() = runTest {
-        viewModel.weatherTicker(
-            time = "12:00PM",
-            windspeed = "12 MPH",
-            feelsLikeTemp = "32",
-            humidity = 10
-        ).test {
-            for (i in listOf("12:00PM", "Wind: 12 MPH", "Feels Like: 32°", "Humidity: 10 %")) {
-                val emission = awaitItem()
-                assertThat(emission).isEqualTo(i)
-            }
-        }
-    }
-
-     */
-
-    @Test
-    fun `weatherListViewModel initially emits loading state`() = runBlocking {
+    fun `hourlyForecastViewModel initially emits loading state`() = runBlocking {
         viewModel.getHourlyForecast("13088").test {
             val emission = awaitItem()
             //assertThat(emission).isEqualTo(ForecastState.Loading)
@@ -66,7 +47,7 @@ class HourlyForecastViewModelTest {
     }
 
     @Test
-    fun `weatherListViewModel emits success state correctly`() = runBlocking {
+    fun `hourlyForecastViewModel emits success state correctly`() = runBlocking {
         viewModel.getHourlyForecast("13088").test {
             // For some reason this isn't collecting the initial loading state from the state flow
             //assertThat(awaitItem()).isEqualTo(ForecastState.Loading)
@@ -75,7 +56,7 @@ class HourlyForecastViewModelTest {
     }
 
     @Test
-    fun `weatherListViewModel emits failure state on repository failure`() = runBlocking {
+    fun `hourlyForecastViewModel emits failure state on repository failure`() = runBlocking {
         fakeWeatherRepository.setShouldReturnNetworkError(true)
         viewModel.getHourlyForecast("13088").test {
             //assertThat(awaitItem()).isEqualTo(ForecastState.Loading)
@@ -85,7 +66,7 @@ class HourlyForecastViewModelTest {
 
 
     @Test
-    fun `weatherListViewModel refresh state method works correctly`() = runBlocking {
+    fun `hourlyForecastViewModel refresh state method works correctly`() = runBlocking {
         viewModel.getHourlyForecast("13088").test {
             //assertThat(awaitItem()).isEqualTo(ForecastState.Loading)
             assertThat(awaitItem()).isEqualTo(HourlyForecastState.Success(fakeWeatherRepository.forecastDomainObject))

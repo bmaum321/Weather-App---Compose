@@ -8,6 +8,7 @@ import com.brian.weather.repository.FakeWeatherRepository
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,7 +56,7 @@ class DailyForecastViewModelTest {
      */
 
     @Test
-    fun `weatherListViewModel initially emits loading state`() = runBlocking {
+    fun `dailyForecastViewModel initially emits loading state`() = runBlocking {
         viewModel.getForecastForZipcode("13088").test {
             val emission = awaitItem()
             //assertThat(emission).isEqualTo(ForecastState.Loading)
@@ -65,7 +66,7 @@ class DailyForecastViewModelTest {
     }
 
     @Test
-    fun `weatherListViewModel emits success state correctly`() = runBlocking {
+    fun `dailyForecastViewModel emits success state correctly`() = runBlocking {
         viewModel.getForecastForZipcode("13088").test {
             // For some reason this isn't collecting the initial loading state from the state flow
             //assertThat(awaitItem()).isEqualTo(ForecastState.Loading)
@@ -74,7 +75,7 @@ class DailyForecastViewModelTest {
     }
 
     @Test
-    fun `weatherListViewModel emits failure state on repository failure`() = runBlocking {
+    fun `dailyForecastViewModel emits failure state on repository failure`() = runBlocking {
         fakeWeatherRepository.setShouldReturnNetworkError(true)
         viewModel.getForecastForZipcode("13088").test {
             //assertThat(awaitItem()).isEqualTo(ForecastState.Loading)
@@ -84,7 +85,7 @@ class DailyForecastViewModelTest {
 
 
     @Test
-    fun `weatherListViewModel refresh state method works correctly`() = runBlocking {
+    fun `dailyForecastViewModel refresh state method works correctly`() = runBlocking {
         viewModel.getForecastForZipcode("13088").test {
             //assertThat(awaitItem()).isEqualTo(ForecastState.Loading)
             assertThat(awaitItem()).isEqualTo(ForecastState.Success(fakeWeatherRepository.forecastDomainObject))

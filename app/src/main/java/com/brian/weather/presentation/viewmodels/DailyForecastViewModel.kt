@@ -28,13 +28,9 @@ sealed class ForecastState {
 
 // Pass an application as a parameter to the viewmodel constructor which is the contect passed to the singleton database object
 class DailyForecastViewModel(
-    private val weatherRepository: WeatherRepository,
     private val preferencesRepository: PreferencesRepository,
-    private val weatherDao: WeatherDao,
     private val createDailyForecastStateUseCase: CreateDailyForecastStateUseCase,
-    application: Application
-) :
-    AndroidViewModel(application) {
+) : ViewModel() {
 
     //The data source this viewmodel will fetch results from
 
@@ -77,8 +73,6 @@ class DailyForecastViewModel(
     fun refresh() {
         refreshFlow.tryEmit(Unit)
     }
-
-    fun getWeatherByZipcode(zipcode: String) = weatherDao.getWeatherByZipcode(zipcode)
 
     fun getPreferences() = preferencesRepository
         .getAllPreferences

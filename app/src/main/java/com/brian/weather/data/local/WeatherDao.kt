@@ -63,7 +63,7 @@ interface WeatherDao {
 
     // method to retrieve last entry in the table
     @Query("SELECT * FROM weather_database ORDER BY ID DESC LIMIT 1")
-    fun selectLastEntry(): WeatherEntity
+    fun selectLastEntry(): WeatherEntity?
 
     // Check if database is empty
     @Query("SELECT (SELECT COUNT(*) FROM weather_database) == 0")

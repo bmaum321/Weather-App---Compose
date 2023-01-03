@@ -2,6 +2,7 @@ package com.brian.weather.repository
 
 import android.content.res.Resources
 import androidx.compose.ui.graphics.Color
+import com.brian.weather.data.local.WeatherEntity
 import com.brian.weather.data.remote.NetworkResult
 import com.brian.weather.data.remote.dto.*
 import com.brian.weather.data.settings.AppPreferences
@@ -10,6 +11,7 @@ import com.brian.weather.domain.model.DayDomainObject
 import com.brian.weather.domain.model.ForecastDomainObject
 import com.brian.weather.domain.model.WeatherDomainObject
 import com.brian.weather.repository.WeatherRepository
+import kotlinx.coroutines.flow.Flow
 
 class FakeWeatherRepository: WeatherRepository {
     private var shouldReturnNetworkError = false
@@ -176,6 +178,42 @@ class FakeWeatherRepository: WeatherRepository {
         preferences: AppPreferences
     ): List<WeatherDomainObject> {
         return weatherItems
+    }
+
+    override fun getZipCodesFromDatabase(): List<String> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getZipcodesFromDatabaseAsFlow(): Flow<List<String>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getWeatherByZipcode(location: String): Flow<WeatherEntity?> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getAllWeatherEntities(): Flow<List<WeatherEntity>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateWeather(id: Long, name: String, zipcode: String, sortOrder: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteWeather(weatherEntity: WeatherEntity) {
+        TODO("Not yet implemented")
+    }
+
+    override fun selectLastEntryInDb(): WeatherEntity? {
+        TODO("Not yet implemented")
+    }
+
+    override fun isDbEmpty(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun insert(weatherEntity: WeatherEntity) {
+        TODO("Not yet implemented")
     }
 
 }

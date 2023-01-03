@@ -19,6 +19,7 @@ import com.brian.weather.repository.WeatherRepositoryImpl
 import com.brian.weather.util.Constants
 import com.brian.weather.util.sendPrecipitationNotification
 import com.brian.weather.R
+import com.brian.weather.data.local.WeatherDatabase
 import com.brian.weather.data.settings.AppPreferences
 
 class DailyPrecipitationWorker(
@@ -26,6 +27,7 @@ class DailyPrecipitationWorker(
     params: WorkerParameters
 ) : Worker(ctx, params) {
     private val TAGOUTPUT = "Daily API Call"
+    val context = ctx
 
     /**
      * Call API here and send notifications based off local settings and precipitation values
@@ -46,7 +48,7 @@ class DailyPrecipitationWorker(
 
         var notificationBuilder = ""
 
-        val weatherRepository = WeatherRepositoryImpl(WeatherApi)
+        val weatherRepository = WeatherRepositoryImpl(WeatherApi, WeatherDatabase.getDatabase(context).getWeatherDao())
         val locations = inputData.getStringArray("locations") ?: emptyArray()
         val clockFormat = inputData.getString("clockFormat") ?: "hh:mm a"
         val dateFormat = inputData.getString("dateFormat") ?: "hh:mm a"

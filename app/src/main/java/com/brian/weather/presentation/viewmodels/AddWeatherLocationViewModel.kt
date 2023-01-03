@@ -24,11 +24,8 @@ import kotlinx.coroutines.launch
 // Pass an application as a parameter to the viewmodel constructor which is the context passed to the singleton database object
 class AddWeatherLocationViewModel(
     private val weatherRepository: WeatherRepository,
-    private val weatherDao: WeatherDao,
     private val createSearchStateUseCase: CreateSearchStateUseCase,
-    application: Application
-) :
-    AndroidViewModel(application) {
+) : ViewModel() {
 
     private val queryFlow = MutableSharedFlow<String>(1, 1, BufferOverflow.DROP_OLDEST)
 
@@ -43,14 +40,14 @@ class AddWeatherLocationViewModel(
      */
     private fun getLastEntrySortValue(): Int {
         var dbSortOrderValue = 1
-        if (!weatherDao.isEmpty()) {
-            dbSortOrderValue = weatherDao.selectLastEntry().sortOrder + 1
+        if (!weatherRepository.isDbEmpty()) {
+            dbSortOrderValue = (weatherRepository.selectLastEntryInDb()?.sortOrder ?: 0) + 1
         }
         return dbSortOrderValue
     }
 
     private suspend fun checkIfLocationAlreadyInDb(location: String): Boolean {
-        val weather = weatherDao.getWeatherByZipcode(location).first()
+        val weather = weatherRepository.getWeatherByZipcode(location).first()
         return weather != null
     }
 
@@ -93,7 +90,7 @@ class AddWeatherLocationViewModel(
             when (val response = weatherRepository.getWeather(zipcode)) {
                 is NetworkResult.Success -> {
                     if (!checkIfLocationAlreadyInDb(zipcode)) {
-                        weatherDao.insert(
+                        weatherRepository.insert(
                             response.data.asDatabaseModel(
                                 zipcode,
                                 getLastEntrySortValue()
@@ -110,26 +107,7 @@ class AddWeatherLocationViewModel(
 
     }
 
-    fun getWeatherByZipcode(location: String) = weatherDao.getWeatherByLocation(location)
 
-
-    fun updateWeather(
-        id: Long,
-        name: String,
-        zipcode: String,
-        sortOrder: Int
-    ) {
-        val weatherEntity = WeatherEntity(
-            id = id,
-            cityName = name,
-            zipCode = zipcode,
-            sortOrder = sortOrder
-        )
-        viewModelScope.launch(Dispatchers.IO) {
-            // call the DAO method to update a weather object to the database here
-            weatherDao.insert(weatherEntity)
-        }
-    }
 /*
 
 // create a view model factory that takes a WeatherDao as a property and

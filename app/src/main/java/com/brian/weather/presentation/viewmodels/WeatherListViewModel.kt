@@ -3,6 +3,7 @@ package com.brian.weather.presentation.viewmodels
 import android.app.Application
 import android.content.res.Resources
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.brian.weather.data.local.WeatherDao
 import com.brian.weather.domain.model.WeatherDomainObject
@@ -34,10 +35,8 @@ sealed interface WeatherListState {
 class WeatherListViewModel(
     private val weatherRepository: WeatherRepository,
     private val preferencesRepository: PreferencesRepository,
-    private val weatherDao: WeatherDao,
     private val createWeatherListStateUsecase: CreateWeatherListStateUsecase,
-    application: Application
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
     fun weatherTicker(
         windspeed: String,
@@ -71,21 +70,7 @@ class WeatherListViewModel(
      *
      * To support this, had to build a new scope to launch the state flow in
      */
-    fun getZipCodesFromDatabase() = weatherDao.getZipcodes()
 
-    fun getZipcodesFromDatabaseAsFlow() = weatherDao.getZipcodesFlow()
-
-    fun getWeatherByZipcode(location: String) = weatherDao.getWeatherByLocation(location)
-
-    fun getAllWeatherEntities() = weatherDao.getAllWeatherEntities()
-
-
-    fun deleteWeather(weatherEntity: WeatherEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            // call the DAO method to delete a weather object to the database here
-            weatherDao.delete(weatherEntity)
-        }
-    }
 
     fun updatePrecipitationLocations(locations: Set<String>) {
         viewModelScope.launch {
@@ -116,7 +101,7 @@ class WeatherListViewModel(
         val scope = viewModelScope + Dispatchers.IO
         return refreshFlow
             .flatMapLatest {
-                  val zipcodes = getZipCodesFromDatabase()
+                  val zipcodes = weatherRepository.getZipCodesFromDatabase()
                         flow {
                             if (zipcodes.isNotEmpty()) {
                                // emit(WeatherListState.Loading)
@@ -127,22 +112,5 @@ class WeatherListViewModel(
             }.stateIn(scope, SharingStarted.Lazily, WeatherListState.Loading)
     }
 
-    fun updateWeather(
-        id: Long,
-        name: String,
-        zipcode: String,
-        sortOrder: Int
-    ) {
-        val weatherEntity = WeatherEntity(
-            id = id,
-            cityName = name,
-            zipCode = zipcode,
-            sortOrder = sortOrder
-        )
-        viewModelScope.launch(Dispatchers.IO) {
-            // call the DAO method to update a weather object to the database here
-            weatherDao.update(weatherEntity)
-        }
-    }
 
 }

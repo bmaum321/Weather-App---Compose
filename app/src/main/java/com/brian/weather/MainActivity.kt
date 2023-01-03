@@ -39,6 +39,8 @@ import com.brian.weather.presentation.viewmodels.DailyForecastViewModel
 import com.brian.weather.presentation.viewmodels.HourlyForecastViewModel
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
+import com.brian.weather.repository.WeatherRepository
+import com.brian.weather.repository.WeatherRepositoryImpl
 import com.brian.weather.util.workers.JobScheduler
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -225,6 +227,7 @@ class MainActivity : ComponentActivity() {
                     val dailyForecastViewModel = getViewModel<DailyForecastViewModel>()
                     val hourlyForecastViewModel = getViewModel<HourlyForecastViewModel>()
                     val addWeatherLocationViewModel = getViewModel<AddWeatherLocationViewModel>()
+                    val weatherRepository: WeatherRepository = get()
 
                     val preferences by remember {
                         weatherListViewModel.allPreferences
@@ -258,7 +261,8 @@ class MainActivity : ComponentActivity() {
                         dailyForecastViewModel = dailyForecastViewModel,
                         mainViewModel = mainViewModel,
                         hourlyForecastViewModel = hourlyForecastViewModel,
-                        addWeatherLocationViewModel = addWeatherLocationViewModel
+                        addWeatherLocationViewModel = addWeatherLocationViewModel,
+                        weatherRepository = weatherRepository
                     )
 
                 }

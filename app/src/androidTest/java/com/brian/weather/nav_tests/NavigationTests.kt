@@ -82,39 +82,32 @@ class NavigationTests {
 
         composeTestRule.setContent {
            // val weatherDao = WeatherDatabase.getDatabase(LocalContext.current).getWeatherDao()
-            val fakeWeatherRepository = FakeWeatherRepository()
+            val fakeWeatherRepository = FakeWeatherRepository(weatherDao)
             val preferencesRepository = PreferencesRepositoryImpl(get())
             navController = TestNavHostController(LocalContext.current).apply {
                 navigatorProvider.addNavigator(ComposeNavigator())
             }
             WeatherApp(
                 weatherListViewModel = WeatherListViewModel(
-                    application = application,
-                    weatherDao = weatherDao,
                     weatherRepository = fakeWeatherRepository,
                     preferencesRepository = preferencesRepository,
                     createWeatherListStateUsecase = CreateWeatherListStateUsecase(fakeWeatherRepository, preferencesRepository)
                 ),
                 dailyForecastViewModel = DailyForecastViewModel(
-                    weatherRepository = fakeWeatherRepository,
                     preferencesRepository = preferencesRepository,
-                    weatherDao = weatherDao,
-                    application = application,
                     createDailyForecastStateUseCase = CreateDailyForecastStateUseCase(fakeWeatherRepository,preferencesRepository)
                 ),
                 hourlyForecastViewModel = HourlyForecastViewModel(
                     preferencesRepository = preferencesRepository,
-                    application = application,
                     createHourlyForecastStateUseCase = CreateHourlyForecastStateUseCase(fakeWeatherRepository,preferencesRepository)
                 ),
                 addWeatherLocationViewModel = AddWeatherLocationViewModel(
                     weatherRepository = fakeWeatherRepository,
-                    weatherDao = weatherDao,
-                    application = application,
                     createSearchStateUseCase = CreateSearchStateUseCase(fakeWeatherRepository,preferencesRepository)
                 ),
                 mainViewModel = mainViewModel,
-                navController = navController
+                navController = navController,
+                weatherRepository = fakeWeatherRepository
             )
         }
     }

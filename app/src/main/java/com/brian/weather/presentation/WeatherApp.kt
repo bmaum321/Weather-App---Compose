@@ -42,6 +42,7 @@ import com.brian.weather.presentation.viewmodels.DailyForecastViewModel
 import com.brian.weather.presentation.viewmodels.HourlyForecastViewModel
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
+import com.brian.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.first
@@ -141,7 +142,8 @@ fun WeatherApp(
     addWeatherLocationViewModel: AddWeatherLocationViewModel,
     mainViewModel: MainViewModel,
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    weatherRepository: WeatherRepository
 ) {
 
     val preferences = weatherListViewModel.allPreferences.collectAsState()
@@ -160,7 +162,7 @@ fun WeatherApp(
      * a better way to do this?
      */
 
-    val locationsInDatabase = weatherListViewModel.getZipcodesFromDatabaseAsFlow().collectAsState(
+    val locationsInDatabase = weatherRepository.getZipcodesFromDatabaseAsFlow().collectAsState(
         initial = ""
     )
     
@@ -220,9 +222,9 @@ fun WeatherApp(
                  */
                 coroutineScope.launch {
                         val weatherEntity =
-                            location?.let { weatherListViewModel.getWeatherByZipcode(it).first() }
+                            location?.let { weatherRepository.getWeatherByZipcode(it).first() }
                         if (weatherEntity != null) {
-                            weatherListViewModel.deleteWeather(weatherEntity)
+                            weatherRepository.deleteWeather(weatherEntity)
                         }
 
                         //TODO the logic here needs some work, the list getting passed to the worker is not updated
@@ -297,7 +299,8 @@ fun WeatherApp(
                         onClick = { location -> navController.navigateToDailyForecast(location) },
                         addWeatherFabAction = { navController.navigate(AddLocation.route) },
                         weatherListViewModel = weatherListViewModel,
-                        mainViewModel = mainViewModel
+                        mainViewModel = mainViewModel,
+                        weatherRepository = weatherRepository
                     )
                 }
             }
@@ -334,7 +337,8 @@ fun WeatherApp(
                             location = location,
                             mainViewModel = mainViewModel,
                             alertFabOnClick = { navController.navigateToAlertsScreen(location) },
-                            dailyForecastViewModel = dailyForecastViewModel
+                            dailyForecastViewModel = dailyForecastViewModel,
+                            weatherRepository = weatherRepository
                         )
                     }
                 }

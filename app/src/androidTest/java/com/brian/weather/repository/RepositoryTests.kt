@@ -48,58 +48,14 @@ import java.io.IOException
 @LargeTest
 class RepositoryTests {
 
-
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-
     private val mainViewModel = MainViewModel()
-    private val application = Application()
     lateinit var navController: TestNavHostController
     lateinit var weatherDatabase: WeatherDatabase
-    private val fakeWeatherRepository = FakeWeatherRepository()
+    private lateinit var fakeWeatherRepository: FakeWeatherRepository
     private lateinit var weatherDao: WeatherDao
-
-    @Before
-    fun setupWeatherNavHost() {
-
-        composeTestRule.setContent {
-            val preferencesRepository = PreferencesRepositoryImpl(get())
-            fakeWeatherRepository.setShouldReturnNetworkError(true)
-            navController = TestNavHostController(LocalContext.current).apply {
-                navigatorProvider.addNavigator(ComposeNavigator())
-            }
-            WeatherApp(
-                weatherListViewModel = WeatherListViewModel(
-                    application = application,
-                    weatherDao = weatherDao,
-                    weatherRepository = fakeWeatherRepository,
-                    preferencesRepository = preferencesRepository,
-                    createWeatherListStateUsecase = CreateWeatherListStateUsecase(fakeWeatherRepository, preferencesRepository)
-                ),
-                dailyForecastViewModel = DailyForecastViewModel(
-                    weatherRepository = fakeWeatherRepository,
-                    preferencesRepository = preferencesRepository,
-                    weatherDao = weatherDao,
-                    application = application,
-                    createDailyForecastStateUseCase = CreateDailyForecastStateUseCase(fakeWeatherRepository,preferencesRepository)
-                ),
-                hourlyForecastViewModel = HourlyForecastViewModel(
-                    preferencesRepository = preferencesRepository,
-                    application = application,
-                    createHourlyForecastStateUseCase = CreateHourlyForecastStateUseCase(fakeWeatherRepository,preferencesRepository)
-                ),
-                addWeatherLocationViewModel = AddWeatherLocationViewModel(
-                    weatherRepository = fakeWeatherRepository,
-                    weatherDao = weatherDao,
-                    application = application,
-                    createSearchStateUseCase = CreateSearchStateUseCase(fakeWeatherRepository,preferencesRepository)
-                ),
-                mainViewModel = mainViewModel,
-                navController = navController
-            )
-        }
-    }
 
 
     @Before
@@ -117,10 +73,42 @@ class RepositoryTests {
         runBlocking {
             weatherDao.insert(WeatherEntity(id = 1, zipCode = "Miami, Florida", sortOrder = 1, cityName = "Miami"))
         }
-
-
     }
 
+    @Before
+    fun setupWeatherNavHost() {
+
+        composeTestRule.setContent {
+            fakeWeatherRepository = FakeWeatherRepository(get())
+            val preferencesRepository = PreferencesRepositoryImpl(get())
+            fakeWeatherRepository.setShouldReturnNetworkError(true)
+            navController = TestNavHostController(LocalContext.current).apply {
+                navigatorProvider.addNavigator(ComposeNavigator())
+            }
+            WeatherApp(
+                weatherListViewModel = WeatherListViewModel(
+                    weatherRepository = fakeWeatherRepository,
+                    preferencesRepository = preferencesRepository,
+                    createWeatherListStateUsecase = CreateWeatherListStateUsecase(fakeWeatherRepository, preferencesRepository)
+                ),
+                dailyForecastViewModel = DailyForecastViewModel(
+                    preferencesRepository = preferencesRepository,
+                    createDailyForecastStateUseCase = CreateDailyForecastStateUseCase(fakeWeatherRepository,preferencesRepository)
+                ),
+                hourlyForecastViewModel = HourlyForecastViewModel(
+                    preferencesRepository = preferencesRepository,
+                    createHourlyForecastStateUseCase = CreateHourlyForecastStateUseCase(fakeWeatherRepository,preferencesRepository)
+                ),
+                addWeatherLocationViewModel = AddWeatherLocationViewModel(
+                    weatherRepository = fakeWeatherRepository,
+                    createSearchStateUseCase = CreateSearchStateUseCase(fakeWeatherRepository,preferencesRepository)
+                ),
+                mainViewModel = mainViewModel,
+                navController = navController,
+                weatherRepository = fakeWeatherRepository
+            )
+        }
+    }
 
     @After
     @Throws(IOException::class)

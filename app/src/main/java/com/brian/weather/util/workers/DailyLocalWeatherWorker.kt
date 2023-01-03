@@ -1,6 +1,7 @@
 package com.brian.weather.util.workers
 
 import android.Manifest
+import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -16,9 +17,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.brian.weather.R
+import com.brian.weather.data.local.WeatherDatabase
 import com.brian.weather.data.remote.WeatherApi
 import com.brian.weather.data.remote.onSuccess
 import com.brian.weather.data.settings.AppPreferences
+import com.brian.weather.repository.WeatherRepository
 import com.brian.weather.repository.WeatherRepositoryImpl
 
 
@@ -30,12 +33,14 @@ class DailyLocalWeatherWorker(
     params: WorkerParameters
 ) : Worker(ctx, params) {
     private val TAGOUTPUT = "Daily Local Weather Call"
-
+    val context = ctx
     /**
      * Send a daily notification for the weather of the phone's current location
      */
 
     override fun doWork(): Result {
+
+        val weatherRepository = WeatherRepositoryImpl(WeatherApi, WeatherDatabase.getDatabase(context).getWeatherDao())
         var workerResult = Result.success() // worker result is success by default
         var city = ""
         var imgUrl = ""
@@ -57,7 +62,7 @@ class DailyLocalWeatherWorker(
 
             CoroutineScope(Dispatchers.IO).launch {
 
-                val weatherRepository = WeatherRepositoryImpl(WeatherApi)
+
 
                 when (val response =
                     weatherRepository.getForecast(coordinates)) {

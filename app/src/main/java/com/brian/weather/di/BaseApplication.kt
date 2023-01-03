@@ -53,7 +53,7 @@ class BaseApplication : Application() {
 
             // Singleton for the Weather Repository implementation passed to all viewmodels
             single<WeatherRepository> {
-                WeatherRepositoryImpl(get())
+                WeatherRepositoryImpl(get(), get())
                 //FakeWeatherRepository()
             }
 
@@ -107,16 +107,16 @@ class BaseApplication : Application() {
                 MainViewModel()
             }
             viewModel {
-                WeatherListViewModel(get(), get(), get(), get(), get())
+                WeatherListViewModel(get(), get(), get())
             }
             viewModel {
-                DailyForecastViewModel(get(), get(), get(), get(), get())
+                DailyForecastViewModel(get(), get())
             }
             viewModel {
-                HourlyForecastViewModel(get(), get(), get())
+                HourlyForecastViewModel(get(), get())
             }
             viewModel {
-                AddWeatherLocationViewModel(get(), get(), get(), get())
+                AddWeatherLocationViewModel(get(), get())
             }
         }
 

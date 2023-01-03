@@ -39,6 +39,7 @@ import com.brian.weather.presentation.theme.WeatherComposeTheme
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListState
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
+import com.brian.weather.repository.WeatherRepository
 import kotlinx.coroutines.*
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
@@ -54,7 +55,8 @@ fun MainWeatherListScreen(
     onClick: (String) -> Unit,
     addWeatherFabAction: () -> Unit,
     weatherListViewModel: WeatherListViewModel,
-    mainViewModel: MainViewModel
+    mainViewModel: MainViewModel,
+    weatherRepository: WeatherRepository
 ) {
 
     val context = LocalContext.current
@@ -68,6 +70,7 @@ fun MainWeatherListScreen(
             onClick,
             addWeatherFabAction,
             weatherListViewModel,
+            weatherRepository
         )
         is WeatherListState.Loading -> LoadingScreen(modifier)
         is WeatherListState.Success -> WeatherListScreen(
@@ -76,6 +79,7 @@ fun MainWeatherListScreen(
             onClick,
             addWeatherFabAction,
             weatherListViewModel,
+            weatherRepository
         )
         is WeatherListState.Error -> ErrorScreen(retryAction, modifier, message = weatherUiState.message)
     }
@@ -94,6 +98,7 @@ fun WeatherListScreen(
     onClick: (String) -> Unit,
     addWeatherFabAction: () -> Unit,
     weatherListViewModel: WeatherListViewModel,
+    weatherRepository: WeatherRepository
 ) {
     /**
      * Currently passing all the preferences down to the composable to add as semantics tags for
@@ -133,7 +138,7 @@ fun WeatherListScreen(
             withContext(Dispatchers.IO) {
                 var num = 1
                 listData.value.forEach { weather ->
-                    weatherListViewModel.updateWeather(
+                    weatherRepository.updateWeather(
                         id = num.toLong(),
                         zipcode = weather.zipcode,
                         name = weather.location,
@@ -513,7 +518,7 @@ fun ErrorScreenPreview() {
         ErrorScreen({})
     }
 }
-
+/*
 // TODO how do I show a preview if I need to pass a viewmodel?
 @Preview(showBackground = true)
 @Composable
@@ -533,3 +538,5 @@ fun WeatherListScreenPreview() {
             addWeatherFabAction = {})
     }
 }
+
+ */

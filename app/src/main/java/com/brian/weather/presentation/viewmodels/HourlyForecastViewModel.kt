@@ -27,9 +27,7 @@ sealed class HourlyForecastState {
 class HourlyForecastViewModel(
     private val createHourlyForecastStateUseCase: CreateHourlyForecastStateUseCase,
     private val preferencesRepository: PreferencesRepository,
-    application: Application
-) :
-    AndroidViewModel(application) {
+) : ViewModel() {
 
 
     private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST).apply {

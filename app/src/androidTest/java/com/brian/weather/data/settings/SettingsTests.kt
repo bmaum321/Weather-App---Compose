@@ -1,6 +1,7 @@
 package com.brian.weather.data.settings
 
 import android.app.Application
+import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.SemanticsMatcher
@@ -16,6 +17,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.brian.weather.data.local.WeatherDatabase
@@ -31,10 +34,13 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import com.brian.weather.R
+import com.brian.weather.data.local.WeatherDao
+import com.brian.weather.data.local.WeatherEntity
 import com.brian.weather.domain.usecase.CreateDailyForecastStateUseCase
 import com.brian.weather.domain.usecase.CreateHourlyForecastStateUseCase
 import com.brian.weather.domain.usecase.CreateSearchStateUseCase
 import com.brian.weather.domain.usecase.CreateWeatherListStateUsecase
+import kotlinx.coroutines.runBlocking
 import org.koin.androidx.compose.get
 
 @RunWith(AndroidJUnit4::class)
@@ -45,11 +51,29 @@ class SettingsTests {
     private val application = Application()
     private val mainViewModel = MainViewModel()
     private lateinit var navController: TestNavHostController
+    private lateinit var weatherDao: WeatherDao
+    private lateinit var weatherDatabase: WeatherDatabase
+
+    @Before
+    fun createDb() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        weatherDatabase = Room.inMemoryDatabaseBuilder(
+            context, WeatherDatabase::class.java
+        )
+            // Allow main thread queries just for testing
+            .allowMainThreadQueries()
+            .build()
+        weatherDao = weatherDatabase.getWeatherDao()
+
+        runBlocking {
+            weatherDao.insert(WeatherEntity(id = 1, zipCode = "Miami, Florida", sortOrder = 1, cityName = "Miami"))
+        }
+    }
 
     @Before
     fun setupWeatherNavHost() {
         composeTestRule.setContent {
-            val fakeWeatherRepository = FakeWeatherRepository()
+            val fakeWeatherRepository = FakeWeatherRepository(weatherDao)
             val preferencesRepository = PreferencesRepositoryImpl(get())
             val weatherDao = WeatherDatabase.getDatabase(LocalContext.current).getWeatherDao()
             navController = TestNavHostController(LocalContext.current).apply {
@@ -57,33 +81,25 @@ class SettingsTests {
             }
             WeatherApp(
                 weatherListViewModel = WeatherListViewModel(
-                    application = application,
-                    weatherDao = weatherDao,
                     weatherRepository = fakeWeatherRepository,
-                    //weatherRepository = WeatherRepositoryImpl(WeatherApi),
                     preferencesRepository = preferencesRepository,
                     createWeatherListStateUsecase = CreateWeatherListStateUsecase(fakeWeatherRepository, preferencesRepository)
                 ),
                 dailyForecastViewModel = DailyForecastViewModel(
-                    weatherRepository = fakeWeatherRepository,
                     preferencesRepository =  preferencesRepository,
-                    weatherDao = weatherDao,
-                    application = application,
                     createDailyForecastStateUseCase = CreateDailyForecastStateUseCase(fakeWeatherRepository, preferencesRepository)
                 ),
                 hourlyForecastViewModel = HourlyForecastViewModel(
                     preferencesRepository = preferencesRepository,
-                    application = application,
                     createHourlyForecastStateUseCase = CreateHourlyForecastStateUseCase(fakeWeatherRepository,preferencesRepository)
                 ),
                 addWeatherLocationViewModel = AddWeatherLocationViewModel(
                     weatherRepository = fakeWeatherRepository,
-                    weatherDao = weatherDao,
-                    application = application,
                     createSearchStateUseCase = CreateSearchStateUseCase(fakeWeatherRepository,preferencesRepository)
                 ),
                 mainViewModel = mainViewModel,
-                navController = navController
+                navController = navController,
+                weatherRepository = fakeWeatherRepository
             )
         }
     }

@@ -30,6 +30,7 @@ import com.brian.weather.presentation.reusablecomposables.LoadingScreen
 import com.brian.weather.presentation.reusablecomposables.MarqueeText
 import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
 import com.brian.weather.presentation.viewmodels.*
+import com.brian.weather.repository.WeatherRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -41,7 +42,8 @@ fun DailyForecastScreen(
     location: String,
     mainViewModel: MainViewModel,
     alertFabOnClick: () -> Unit,
-    dailyForecastViewModel: DailyForecastViewModel
+    dailyForecastViewModel: DailyForecastViewModel,
+    weatherRepository: WeatherRepository
 ) {
     //val dailyForecastViewModel = getViewModel<DailyForecastViewModel>()
     // update title bar
@@ -49,7 +51,7 @@ fun DailyForecastScreen(
     // This only seems to work if I pass the viewmodel all the way down from main activity and only have one instance of main view model, grabbing it from Koin doesnt work
     LaunchedEffect(Unit) {
         mainViewModel.updateActionBarTitle(
-            dailyForecastViewModel.getWeatherByZipcode(location).first()?.cityName ?: ""
+            weatherRepository.getWeatherByZipcode(location).first()?.cityName ?: ""
        // location
         )
     }

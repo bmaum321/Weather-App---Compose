@@ -31,6 +31,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import com.brian.weather.R
+import com.brian.weather.domain.usecase.CreateWeatherListStateUsecase
 import org.koin.androidx.compose.get
 
 @RunWith(AndroidJUnit4::class)
@@ -57,7 +58,8 @@ class SettingsTests {
                     weatherDao = weatherDao,
                     weatherRepository = fakeWeatherRepository,
                     //weatherRepository = WeatherRepositoryImpl(WeatherApi),
-                    preferencesRepository = preferencesRepository
+                    preferencesRepository = preferencesRepository,
+                    createWeatherListStateUsecase = CreateWeatherListStateUsecase(fakeWeatherRepository, preferencesRepository)
                 ),
                 dailyForecastViewModel = DailyForecastViewModel(
                     weatherRepository = fakeWeatherRepository,

@@ -15,8 +15,6 @@ import java.time.format.DateTimeFormatter
 
 fun WeatherContainer.asDomainModel(
     zipcode: String,
-    resources: Resources,
-    //preferencesRepository: PreferencesRepository,
     preferences: AppPreferences
 ): WeatherDomainObject {
 
@@ -47,7 +45,7 @@ fun WeatherContainer.asDomainModel(
 
     val backgroundColor: List<Color> = when (current.condition.code) {
         1000 -> {
-            if (current.condition.text == resources.getString(R.string.Sunny)) {
+            if (current.condition.text == "Sunny") {
                 listOf(Color(0xfff5f242),Color(0xffff9100))// sunny
             } else listOf(Color(0xff000000),Color(0x472761CC)) // clear night
         }
@@ -81,7 +79,7 @@ fun WeatherContainer.asDomainModel(
     /**
      * Country formatting
      * */
-
+/*
 
     val formattedCountry = when (locationDataDomainModel.country) {
         resources.getString(R.string.USA) ->
@@ -92,6 +90,8 @@ fun WeatherContainer.asDomainModel(
             resources.getString(R.string.UK_Acronym)
         else -> locationDataDomainModel.country
     }
+
+ */
 
     return WeatherDomainObject(
         time = if(preferences.clockFormat == "hh:mm a") localTime.removePrefix("0") else localTime,
@@ -107,7 +107,7 @@ fun WeatherContainer.asDomainModel(
         backgroundColors = backgroundColor,
         code = current.condition.code,
         textColor = textColor,
-        country = formattedCountry,
+        country = locationDataDomainModel.country,
         feelsLikeTemp = if(preferences.tempUnit == "Fahrenheit")current.feelslike_f.toInt().toString()
         else current.feelslike_c.toInt().toString(),
         humidity = current.humidity

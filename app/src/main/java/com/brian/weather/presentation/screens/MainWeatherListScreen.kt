@@ -206,7 +206,8 @@ fun WeatherListScreen(
             ) {
 
                 //TODO the key is needed here to animate the re-order, there is a bug here though, can cause a when duplicate locations added
-                items(listData.value, {it.zipcode}) { item ->
+               // items(listData.value, {it.zipcode}) { item ->
+                    items(listData.value) { item ->
 
                     ReorderableItem(reorderableState = reorderableLazyListState, key = item) { isDragging ->
                         val elevation = animateDpAsState(if (isDragging) 200.dp else 0.dp)
@@ -437,11 +438,14 @@ fun WeatherListItem(
                             fontSize = 28.sp,
                         )
                     }
+                    /*
                     Text(
                         text = weatherDomainObject.country,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
+
+                     */
                     if(weatherDomainObject.conditionText.length > 13) {
                         MarqueeText(text = weatherDomainObject.conditionText, fontSize = 24.sp)
                     } else {

@@ -11,6 +11,7 @@ import com.brian.weather.data.local.WeatherDatabase
 import com.brian.weather.data.remote.WeatherApi
 import com.brian.weather.data.settings.PreferencesRepository
 import com.brian.weather.data.settings.PreferencesRepositoryImpl
+import com.brian.weather.domain.usecase.CreateWeatherListStateUsecase
 import com.brian.weather.repository.WeatherRepository
 import com.brian.weather.repository.WeatherRepositoryImpl
 import com.brian.weather.presentation.viewmodels.*
@@ -82,12 +83,16 @@ class BaseApplication : Application() {
                 produceFile = {this@BaseApplication.preferencesDataStoreFile("Preferences")})
             }
 
+            single {
+                CreateWeatherListStateUsecase(get(), get())
+            }
+
             // Use factory to create multiple instances for each viewmodel
             viewModel {
                 MainViewModel()
             }
             viewModel {
-                WeatherListViewModel(get(), get(), get(), get())
+                WeatherListViewModel(get(), get(), get(), get(), get())
             }
             viewModel {
                 DailyForecastViewModel(get(), get(), get(), get())

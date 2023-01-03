@@ -12,6 +12,7 @@ import com.brian.weather.repository.WeatherRepository
 
 class FakeWeatherRepository: WeatherRepository {
     private var shouldReturnNetworkError = false
+    private var shouldReturnException = false
 
     private val locationData = LocationData(
         country = "United States of America",
@@ -122,10 +123,16 @@ class FakeWeatherRepository: WeatherRepository {
         shouldReturnNetworkError = value
     }
 
+    fun setShouldReturnException(value: Boolean){
+        shouldReturnException = value
+    }
+
     override suspend fun getWeather(zipcode: String): NetworkResult<WeatherContainer> {
         return if(shouldReturnNetworkError) {
             NetworkResult.Failure(code = 400, message = "Error")
-        } else {
+        } else if(shouldReturnException) {
+           NetworkResult.Exception(e = Throwable())
+        }  else {
             NetworkResult.Success(data = WeatherContainer(locationData, currentWeatherData))
         }
     }
@@ -133,6 +140,8 @@ class FakeWeatherRepository: WeatherRepository {
     override suspend fun getForecast(zipcode: String): NetworkResult<ForecastContainer> {
         return if(shouldReturnNetworkError) {
             NetworkResult.Failure(code = 400, message = "Error")
+        }else if(shouldReturnException) {
+            NetworkResult.Exception(e = Throwable())
         } else {
             NetworkResult.Success(data = ForecastContainer(locationData, forecastDay, alertList))
         }
@@ -142,6 +151,8 @@ class FakeWeatherRepository: WeatherRepository {
     override suspend fun getSearchResults(location: String): NetworkResult<List<Search>> {
         return if(shouldReturnNetworkError) {
             NetworkResult.Failure(code = 400, message = "Error")
+        }else if(shouldReturnException) {
+            NetworkResult.Exception(e = Throwable())
         } else {
             NetworkResult.Success(data = listOf(
                 Search(
@@ -159,7 +170,6 @@ class FakeWeatherRepository: WeatherRepository {
 
     override suspend fun getWeatherListForZipCodes(
         zipcodes: List<String>,
-        resources: Resources,
         preferences: AppPreferences
     ): List<WeatherDomainObject> {
         return weatherItems

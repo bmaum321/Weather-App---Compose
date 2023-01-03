@@ -287,7 +287,7 @@ fun WeatherApp(
                         .fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val weatherUiState by remember { weatherListViewModel.getAllWeather(context.resources) }
+                    val weatherUiState by remember { weatherListViewModel.getAllWeather() }
                         .collectAsState()
 
                     MainWeatherListScreen(

@@ -26,7 +26,7 @@ class PreferencesRepositoryImplTest {
     //datastore needs to be singleton for testing, this can probably be made via koin
     companion object {
 
-        val context: Context = ApplicationProvider.getApplicationContext<Context>()
+        private val context: Context = ApplicationProvider.getApplicationContext()
         private val testDatastore = PreferenceDataStoreFactory.create(
             corruptionHandler = ReplaceFileCorruptionHandler(
                 produceNewData = { emptyPreferences() }

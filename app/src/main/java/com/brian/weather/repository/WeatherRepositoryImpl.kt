@@ -30,14 +30,13 @@ class WeatherRepositoryImpl(private val weatherApi: WeatherApi) : WeatherReposit
 
     override suspend fun getWeatherListForZipCodes(
         zipcodes: List<String>,
-        resources: Resources,
         preferences: AppPreferences
     ): List<WeatherDomainObject> {
         val weatherDomainObjects = mutableListOf<WeatherDomainObject>()
         zipcodes.forEach { zipcode ->
             val response = getWeather(zipcode)
             response.onSuccess {
-                weatherDomainObjects.add(it.asDomainModel(zipcode, resources, preferences))
+                weatherDomainObjects.add(it.asDomainModel(zipcode, preferences))
             }.onError { code, message ->
                 println(message)
             }.onException {

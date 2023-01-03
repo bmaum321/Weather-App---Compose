@@ -20,6 +20,7 @@ import com.brian.weather.R
 import com.brian.weather.data.local.WeatherDao
 import com.brian.weather.data.local.WeatherEntity
 import com.brian.weather.data.settings.PreferencesRepositoryImpl
+import com.brian.weather.domain.usecase.CreateWeatherListStateUsecase
 import com.brian.weather.presentation.WeatherApp
 import com.brian.weather.presentation.navigation.*
 import com.brian.weather.presentation.screens.AddWeatherScreen
@@ -88,7 +89,8 @@ class NavigationTests {
                     application = application,
                     weatherDao = weatherDao,
                     weatherRepository = fakeWeatherRepository,
-                    preferencesRepository = preferencesRepository
+                    preferencesRepository = preferencesRepository,
+                    createWeatherListStateUsecase = CreateWeatherListStateUsecase(fakeWeatherRepository, preferencesRepository)
                 ),
                 dailyForecastViewModel = DailyForecastViewModel(
                     weatherRepository = fakeWeatherRepository,

@@ -58,19 +58,6 @@ class WeatherMapperKtTest {
         showPrecipitationNotifications = false,
         precipitationLocations = setOf()
     )
-    /*
-
-    // val context = mock(Context::class.java)
-    private val context: Context = ApplicationProvider.getApplicationContext<Context>()
-    private val datastore = PreferenceDataStoreFactory.create(
-        corruptionHandler = ReplaceFileCorruptionHandler(
-            produceNewData = { emptyPreferences() }
-        ),
-        migrations = listOf(SharedPreferencesMigration(context, "Preferences")),
-        scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-        produceFile = { context.preferencesDataStoreFile("Preferences") })
-
-     */
 
     private val weather = WeatherContainer(
         location = LocationData(
@@ -104,7 +91,6 @@ class WeatherMapperKtTest {
     private var weatherDomainObject =
         weather.asDomainModel(
             zipcode = "13088",
-            resources = resources,
             preferences = preferences
         )
 
@@ -126,7 +112,6 @@ class WeatherMapperKtTest {
     fun weatherDto_toDomainModel_returnsCorrectTemperatureC() {
             weatherDomainObject = weather.asDomainModel(
                 zipcode = "13088",
-                resources = resources,
                 preferences = preferences2
             )
 
@@ -146,7 +131,6 @@ class WeatherMapperKtTest {
 
             weatherDomainObject = weather.asDomainModel(
                 zipcode = "13088",
-                resources = resources,
                 preferences = preferences2
             )
 
@@ -171,7 +155,6 @@ class WeatherMapperKtTest {
 
         weatherDomainObject = weather.asDomainModel(
             zipcode = "13088",
-            resources = resources,
             preferences = preferences2
         )
         val time = Instant

@@ -9,6 +9,7 @@ import com.brian.weather.domain.model.WeatherDomainObject
 import com.brian.weather.data.local.WeatherEntity
 import com.brian.weather.data.remote.NetworkResult
 import com.brian.weather.data.settings.PreferencesRepository
+import com.brian.weather.domain.usecase.CreateWeatherListStateUsecase
 import com.brian.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,6 +35,7 @@ class WeatherListViewModel(
     private val weatherRepository: WeatherRepository,
     private val preferencesRepository: PreferencesRepository,
     private val weatherDao: WeatherDao,
+    private val createWeatherListStateUsecase: CreateWeatherListStateUsecase,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -107,34 +109,18 @@ class WeatherListViewModel(
     /**
      * Gets Weather info for a list of zipcodes
      */
+
+    //TODO move resources out of this function to better facilitate unit tests
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getAllWeather(
-        resources: Resources
-    ): StateFlow<WeatherListState> {
+    fun getAllWeather(): StateFlow<WeatherListState> {
         val scope = viewModelScope + Dispatchers.IO
         return refreshFlow
             .flatMapLatest {
                   val zipcodes = getZipCodesFromDatabase()
                         flow {
                             if (zipcodes.isNotEmpty()) {
-                                emit(WeatherListState.Loading)
-                                when (val response = weatherRepository.getWeather(zipcodes.first())) {
-                                    is NetworkResult.Success -> emit(
-                                        WeatherListState.Success(
-                                            weatherRepository.getWeatherListForZipCodes(
-                                                zipcodes,
-                                                resources,
-                                                preferencesRepository.getAllPreferences.first()
-                                            )
-                                        )
-                                    )
-                                    is NetworkResult.Failure -> emit(WeatherListState.Error(
-                                        message = response.message)
-                                    )
-                                    is NetworkResult.Exception -> emit(WeatherListState.Error(
-                                        message = response.e.message)
-                                    )
-                                }
+                               // emit(WeatherListState.Loading)
+                                emit(createWeatherListStateUsecase(zipcodes))
                             } else emit(WeatherListState.Empty)
                         }
 

@@ -64,7 +64,7 @@ class WeatherListViewModel(
 
     /**
      * Modified this to return a List instead of a flow to support drag and drop to reorder. Previously,
-     * on drag and drop, the databse would be updated, and the zipcodes flow would emit a new value of
+     * on drag and drop, the database would be updated, and the zipcodes flow would emit a new value of
      * the reordered locations, which would trigger the state to emit a new flow which always emits
      * loading to begin. So on one drag and drop, the screen would reload
      *

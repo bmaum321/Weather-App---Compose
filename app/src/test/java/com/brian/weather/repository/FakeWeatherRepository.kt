@@ -3,6 +3,7 @@ package com.brian.weather.repository
 import android.content.res.Resources
 import androidx.compose.ui.graphics.Color
 import com.brian.weather.data.local.WeatherEntity
+import com.brian.weather.data.mapper.asDomainModel
 import com.brian.weather.data.remote.NetworkResult
 import com.brian.weather.data.remote.dto.*
 import com.brian.weather.data.settings.AppPreferences
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 class FakeWeatherRepository: WeatherRepository {
     private var shouldReturnNetworkError = false
     private var shouldReturnException = false
+    private var shouldReturnEmptyLocationsList = false
 
     private val locationData = LocationData(
         country = "United States of America",
@@ -42,7 +44,7 @@ class FakeWeatherRepository: WeatherRepository {
         wind_mph = 12.2
     )
 
-    private val weatherItems = mutableListOf(WeatherDomainObject(
+    val weatherItems = mutableListOf(WeatherDomainObject(
         zipcode = "Miami",
         time = "11:00AM",
         country = "United States of America",
@@ -122,12 +124,32 @@ class FakeWeatherRepository: WeatherRepository {
         ))
     )
 
+    val forecastContainer = ForecastContainer(locationData, forecastDay, alertList)
+    val forecastDomainObject = forecastContainer.asDomainModel(preferences = AppPreferences(
+        tempUnit = "",
+        clockFormat = "",
+        dateFormat = "",
+        windUnit = "",
+        dynamicColors = false,
+        showAlerts = false,
+        measurementUnit = "",
+        showNotifications = false,
+        showLocalForecast = false,
+        showPrecipitationNotifications = false,
+        precipitationLocations = setOf()
+    )
+    )
+
     fun setShouldReturnNetworkError(value: Boolean) {
         shouldReturnNetworkError = value
     }
 
     fun setShouldReturnException(value: Boolean){
         shouldReturnException = value
+    }
+
+    fun setShouldReturnEmptyList(value: Boolean) {
+        shouldReturnEmptyLocationsList = value
     }
 
     override suspend fun getWeather(zipcode: String): NetworkResult<WeatherContainer> {
@@ -147,7 +169,7 @@ class FakeWeatherRepository: WeatherRepository {
             NetworkResult.Exception(e = Throwable())
         } else {
            // NetworkResult.Success(data = ForecastContainer(locationData, forecastDay, alertList))
-            NetworkResult.Success(data = ForecastContainer(locationData, forecastDay, alertList))
+            NetworkResult.Success(data = forecastContainer)
 
         }
     }
@@ -181,7 +203,9 @@ class FakeWeatherRepository: WeatherRepository {
     }
 
     override fun getZipCodesFromDatabase(): List<String> {
-        TODO("Not yet implemented")
+        return if(shouldReturnEmptyLocationsList) {
+            emptyList()
+        } else listOf("13088")
     }
 
     override fun getZipcodesFromDatabaseAsFlow(): Flow<List<String>> {

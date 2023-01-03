@@ -32,9 +32,6 @@ class DailyForecastViewModel(
     private val createDailyForecastStateUseCase: CreateDailyForecastStateUseCase,
 ) : ViewModel() {
 
-    //The data source this viewmodel will fetch results from
-
-
     fun dailyForecastTicker(
         chanceOfRain: Double,
         chanceOfSnow: Double,

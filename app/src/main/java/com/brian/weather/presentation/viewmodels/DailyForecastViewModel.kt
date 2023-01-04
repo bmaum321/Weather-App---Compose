@@ -97,7 +97,7 @@ class DailyForecastViewModel(
             .flatMapLatest {
                 flow {
                     // We shouldnt need to emit a loading state when using the state in method
-                    //emit(ForecastState.Loading)
+                    emit(ForecastState.Loading)
                     emit(createDailyForecastStateUseCase(zipcode))
                 }
             }.stateIn(viewModelScope, SharingStarted.Lazily, ForecastState.Loading)

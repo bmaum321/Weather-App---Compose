@@ -9,6 +9,7 @@ import com.brian.weather.repository.FakeWeatherRepository
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
+import org.bouncycastle.util.test.SimpleTest.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -77,6 +78,15 @@ class WeatherListViewModelTest {
                 assertThat(awaitItem()).isEqualTo(WeatherListState.Loading)
                 assertThat(awaitItem()).isEqualTo(WeatherListState.Error(message = "Error"))
             }
+    }
+
+    @Test
+    fun `weatherListViewModel emits failure state on repository exception`() = runBlocking {
+        fakeWeatherRepository.setShouldReturnException(true)
+        viewModel.getAllWeather().test {
+            assertThat(awaitItem()).isEqualTo(WeatherListState.Loading)
+            assertThat(awaitItem()).isEqualTo(WeatherListState.Error(message = "Exception"))
+        }
     }
 
     @Test

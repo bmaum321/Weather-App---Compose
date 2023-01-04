@@ -8,6 +8,7 @@ import com.brian.weather.repository.FakeWeatherRepository
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
+import org.bouncycastle.util.test.SimpleTest.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -36,24 +37,28 @@ class DailyForecastViewModelTest {
 
     }
 
-    /*
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `weather ticker emits data in correct order`() = runTest {
-        viewModel.weatherTicker(
-            time = "12:00PM",
-            windspeed = "12 MPH",
-            feelsLikeTemp = "32",
-            humidity = 10
+        viewModel.dailyForecastTicker(
+            chanceOfRain = 12.0,
+            chanceOfSnow = 0.0,
+            avgTemp = 32.0,
+            sunrise = "7:00 AM",
+            avgHumidity = 10.0,
+            sunset = "5:00 PM"
+
         ).test {
-            for (i in listOf("12:00PM", "Wind: 12 MPH", "Feels Like: 32°", "Humidity: 10 %")) {
+            for (i in listOf("Rain: 12 %", "Avg Temp: 32° ", "Avg Humidity: 10 %", "Sunrise: 7:00 AM ",
+                "Sunset: 5:00 PM ")) {
                 val emission = awaitItem()
                 assertThat(emission).isEqualTo(i)
             }
         }
     }
 
-     */
+
 
     @Test
     fun `dailyForecastViewModel initially emits loading state`() = runBlocking {
@@ -80,6 +85,15 @@ class DailyForecastViewModelTest {
         viewModel.getForecastForZipcode("13088").test {
             //assertThat(awaitItem()).isEqualTo(ForecastState.Loading)
             assertThat(awaitItem()).isEqualTo(ForecastState.Error(message = "Error", code = 400))
+        }
+    }
+
+    @Test
+    fun `dailyForecastViewModel emits failure state on repository exception`() = runBlocking {
+        fakeWeatherRepository.setShouldReturnException(true)
+        viewModel.getForecastForZipcode("13088").test {
+            //assertThat(awaitItem()).isEqualTo(ForecastState.Loading)
+            assertThat(awaitItem()).isEqualTo(ForecastState.Error(message = "Exception", code = 0))
         }
     }
 

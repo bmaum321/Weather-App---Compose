@@ -31,7 +31,7 @@ class CreateSearchStateUseCase(
             is NetworkResult.Exception -> {
 
                 SearchState.Error(
-                    code = response.e.hashCode(),
+                    code = 0,
                     message = response.e.message
                 )
 

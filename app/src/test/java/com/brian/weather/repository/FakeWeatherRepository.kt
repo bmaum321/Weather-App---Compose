@@ -4,6 +4,7 @@ import android.content.res.Resources
 import androidx.compose.ui.graphics.Color
 import com.brian.weather.data.local.WeatherEntity
 import com.brian.weather.data.mapper.asDomainModel
+import com.brian.weather.data.mapper.toDomainModel
 import com.brian.weather.data.remote.NetworkResult
 import com.brian.weather.data.remote.dto.*
 import com.brian.weather.data.settings.AppPreferences
@@ -156,7 +157,7 @@ class FakeWeatherRepository: WeatherRepository {
         return if(shouldReturnNetworkError) {
             NetworkResult.Failure(code = 400, message = "Error")
         } else if(shouldReturnException) {
-           NetworkResult.Exception(e = Throwable())
+           NetworkResult.Exception(e = Throwable(message = "Exception"))
         }  else {
             NetworkResult.Success(data = WeatherContainer(locationData, currentWeatherData))
         }
@@ -166,7 +167,7 @@ class FakeWeatherRepository: WeatherRepository {
         return if(shouldReturnNetworkError) {
             NetworkResult.Failure(code = 400, message = "Error")
         }else if(shouldReturnException) {
-            NetworkResult.Exception(e = Throwable())
+            NetworkResult.Exception(e = Throwable(message = "Exception"))
         } else {
            // NetworkResult.Success(data = ForecastContainer(locationData, forecastDay, alertList))
             NetworkResult.Success(data = forecastContainer)
@@ -179,7 +180,7 @@ class FakeWeatherRepository: WeatherRepository {
         return if(shouldReturnNetworkError) {
             NetworkResult.Failure(code = 400, message = "Error")
         }else if(shouldReturnException) {
-            NetworkResult.Exception(e = Throwable())
+            NetworkResult.Exception(e = Throwable(message = "Exception"))
         } else {
             NetworkResult.Success(data = listOf(
                 Search(

@@ -105,6 +105,7 @@ class WeatherListViewModelTest {
             assertThat(awaitItem()).isEqualTo(WeatherListState.Success(fakeWeatherRepository.weatherItems))
             fakeWeatherRepository.setShouldReturnNetworkError(true)
             viewModel.refresh()
+            assertThat(awaitItem()).isEqualTo(WeatherListState.Loading)
             assertThat(awaitItem()).isEqualTo(WeatherListState.Error(message = "Error"))
         }
     }

@@ -18,7 +18,8 @@ fun CustomAlertDialog(
     onDismissRequest: () -> Unit,
     dismissButtonOnClick: () -> Unit,
     confirmButtonOnClick: () -> Unit,
-    confirmText: String
+    confirmText: String,
+    modifier: Modifier = Modifier
 ) {
     AlertDialog(
         // This test tag is used for semantics matching in UI testing

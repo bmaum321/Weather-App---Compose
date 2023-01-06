@@ -32,6 +32,7 @@ import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
 import com.brian.weather.presentation.viewmodels.*
 import com.brian.weather.repository.WeatherRepository
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 
@@ -51,7 +52,7 @@ fun DailyForecastScreen(
     // This only seems to work if I pass the viewmodel all the way down from main activity and only have one instance of main view model, grabbing it from Koin doesnt work
     LaunchedEffect(Unit) {
         mainViewModel.updateActionBarTitle(
-            weatherRepository.getWeatherByZipcode(location).first()?.cityName ?: ""
+            weatherRepository.getWeatherByZipcode(location).firstOrNull()?.cityName ?: ""
        // location
         )
     }

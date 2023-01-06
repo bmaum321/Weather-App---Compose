@@ -2,6 +2,7 @@ package com.brian.weather.presentation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,9 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
@@ -29,11 +28,10 @@ import androidx.navigation.compose.rememberNavController
 import com.brian.weather.BuildConfig
 import com.brian.weather.R
 import com.brian.weather.presentation.navigation.*
-import com.brian.weather.presentation.screens.*
 import com.brian.weather.presentation.reusablecomposables.CustomAlertDialog
-import com.brian.weather.presentation.reusablecomposables.OverflowMenu
 import com.brian.weather.presentation.reusablecomposables.DeleteDropDownMenuItem
-import com.brian.weather.presentation.reusablecomposables.EditDropDownMenuItem
+import com.brian.weather.presentation.reusablecomposables.OverflowMenu
+import com.brian.weather.presentation.screens.*
 import com.brian.weather.presentation.screens.settings.InterfaceSettingsScreen
 import com.brian.weather.presentation.screens.settings.NotificationSettingsScreen
 import com.brian.weather.presentation.screens.settings.UnitSettingsScreen
@@ -43,10 +41,8 @@ import com.brian.weather.presentation.viewmodels.HourlyForecastViewModel
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
 import com.brian.weather.repository.WeatherRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.get
 
 sealed class MenuAction(
@@ -77,7 +73,7 @@ fun WeatherAppBar(
 
 ) {
     TopAppBar(
-        colors = TopAppBarDefaults.smallTopAppBarColors(
+        colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
             navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -222,7 +218,7 @@ fun WeatherApp(
                  */
                 coroutineScope.launch {
                         val weatherEntity =
-                            location?.let { weatherRepository.getWeatherByZipcode(it).first() }
+                            location?.let { weatherRepository.getWeatherByZipcode(it).firstOrNull() }
                         if (weatherEntity != null) {
                             weatherRepository.deleteWeather(weatherEntity)
                         }
@@ -266,7 +262,6 @@ fun WeatherApp(
         )
     }
 
-
     Scaffold(
         topBar = {
             WeatherAppBar(
@@ -295,7 +290,20 @@ fun WeatherApp(
                 setShowMenu = setShowMenu
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.animateContentSize().semantics { testTag = "Undo Snackbar" },
+            ) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    modifier = Modifier,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    actionColor = MaterialTheme.colorScheme.onError,
+                )
+            }
+        }
     ) { innerPadding ->
 
         val context = LocalContext.current

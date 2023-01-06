@@ -124,6 +124,11 @@ fun WeatherListScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
+    /**
+     * This method currently seems very inconsistent and buggy, should just be removed until further
+     * investigated or officially supported
+     */
+
     val listData = remember { mutableStateOf(weatherDomainObjectList) }
     val reorderableLazyListState = rememberReorderableLazyListState(onMove = { from, to ->
         listData.value = listData.value.toMutableList().apply {
@@ -211,8 +216,8 @@ fun WeatherListScreen(
             ) {
 
                 //TODO the key is needed here to animate the re-order, there is a bug here though, can cause a when duplicate locations added
-               // items(listData.value, {it.zipcode}) { item ->
-                    items(listData.value) { item ->
+                items(listData.value, {it.zipcode}) { item ->
+                   // items(listData.value) { item ->
 
                     ReorderableItem(reorderableState = reorderableLazyListState, key = item) { isDragging ->
                         val elevation = animateDpAsState(if (isDragging) 200.dp else 0.dp)

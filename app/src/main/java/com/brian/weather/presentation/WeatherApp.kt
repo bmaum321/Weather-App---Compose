@@ -44,7 +44,6 @@ import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
 import com.brian.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -146,7 +145,8 @@ fun WeatherApp(
     weatherRepository: WeatherRepository
 ) {
 
-    val preferences = weatherListViewModel.allPreferences.collectAsState()
+    //We remember the state to show snackbars across compositions
+    val snackbarHostState = remember { SnackbarHostState() }
     val ctx = LocalContext.current
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -158,7 +158,7 @@ fun WeatherApp(
     val coroutineScope = rememberCoroutineScope()
 
     /**
-     * WAs collecting as state before, but now this method returns a list instead of a flow. Is there
+     * Was collecting as state before, but now this method returns a list instead of a flow. Is there
      * a better way to do this?
      */
 
@@ -233,16 +233,39 @@ fun WeatherApp(
                             weatherListViewModel.allPreferences.value?.precipitationLocations
                                 ?: emptySet()
                         )
-                        withContext(Dispatchers.Main) {
+
+                      //  withContext(Dispatchers.Main) {
                             navController.popBackStack()
                             openLocationOverflowMenu.value = false
-                        }
+
+                            /**
+                             * Show snackbar to allow undo action of deleting location from database
+                             */
+                            val snackbarResult = snackbarHostState.showSnackbar(
+                                message = "${weatherEntity?.cityName} deleted",
+                                duration = SnackbarDuration.Short,
+                                withDismissAction = true,
+                                actionLabel = "Undo"
+                            )
+
+                            when(snackbarResult) {
+                                SnackbarResult.ActionPerformed -> {
+                                    weatherEntity?.let {
+                                        weatherRepository.insert(weatherEntity)
+                                        weatherListViewModel.refresh()
+                                    }
+                                }
+                                SnackbarResult.Dismissed -> {}
+                            }
+
+                      //  }
                 }
             },
             confirmText = stringResource(R.string.ok)
 
         )
     }
+
 
     Scaffold(
         topBar = {
@@ -271,7 +294,8 @@ fun WeatherApp(
                 showMenu = showMenu,
                 setShowMenu = setShowMenu
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
 
         val context = LocalContext.current

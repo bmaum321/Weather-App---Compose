@@ -1,15 +1,10 @@
 package com.brian.weather.presentation.viewmodels
 
-import android.app.Application
-import android.content.res.Resources
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.brian.weather.data.local.WeatherDao
-import com.brian.weather.domain.model.WeatherDomainObject
-import com.brian.weather.data.local.WeatherEntity
-import com.brian.weather.data.remote.NetworkResult
+import com.brian.weather.data.settings.AppPreferences
 import com.brian.weather.data.settings.PreferencesRepository
+import com.brian.weather.domain.model.WeatherDomainObject
 import com.brian.weather.domain.usecase.CreateWeatherListStateUsecase
 import com.brian.weather.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +16,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 
 /**
  * UI state for the Home screen
@@ -78,14 +74,11 @@ class WeatherListViewModel(
         }
     }
 
-    // private val _allPreferences = preferencesRepository.getAllPreferences.stateIn(viewModelScope, SharingStarted.Eagerly, null)
-    // val allPreferences = _allPreferences.value
     val allPreferences = preferencesRepository.getAllPreferences.stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
         null
     )
-
 
     fun refresh() {
         refreshFlow.tryEmit(Unit)
@@ -104,7 +97,12 @@ class WeatherListViewModel(
                   val zipcodes = weatherRepository.getZipCodesFromDatabase()
                         flow {
                             if (zipcodes.isNotEmpty()) {
-                               // emit(WeatherListState.Loading)
+                                /**
+                                Need to emit a loading state here to properly refresh screen when refresh flow emits a new value from the refresh method
+                                Otherwise, the screen will not recompose because the state never receives a new value, because we changed the above zipcodes
+                                method to return a list instead of a flow
+                                 */
+                                emit(WeatherListState.Loading)
                                 emit(createWeatherListStateUsecase(zipcodes))
                             } else emit(WeatherListState.Empty)
                         }

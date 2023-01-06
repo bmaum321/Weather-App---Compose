@@ -79,7 +79,8 @@ class DailyLocalWeatherWorker(
                                 showNotifications = true,
                                 showLocalForecast = true,
                                 showPrecipitationNotifications = true,
-                                precipitationLocations = setOf()
+                                precipitationLocations = setOf(),
+                                cardSize = ""
                             )
                         )
                         weatherRepository.getSearchResults(coordinates).onSuccess { city = it.first().name }

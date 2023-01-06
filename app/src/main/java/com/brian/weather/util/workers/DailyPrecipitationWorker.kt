@@ -72,7 +72,8 @@ class DailyPrecipitationWorker(
                                     showNotifications = true,
                                     showLocalForecast = true,
                                     showPrecipitationNotifications = true,
-                                    precipitationLocations = setOf()
+                                    precipitationLocations = setOf(),
+                                    cardSize = ""
                                 )
                             )
                             val willItRainToday = mutableListOf<Int>()

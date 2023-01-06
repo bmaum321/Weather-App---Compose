@@ -31,7 +31,8 @@ class WorkerInstrumentationTest {
         showNotifications = true,
         showLocalForecast = true,
         showPrecipitationNotifications = true,
-        precipitationLocations = setOf("Miami, Florida")
+        precipitationLocations = setOf("Miami, Florida"),
+        cardSize = ""
     )
 
     @Before

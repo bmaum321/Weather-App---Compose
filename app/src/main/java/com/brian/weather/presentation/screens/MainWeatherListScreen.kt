@@ -81,7 +81,11 @@ fun MainWeatherListScreen(
             weatherListViewModel,
             weatherRepository
         )
-        is WeatherListState.Error -> ErrorScreen(retryAction, modifier, message = weatherUiState.message)
+        is WeatherListState.Error -> ErrorScreen(
+            retryAction,
+            modifier,
+            message = weatherUiState.message
+        )
     }
 }
 
@@ -117,8 +121,8 @@ fun WeatherListScreen(
         refreshing = false
     }
 
-     //val refreshState = rememberPullRefreshState(
-     //   refreshing = refreshing,
+    //val refreshState = rememberPullRefreshState(
+    //   refreshing = refreshing,
     //    onRefresh = { refresh() }
     // )
 
@@ -183,8 +187,7 @@ fun WeatherListScreen(
                     )
                 }
             }
-        }
-        ,
+        },
         floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
 
@@ -216,12 +219,15 @@ fun WeatherListScreen(
             ) {
 
                 //TODO the key is needed here to animate the re-order, there is a bug here though, can cause a when duplicate locations added
-                items(listData.value, {it.zipcode}) { item ->
-                   // items(listData.value) { item ->
+                items(listData.value, { it.zipcode }) { item ->
+                    // items(listData.value) { item ->
 
-                    ReorderableItem(reorderableState = reorderableLazyListState, key = item) { isDragging ->
+                    ReorderableItem(
+                        reorderableState = reorderableLazyListState,
+                        key = item
+                    ) { isDragging ->
                         val elevation = animateDpAsState(if (isDragging) 200.dp else 0.dp)
-                       // val color = animate(if (isDragging) 1f else .5f)
+                        // val color = animate(if (isDragging) 1f else .5f)
                         WeatherListItem(
                             weatherDomainObject = item,
                             onClick = onClick,
@@ -414,10 +420,16 @@ fun WeatherListItem(
                 weatherDomainObject.textColor
             else LocalContentColor.current
         )
+
+    val height = when (preferences?.cardSize) {
+        "Small" -> 125.dp
+        "Medium" -> 175.dp
+        else -> 200.dp
+    }
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .height(175.dp)
+            .height(height)
             .fillMaxWidth()
             .pressClickEffect()
             .shadow(elevation.value),
@@ -437,7 +449,8 @@ fun WeatherListItem(
             ) {
                 Column(modifier = modifier.weight(10f)) {
                     if (weatherDomainObject.location.length > 13) {
-                        MarqueeText(text = weatherDomainObject.location,
+                        MarqueeText(
+                            text = weatherDomainObject.location,
                             fontWeight = FontWeight.Bold,
                             fontSize = 28.sp
                         )
@@ -456,7 +469,7 @@ fun WeatherListItem(
                     )
 
                      */
-                    if(weatherDomainObject.conditionText.length > 13) {
+                    if (weatherDomainObject.conditionText.length > 13) {
                         MarqueeText(text = weatherDomainObject.conditionText, fontSize = 24.sp)
                     } else {
                         Text(

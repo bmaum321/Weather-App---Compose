@@ -50,7 +50,8 @@ class HourlyForecastViewModel(
         showNotifications = false,
         showLocalForecast = false,
         showPrecipitationNotifications = false,
-        precipitationLocations = setOf()
+        precipitationLocations = setOf(),
+            cardSize = ""
     )
     )
 

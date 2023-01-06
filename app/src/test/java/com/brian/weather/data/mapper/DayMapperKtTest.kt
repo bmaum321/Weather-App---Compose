@@ -48,7 +48,8 @@ class DayMapperKtTest {
         showNotifications = false,
         showLocalForecast = false,
         showPrecipitationNotifications = false,
-        precipitationLocations = setOf()
+        precipitationLocations = setOf(),
+        cardSize = ""
     )
 
     private val preferences2 = AppPreferences(
@@ -62,7 +63,8 @@ class DayMapperKtTest {
         showNotifications = false,
         showLocalForecast = false,
         showPrecipitationNotifications = false,
-        precipitationLocations = setOf()
+        precipitationLocations = setOf(),
+        cardSize = ""
     )
     private val forecastForDay = ForecastForDay(
         condition = Condition(code = 1000, icon = "//cdn.weatherapi.com/weather/64x64/day/116.png", text = "Sunny"),

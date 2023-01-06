@@ -40,7 +40,8 @@ class HourMapperKtTest {
         showNotifications = false,
         showLocalForecast = false,
         showPrecipitationNotifications = false,
-        precipitationLocations = setOf()
+        precipitationLocations = setOf(),
+        cardSize = ""
     )
 
     private val preferencesMetric = AppPreferences(
@@ -54,7 +55,8 @@ class HourMapperKtTest {
         showNotifications = false,
         showLocalForecast = false,
         showPrecipitationNotifications = false,
-        precipitationLocations = setOf()
+        precipitationLocations = setOf(),
+        cardSize = ""
     )
 
     private val hour = Hour(

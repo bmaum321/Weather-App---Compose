@@ -28,6 +28,8 @@ class FakePreferencesRepositoryImpl(
     override val SHOW_LOCAL_FORECAST = booleanPreferencesKey("show_local_forecast")
     override val SHOW_PRECIPITATION_NOTIFICATIONS = booleanPreferencesKey("show_precipitation_notifications")
     override val PRECIPITATION_LOCATIONS: Preferences.Key<Set<String>> = stringSetPreferencesKey("precipitation_locations")
+    override val CARD_SIZE: Preferences.Key<String>
+        get() = TODO("Not yet implemented")
 
     override val getTemperatureUnit: Flow<String?> = dataStore.data
         .catch { exception ->
@@ -134,6 +136,8 @@ class FakePreferencesRepositoryImpl(
         }.map { preferences ->
             preferences[PRECIPITATION_LOCATIONS] ?: emptySet() // default value
         }
+    override val getCardSize: Flow<String?>
+        get() = TODO("Not yet implemented")
 
     override val getClockFormat: Flow<String?> = dataStore.data
         .catch { exception ->
@@ -183,7 +187,8 @@ class FakePreferencesRepositoryImpl(
                 showNotifications = showNotifications,
                 showPrecipitationNotifications = showPrecipNotifications,
                 precipitationLocations = precipLocations,
-                dateFormat = dateFormat
+                dateFormat = dateFormat,
+                cardSize = ""
 
             )
         }
@@ -261,6 +266,9 @@ class FakePreferencesRepositoryImpl(
 
     // Function to return preferences
     override suspend fun fetchInitialPreferences() = dataStore.data.first().toPreferences()
+    override suspend fun saveCardSizeSetting(value: String) {
+        TODO("Not yet implemented")
+    }
 
 
 }

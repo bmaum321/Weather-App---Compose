@@ -42,7 +42,8 @@ class WeatherMapperKtTest {
         showNotifications = false,
         showLocalForecast = false,
         showPrecipitationNotifications = false,
-        precipitationLocations = setOf()
+        precipitationLocations = setOf(),
+        cardSize = ""
     )
 
     private val preferences2 = AppPreferences(
@@ -56,7 +57,8 @@ class WeatherMapperKtTest {
         showNotifications = false,
         showLocalForecast = false,
         showPrecipitationNotifications = false,
-        precipitationLocations = setOf()
+        precipitationLocations = setOf(),
+        cardSize = ""
     )
 
     private val weather = WeatherContainer(

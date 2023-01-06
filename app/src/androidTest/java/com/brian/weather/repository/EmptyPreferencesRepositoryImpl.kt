@@ -25,6 +25,8 @@ class EmptyPreferencesRepositoryImpl(
     override val SHOW_PRECIPITATION_NOTIFICATIONS: Preferences.Key<Boolean> =
         booleanPreferencesKey("")
     override val PRECIPITATION_LOCATIONS: Preferences.Key<Set<String>> = stringSetPreferencesKey("")
+    override val CARD_SIZE: Preferences.Key<String>
+        get() = TODO("Not yet implemented")
     override val getAllPreferences: Flow<AppPreferences> = flow {
         emit(
             AppPreferences(
@@ -38,7 +40,8 @@ class EmptyPreferencesRepositoryImpl(
                 showNotifications = false,
                 showLocalForecast = false,
                 showPrecipitationNotifications = false,
-                precipitationLocations = setOf()
+                precipitationLocations = setOf(),
+                cardSize = ""
             )
         )
     }
@@ -53,6 +56,8 @@ class EmptyPreferencesRepositoryImpl(
     override val getLocalForecastSetting: Flow<Boolean?> = emptyFlow()
     override val getPrecipitationSetting: Flow<Boolean?> = emptyFlow()
     override val getPrecipitationLocations: Flow<Set<String>?> = emptyFlow()
+    override val getCardSize: Flow<String?>
+        get() = TODO("Not yet implemented")
 
     override suspend fun saveTemperatureSetting(value: String) {
     }
@@ -91,6 +96,10 @@ class EmptyPreferencesRepositoryImpl(
 
     override suspend fun fetchInitialPreferences(): Preferences {
         return emptyPreferences()
+    }
+
+    override suspend fun saveCardSizeSetting(value: String) {
+        TODO("Not yet implemented")
     }
 
 

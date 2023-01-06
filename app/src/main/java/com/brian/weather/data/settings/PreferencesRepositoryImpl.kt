@@ -27,6 +27,7 @@ class PreferencesRepositoryImpl(
     override val SHOW_LOCAL_FORECAST = booleanPreferencesKey("show_local_forecast")
     override val SHOW_PRECIPITATION_NOTIFICATIONS = booleanPreferencesKey("show_precipitation_notifications")
     override val PRECIPITATION_LOCATIONS: Preferences.Key<Set<String>> = stringSetPreferencesKey("precipitation_locations")
+    override val CARD_SIZE = stringPreferencesKey("card_size")
 
     override val getTemperatureUnit: Flow<String?> = dataStore.data
         .catch { exception ->
@@ -157,6 +158,18 @@ class PreferencesRepositoryImpl(
         preferences[DATE_FORMAT] ?: "MM/DD"// default value
     }
 
+    override val getCardSize: Flow<String?> = dataStore.data
+        .catch { exception ->
+            // dataStore.data throws an IOException when an error is encountered when reading data
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { preferences ->
+            preferences[DATE_FORMAT] ?: "MM/DD"// default value
+        }
+
     override val getAllPreferences: Flow<AppPreferences> = dataStore.data
         .map { preferences ->
             val tempUnit = preferences[TEMPERATURE_UNIT] ?: "Fahrenheit"
@@ -171,6 +184,7 @@ class PreferencesRepositoryImpl(
             val showNotifications = preferences[SHOW_NOTIFICATIONS] ?: true
             val showPrecipNotifications = preferences[SHOW_PRECIPITATION_NOTIFICATIONS
             ] ?: true
+            val cardSize = preferences[CARD_SIZE] ?: "Medium"
 
             AppPreferences(
                 tempUnit = tempUnit,
@@ -183,7 +197,8 @@ class PreferencesRepositoryImpl(
                 showLocalForecast = showLocalForecast ,
                 showNotifications = showNotifications,
                 showPrecipitationNotifications = showPrecipNotifications,
-                precipitationLocations = precipLocations
+                precipitationLocations = precipLocations,
+                cardSize = cardSize
 
             )
         }
@@ -253,6 +268,12 @@ class PreferencesRepositoryImpl(
     override suspend fun savePrecipitationLocations(values: Set<String>) {
         dataStore.edit { preferences ->
             preferences[PRECIPITATION_LOCATIONS] = values
+        }
+    }
+
+    override suspend fun saveCardSizeSetting(value: String) {
+        dataStore.edit { preferences ->
+            preferences[CARD_SIZE] = value
         }
     }
 

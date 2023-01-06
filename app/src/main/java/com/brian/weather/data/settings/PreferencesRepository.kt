@@ -16,6 +16,7 @@ interface PreferencesRepository {
      val SHOW_LOCAL_FORECAST: Preferences.Key<Boolean>
      val SHOW_PRECIPITATION_NOTIFICATIONS: Preferences.Key<Boolean>
      val PRECIPITATION_LOCATIONS: Preferences.Key<Set<String>>
+     val CARD_SIZE: Preferences.Key<String>
 
      val getAllPreferences: Flow<AppPreferences>
      val getClockFormat: Flow<String?>
@@ -29,6 +30,7 @@ interface PreferencesRepository {
      val getLocalForecastSetting: Flow<Boolean?>
      val getPrecipitationSetting: Flow<Boolean?>
      val getPrecipitationLocations: Flow<Set<String>?>
+     val getCardSize: Flow<String?>
 
      suspend fun saveTemperatureSetting(value: String)
      suspend fun saveMeasurementSetting(value: String)
@@ -42,4 +44,5 @@ interface PreferencesRepository {
      suspend fun savePrecipitationSetting(value: Boolean)
      suspend fun savePrecipitationLocations(values: Set<String>)
      suspend fun fetchInitialPreferences(): Preferences
+     suspend fun saveCardSizeSetting(value: String)
 }

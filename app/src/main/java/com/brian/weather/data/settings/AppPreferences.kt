@@ -11,5 +11,6 @@ data class AppPreferences (
     val showNotifications: Boolean,
     val showLocalForecast: Boolean,
     val showPrecipitationNotifications: Boolean,
-    val precipitationLocations: Set<String>
+    val precipitationLocations: Set<String>,
+    val cardSize :String
 )

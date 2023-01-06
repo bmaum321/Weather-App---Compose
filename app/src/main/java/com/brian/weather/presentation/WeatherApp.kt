@@ -177,6 +177,8 @@ fun WeatherApp(
     val openWindspeedDialog = remember { mutableStateOf(false) }
     val openMeasurementDialog = remember { mutableStateOf(false) }
     val openLocationOverflowMenu = remember { mutableStateOf(false) }
+    val openSizeSelectorDialog = remember { mutableStateOf(false) }
+
     /**
      * I haven't seen this declaration used before, but it seems like the second value
      * is acting as a setter function for the remembered value
@@ -300,7 +302,7 @@ fun WeatherApp(
                     modifier = Modifier,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                     containerColor = MaterialTheme.colorScheme.primary,
-                    actionColor = MaterialTheme.colorScheme.onError,
+                    //actionColor = MaterialTheme.colorScheme.onError,
                 )
             }
         }
@@ -432,7 +434,8 @@ fun WeatherApp(
                 InterfaceSettingsScreen(
                     viewModel = mainViewModel,
                     coroutineScope = coroutineScope,
-                    preferencesRepository = get()
+                    preferencesRepository = get(),
+                    openSizeSelectorDialog = openSizeSelectorDialog
                 )
             }
 

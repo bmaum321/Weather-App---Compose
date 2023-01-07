@@ -27,19 +27,19 @@ fun SettingsListItemWithSwitch(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(start = 26.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
         // icon and unread bubble
         Icon(
             modifier = Modifier
-                .size(size = 48.dp)
-                .padding(start = 20.dp),
+                .size(size = 28.dp),
             painter = item.image,
             contentDescription = null,
         )
-        Spacer(modifier = Modifier.size(24.dp))
+        Spacer(modifier = Modifier.size(16.dp))
 
         // label
         Text(

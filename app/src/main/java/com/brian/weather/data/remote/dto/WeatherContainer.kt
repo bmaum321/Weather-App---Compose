@@ -1,6 +1,7 @@
 package com.brian.weather.data.remote.dto
 
 import com.brian.weather.data.local.WeatherEntity
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 
@@ -15,8 +16,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class WeatherContainer(
-    val location: LocationData,
-    val current: CurrentWeatherData
+    @SerialName("location")val locationData: LocationData,
+    @SerialName("current")val currentWeatherData: CurrentWeatherData
 )
 
 /**
@@ -28,7 +29,7 @@ fun WeatherContainer.asDatabaseModel(
 ): WeatherEntity {
     return WeatherEntity(
         zipCode = zipcode,
-        cityName = location.name,
+        cityName = locationData.name,
         sortOrder = dbSortOrder
     )
 }

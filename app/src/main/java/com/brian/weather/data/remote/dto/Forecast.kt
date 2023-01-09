@@ -1,9 +1,8 @@
 package com.brian.weather.data.remote.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-//TODO everything in data class should be vals, need to clean this up and do formatting
-// at the last presentation layer
 
 @Serializable
 data class ForecastContainer(
@@ -14,7 +13,7 @@ data class ForecastContainer(
 
 @Serializable
 data class ForecastDay(
-    val forecastday: List<Day>
+    @SerialName("forecastday")val dailyForecast: List<Day>
 )
 
 @Serializable

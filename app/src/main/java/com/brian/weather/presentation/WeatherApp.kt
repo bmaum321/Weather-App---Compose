@@ -176,7 +176,7 @@ fun WeatherApp(
     val openClockFormatDialog = remember { mutableStateOf(false) }
     val openWindspeedDialog = remember { mutableStateOf(false) }
     val openMeasurementDialog = remember { mutableStateOf(false) }
-    val openLocationOverflowMenu = remember { mutableStateOf(false) }
+    val openLocationDeleteMenu = remember { mutableStateOf(false) }
     val openSizeSelectorDialog = remember { mutableStateOf(false) }
 
     /**
@@ -203,15 +203,15 @@ fun WeatherApp(
         )
     }
 
-    if (openLocationOverflowMenu.value) {
+    if (openLocationDeleteMenu.value) {
         val location =
             backStackEntry?.arguments?.getString(MainWeatherList.locationArg)
         CustomAlertDialog(
             tag = "Location Delete Dialog",
             title = "Delete $location?",
             text = stringResource(R.string.confirm_deletion),
-            onDismissRequest = { openLocationOverflowMenu.value = false },
-            dismissButtonOnClick = { openLocationOverflowMenu.value = false },
+            onDismissRequest = { openLocationDeleteMenu.value = false },
+            dismissButtonOnClick = { openLocationDeleteMenu.value = false },
             confirmButtonOnClick = {
                 /**
                  * We don't need to run this coroutine on a different thread because the database
@@ -223,6 +223,12 @@ fun WeatherApp(
                             location?.let { weatherRepository.getWeatherByZipcode(it).firstOrNull() }
                         if (weatherEntity != null) {
                             weatherRepository.deleteWeather(weatherEntity)
+                        } else {
+                            snackbarHostState.showSnackbar(
+                                message = "Unable to delete location",
+                                duration = SnackbarDuration.Short,
+                                withDismissAction = true,
+                            )
                         }
 
                         //TODO the logic here needs some work, the list getting passed to the worker is not updated
@@ -234,7 +240,7 @@ fun WeatherApp(
 
                       //  withContext(Dispatchers.Main) {
                             navController.popBackStack()
-                            openLocationOverflowMenu.value = false
+                            openLocationDeleteMenu.value = false
 
                             /**
                              * Show snackbar to allow undo action of deleting location from database
@@ -274,7 +280,7 @@ fun WeatherApp(
                 currentScreen = currentScreen ?: MainWeatherList.route,
                 deleteOnClick = {
 
-                    openLocationOverflowMenu.value = true
+                    openLocationDeleteMenu.value = true
                 },
                 title = title,
                 menuOnClick = {
@@ -287,7 +293,7 @@ fun WeatherApp(
                         ) ?: ""
                     )
                 },
-                openDeleteMenu = openLocationOverflowMenu,
+                openDeleteMenu = openLocationDeleteMenu,
                 showMenu = showMenu,
                 setShowMenu = setShowMenu
             )

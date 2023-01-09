@@ -1,14 +1,10 @@
 package com.brian.weather.data.mapper
 
-import android.content.res.Resources
 import android.os.Build
 import androidx.compose.ui.graphics.Color
-import com.brian.weather.R
 import com.brian.weather.data.remote.dto.WeatherContainer
 import com.brian.weather.data.settings.AppPreferences
-import com.brian.weather.data.settings.PreferencesRepository
 import com.brian.weather.domain.model.WeatherDomainObject
-import kotlinx.coroutines.flow.first
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -20,11 +16,11 @@ fun WeatherContainer.asDomainModel(
 
    // val preferences = preferencesRepository.getAllPreferences.first()
 
-    val locationDataDomainModel = location.toDomainModel()
+    val locationDataDomainModel = locationData.toDomainModel()
 
     val localTime = Instant
-        .ofEpochSecond(location.localtime_epoch)
-        .atZone(ZoneId.of(location.tz_id))
+        .ofEpochSecond(locationData.localtime_epoch)
+        .atZone(ZoneId.of(locationData.tz_id))
         .format(
             DateTimeFormatter
                 .ofPattern(preferences.clockFormat)
@@ -43,13 +39,13 @@ fun WeatherContainer.asDomainModel(
      * otherwise, the background is transparent
      */
 
-    val backgroundColor: List<Color> = when (current.condition.code) {
+    val backgroundColor: List<Color> = when (currentWeatherData.condition.code) {
         1000 -> {
-            if (current.condition.text == "Sunny") {
+            if (currentWeatherData.condition.text == "Sunny") {
                 listOf(Color(0xfff5f242),Color(0xffff9100))// sunny
             } else listOf(Color(0xff000000),Color(0x472761CC)) // clear night
         }
-        1003 -> if (current.is_day == 1) {
+        1003 -> if (currentWeatherData.is_day == 1) {
             listOf(Color(0xffffffff),Color(0xffffbb00)) // partly cloudy day
         } else {
             listOf(Color(0xff575757),Color(0x472761CC)) // partly cloud night
@@ -97,20 +93,20 @@ fun WeatherContainer.asDomainModel(
         time = if(preferences.clockFormat == "hh:mm a") localTime.removePrefix("0") else localTime,
         location = locationDataDomainModel.name,
         zipcode = zipcode,
-        temp = if(preferences.tempUnit == "Fahrenheit")current.temp_f.toInt().toString()
-        else current.temp_c.toInt().toString(),
-        imgSrcUrl = current.condition.icon,
-        conditionText = current.condition.text,
-        windSpeed = if(preferences.windUnit == "MPH")current.wind_mph
-        else current.wind_kph,
-        windDirection = current.wind_dir,
+        temp = if(preferences.tempUnit == "Fahrenheit")currentWeatherData.temp_f.toInt().toString()
+        else currentWeatherData.temp_c.toInt().toString(),
+        imgSrcUrl = currentWeatherData.condition.icon,
+        conditionText = currentWeatherData.condition.text,
+        windSpeed = if(preferences.windUnit == "MPH")currentWeatherData.wind_mph
+        else currentWeatherData.wind_kph,
+        windDirection = currentWeatherData.wind_dir,
         backgroundColors = backgroundColor,
-        code = current.condition.code,
+        code = currentWeatherData.condition.code,
         textColor = textColor,
         country = locationDataDomainModel.country,
-        feelsLikeTemp = if(preferences.tempUnit == "Fahrenheit")current.feelslike_f.toInt().toString()
-        else current.feelslike_c.toInt().toString(),
-        humidity = current.humidity
+        feelsLikeTemp = if(preferences.tempUnit == "Fahrenheit")currentWeatherData.feelslike_f.toInt().toString()
+        else currentWeatherData.feelslike_c.toInt().toString(),
+        humidity = currentWeatherData.humidity
     )
 }
 

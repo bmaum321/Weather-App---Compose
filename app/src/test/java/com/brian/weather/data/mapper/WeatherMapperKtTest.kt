@@ -62,7 +62,7 @@ class WeatherMapperKtTest {
     )
 
     private val weather = WeatherContainer(
-        location = LocationData(
+        locationData = LocationData(
             name = "Liverpool",
             region = "New York",
             country = "United States of America",
@@ -71,7 +71,7 @@ class WeatherMapperKtTest {
             tz_id = "America/New_York",
             localtime_epoch = System.currentTimeMillis() / 1000 + 3600,
             localtime = "2022-12-30 10:29",
-        ), current = CurrentWeatherData(
+        ), currentWeatherData = CurrentWeatherData(
             temp_c = 10.0,
             temp_f = 32.0,
             is_day = 1,
@@ -143,8 +143,8 @@ class WeatherMapperKtTest {
     @Test
     fun weatherDto_toDomainModel_returnsCorrectTime() {
         val time = Instant
-            .ofEpochSecond(weather.location.localtime_epoch)
-            .atZone(ZoneId.of(weather.location.tz_id))
+            .ofEpochSecond(weather.locationData.localtime_epoch)
+            .atZone(ZoneId.of(weather.locationData.tz_id))
             .format(
                 DateTimeFormatter
                     .ofPattern(preferences.clockFormat)
@@ -160,8 +160,8 @@ class WeatherMapperKtTest {
             preferences = preferences2
         )
         val time = Instant
-            .ofEpochSecond(weather.location.localtime_epoch)
-            .atZone(ZoneId.of(weather.location.tz_id))
+            .ofEpochSecond(weather.locationData.localtime_epoch)
+            .atZone(ZoneId.of(weather.locationData.tz_id))
             .format(
                 DateTimeFormatter
                     .ofPattern(preferences2.clockFormat)

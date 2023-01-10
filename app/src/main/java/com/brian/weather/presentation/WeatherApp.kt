@@ -127,6 +127,10 @@ fun WeatherAppBar(
 /**
  * I could pass all my viewmodels here, this would allow me to inject fake repositories for testing
  * to all screens
+ *
+ * Consider moving viewmodel data into a state class and pass the state to the screen instead of a
+ * viewmodel, we can also grab the preferences in the main activity and pass the object down here
+ * instead of grabbing in each individual viewmodel
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable

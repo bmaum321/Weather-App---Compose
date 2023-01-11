@@ -1,27 +1,35 @@
 package com.brian.weather.presentation.viewmodels
 
-import android.app.Application
 import androidx.lifecycle.*
 import com.brian.weather.data.local.WeatherDao
-import com.brian.weather.data.local.WeatherEntity
 import com.brian.weather.data.remote.dto.asDatabaseModel
 import com.brian.weather.data.remote.NetworkResult
 import com.brian.weather.domain.usecase.CreateSearchStateUseCase
 import com.brian.weather.repository.WeatherRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
 
-sealed class AddWeatherScreenEvents {
-    object ClearQuery: AddWeatherScreenEvents()
-    object SetQuery: AddWeatherScreenEvents()
-    object SaveQueryInDatabase: AddWeatherScreenEvents()
+sealed class SearchState {
+    object Loading : SearchState()
+    data class Error(
+        val code: Int,
+        val message: String?
+    ) : SearchState()
 
+    data class Success(
+        val searchResults: List<String>,
+        val query: String = ""
+    ) : SearchState()
+}
+
+
+
+sealed class AddWeatherScreenEvent {
+    object ClearQuery: AddWeatherScreenEvent()
+    data class SetQuery(val query: String): AddWeatherScreenEvent()
+    data class SaveQueryInDatabase(val query: String): AddWeatherScreenEvent()
 }
 
 /**
@@ -36,7 +44,6 @@ class AddWeatherLocationViewModel(
     private val queryFlow = MutableSharedFlow<String>(1, 1, BufferOverflow.DROP_OLDEST)
 
     private var searchJob: Job? = null
-
 
     // sort counter for database entries
 
@@ -53,7 +60,7 @@ class AddWeatherLocationViewModel(
     }
 
     private suspend fun checkIfLocationAlreadyInDb(location: String): Boolean {
-        val weather = weatherRepository.getWeatherByZipcode(location).first()
+        val weather = weatherRepository.getWeatherByZipcode(location).firstOrNull()
         return weather != null
     }
 
@@ -68,7 +75,7 @@ class AddWeatherLocationViewModel(
             }.stateIn(viewModelScope, SharingStarted.Lazily, SearchState.Loading)
 
 
-    fun setQuery(currentQuery: String) {
+    private fun setSearchQuery(currentQuery: String) {
         /**
          * This will cancel the job every time the query is changed in the search field, if a character
          * is not typed in 500ms, the queryflow will emit its value. This prevents the API from being
@@ -82,11 +89,11 @@ class AddWeatherLocationViewModel(
 
     }
 
-    fun clearQueryResults() {
+    fun clearSearchQuery() {
         queryFlow.tryEmit("")
     }
 
-    suspend fun storeNetworkDataInDatabase(zipcode: String): Boolean {
+    private suspend fun storeNetworkDataInDatabase(zipcode: String): Boolean {
         /**
          * This runs on a background thread by default so any value modified within this scope cannot
          * be returned outside of the scope
@@ -102,15 +109,34 @@ class AddWeatherLocationViewModel(
                                 getLastEntrySortValue()
                             )
                         )
-                        true
-                    } else false
+
+                        false
+                    } else true
 
                 }
-                is NetworkResult.Failure -> false
-                is NetworkResult.Exception -> false
+                is NetworkResult.Failure -> true
+                is NetworkResult.Exception -> true
             }
         return networkError
 
+    }
+
+    fun onEvent(event: AddWeatherScreenEvent): Boolean {
+        var insertError = false
+        when(event) {
+            is AddWeatherScreenEvent.ClearQuery -> {
+                clearSearchQuery()
+            }
+            is AddWeatherScreenEvent.SaveQueryInDatabase -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    if (storeNetworkDataInDatabase(event.query)) insertError = true
+                }
+            }
+            is AddWeatherScreenEvent.SetQuery -> {
+                setSearchQuery(event.query)
+            }
+        }
+        return insertError
     }
 
 
@@ -137,8 +163,3 @@ class AddWeatherLocationViewModel(
 
 }
 
-sealed class SearchState {
-    object Loading : SearchState()
-    data class Error(val code: Int, val message: String?) : SearchState()
-    data class Success(val searchResults: List<String>) : SearchState()
-}

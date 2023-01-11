@@ -18,9 +18,11 @@ import androidx.compose.ui.unit.sp
 import com.brian.weather.R
 import com.brian.weather.presentation.reusablecomposables.AutoCompleteTextView
 import com.brian.weather.presentation.viewmodels.AddWeatherLocationViewModel
+import com.brian.weather.presentation.viewmodels.AddWeatherScreenEvent
 import com.brian.weather.presentation.viewmodels.SearchState
 import com.brian.weather.util.Constants
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -31,14 +33,13 @@ fun AddWeatherScreen(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     navAction: () -> Unit,
-    addWeatherLocationViewModel: AddWeatherLocationViewModel
+    searchResults: SearchState,
+    onEvent: (AddWeatherScreenEvent) -> Boolean
 ) {
-    //val addWeatherLocationViewModel = getViewModel<AddWeatherLocationViewModel>()
     var location by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val searchResults by addWeatherLocationViewModel.getSearchResults.collectAsState()
     var itemClicked by remember { mutableStateOf(false) }
 
 
@@ -63,7 +64,7 @@ fun AddWeatherScreen(
                     emptyList()
                 } else {
                     when (searchResults) {
-                        is SearchState.Success -> (searchResults as SearchState.Success).searchResults
+                        is SearchState.Success -> searchResults.searchResults
                         is SearchState.Loading -> emptyList()
                         is SearchState.Error -> emptyList()
                     }
@@ -71,20 +72,20 @@ fun AddWeatherScreen(
                 onClearClick = {
                     itemClicked = false
                     location = ""
-                    addWeatherLocationViewModel.clearQueryResults()
+                    onEvent(AddWeatherScreenEvent.ClearQuery)
                 },
                 onDoneActionClick = { keyboardController?.hide() },
                 onItemClick = {
                     itemClicked = true
                     location = it
-                    addWeatherLocationViewModel.clearQueryResults()
+                    onEvent(AddWeatherScreenEvent.ClearQuery)
                 },
                 onQueryChanged = { updatedSearch ->
                     if (updatedSearch.length >= 3) {
-                        addWeatherLocationViewModel.setQuery(updatedSearch)
+                        onEvent(AddWeatherScreenEvent.SetQuery(updatedSearch))
                     } else if (updatedSearch.isBlank()) {
                         itemClicked = false
-                        addWeatherLocationViewModel.clearQueryResults()
+                        onEvent(AddWeatherScreenEvent.ClearQuery)
                     }
                     location = updatedSearch
                 },
@@ -99,11 +100,17 @@ fun AddWeatherScreen(
 
             Button(
                 onClick = {
-                   // if (itemClicked) {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            addWeather(navAction, addWeatherLocationViewModel, location, context)
-                      //  }
+                    /**
+                     * I need to add a delay here after using the callback method, to allow the insertion
+                     * to complete before popping back stack
+                     */
+                    // if (itemClicked) {
+                    coroutineScope.launch {
+                        addWeather(navAction, location, context, onEvent)
+                        delay(250)
+                        run(navAction)
                     }
+                    //    }
                 },
                 modifier
             ) {
@@ -114,28 +121,18 @@ fun AddWeatherScreen(
 }
 
 
-private suspend fun addWeather(
+private fun addWeather(
     navAction: () -> Unit,
-    viewModel: AddWeatherLocationViewModel,
     location: String,
-    context: Context
+    context: Context,
+    onEvent: (AddWeatherScreenEvent) -> Boolean
 ) {
     // Add weather to database
-    // TODO
     if (location.isNotBlank()) {
-        if (!viewModel.storeNetworkDataInDatabase(location)) {
-            withContext(Dispatchers.Main) {
-                showToast(Constants.ERRORTEXT, context)
-            }
+        if (onEvent(AddWeatherScreenEvent.SaveQueryInDatabase(location))) {
+            showToast(Constants.ERRORTEXT, context)
         }
-
-        //Navigate back to main screen
-        withContext(Dispatchers.Main) {
-            run(navAction)
-        }
-
     }
-
 }
 
 

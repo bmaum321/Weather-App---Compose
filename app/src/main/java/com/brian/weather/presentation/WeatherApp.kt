@@ -359,11 +359,13 @@ fun WeatherApp(
             composable(route = AddLocation.route) {
                 mainViewModel.updateActionBarTitle(stringResource(id = R.string.add_place))
                 val location = it.arguments?.getString("location")
+                val searchResults by addWeatherLocationViewModel.getSearchResults.collectAsState()
                 AddWeatherScreen(
                     value = location ?: "",
                     onValueChange = { },
                     navAction = { navController.popBackStack() },
-                    addWeatherLocationViewModel = addWeatherLocationViewModel
+                    onEvent = addWeatherLocationViewModel::onEvent,
+                    searchResults = searchResults
                 )
             }
 

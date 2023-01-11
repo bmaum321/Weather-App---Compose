@@ -9,8 +9,6 @@ import com.brian.weather.repository.FakeWeatherRepository
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
-import org.bouncycastle.util.test.SimpleTest.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,7 +61,7 @@ class AddWeatherLocationViewModelTest {
              *
              * Using clear query to force the query to emit an empty result immediately
              */
-            viewModel.clearQueryResults()
+            viewModel.clearSearchQuery()
             assertThat(awaitItem()).isEqualTo(SearchState.Success(listOf("Miami, Florida")))
         }
     }
@@ -74,7 +72,7 @@ class AddWeatherLocationViewModelTest {
         fakeWeatherRepository.setShouldReturnNetworkError(true)
         viewModel.getSearchResults.test {
             assertThat(awaitItem()).isEqualTo(SearchState.Loading)
-            viewModel.clearQueryResults()
+            viewModel.clearSearchQuery()
             assertThat(awaitItem()).isEqualTo(SearchState.Error(message = "Error", code = 400))
         }
     }
@@ -84,7 +82,7 @@ class AddWeatherLocationViewModelTest {
         fakeWeatherRepository.setShouldReturnException(true)
         viewModel.getSearchResults.test {
             assertThat(awaitItem()).isEqualTo(SearchState.Loading)
-            viewModel.clearQueryResults()
+            viewModel.clearSearchQuery()
             assertThat(awaitItem()).isEqualTo(SearchState.Error(message = "Exception", code = 0))
         }
     }

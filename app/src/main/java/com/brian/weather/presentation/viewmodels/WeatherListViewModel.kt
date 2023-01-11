@@ -21,11 +21,15 @@ import kotlinx.coroutines.withContext
 /**
  * UI state for the Home screen
  */
-sealed interface WeatherListState {
-    data class Success(val weatherDomainObjects: List<WeatherDomainObject>) : WeatherListState
-    data class Error(val message: String?) : WeatherListState
-    object Loading : WeatherListState
-    object Empty : WeatherListState
+sealed class WeatherListState {
+    data class Success(val weatherDomainObjects: List<WeatherDomainObject>) : WeatherListState()
+    data class Error(val message: String?) : WeatherListState()
+    object Loading : WeatherListState()
+    object Empty : WeatherListState()
+}
+
+sealed class WeatherListUIEvent {
+    object Refresh: WeatherListUIEvent()
 }
 
 class WeatherListViewModel(
@@ -52,6 +56,14 @@ class WeatherListViewModel(
                 delay(3000)
             }
         }
+
+    fun onEvent(event: WeatherListUIEvent) {
+        when (event){
+            is WeatherListUIEvent.Refresh -> {
+                refreshFlow.tryEmit(Unit)
+            }
+        }
+    }
 
 
     private val refreshFlow = MutableSharedFlow<Unit>(1, 1, BufferOverflow.DROP_OLDEST).apply {

@@ -48,31 +48,21 @@ import kotlinx.coroutines.launch
 @Composable
 fun HourlyForecastScreen(
     modifier: Modifier = Modifier,
-    location: String,
     date: String,
-    mainViewModel: MainViewModel,
-    hourlyForecastViewModel: HourlyForecastViewModel
+    preferences: AppPreferences,
+    retryAction: () -> Unit,
+    uiState: HourlyForecastState
 ) {
-    //val hourlyForecastViewModel = getViewModel<HourlyForecastViewModel>()
-    // update title bar
-    LaunchedEffect(Unit) {
-        mainViewModel.updateActionBarTitle(date)
-    }
-    val uiState = remember {
-        hourlyForecastViewModel.getHourlyForecast(
-            location
-        )
-    }.collectAsState()
 
-    when (uiState.value) {  //TODO same here new viewmodel with new state
+    when (uiState) {  //TODO same here new viewmodel with new state
         is HourlyForecastState.Loading -> LoadingScreen(modifier)
         is HourlyForecastState.Success -> HourlyForecastList(
-            (uiState.value as HourlyForecastState.Success).forecastDomainObject.days.first { it.dayOfWeek == date }.hours,
+            uiState.forecastDomainObject.days.first { it.dayOfWeek == date }.hours,
             modifier,
-            hourlyForecastViewModel
+            preferences
         )
         is HourlyForecastState.Error -> ErrorScreen(
-            { hourlyForecastViewModel.refresh() },
+            retryAction,
             modifier
         )
     }
@@ -88,27 +78,12 @@ fun HourlyForecastScreen(
 fun HourlyForecastList(
     hoursList: List<HoursDomainObject>,
     modifier: Modifier = Modifier,
-    viewModel: HourlyForecastViewModel,
+    preferences: AppPreferences
 ) {
-    val refreshScope = rememberCoroutineScope()
-    var refreshing by remember { mutableStateOf(false) }
-
-    fun refresh() = refreshScope.launch {
-        refreshing = true
-        viewModel.refresh()
-        refreshing = false
-    }
-
     val listState = rememberLazyListState()
     val showButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     val coroutineScope = rememberCoroutineScope()
 
-    // val state = rememberPullRefreshState(
-    //    refreshing = refreshing,
-    //     onRefresh = { refresh() }
-    //  )
-
-    //  Box(modifier = Modifier.pullRefresh(state)) {
     Box {
         LazyColumn(
             modifier = modifier
@@ -120,7 +95,7 @@ fun HourlyForecastList(
                 HourlyForecastListItem(
                     hourDomainObject,
                     colors = hourDomainObject.colors,
-                    preferences = viewModel.getPreferences().collectAsState().value
+                    preferences = preferences
                 )
             }
         }

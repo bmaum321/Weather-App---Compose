@@ -27,6 +27,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.brian.weather.BuildConfig
 import com.brian.weather.R
+import com.brian.weather.data.settings.AppPreferences
+import com.brian.weather.data.settings.PreferencesRepository
 import com.brian.weather.presentation.navigation.*
 import com.brian.weather.presentation.reusablecomposables.CustomAlertDialog
 import com.brian.weather.presentation.reusablecomposables.DeleteDropDownMenuItem
@@ -144,6 +146,9 @@ fun WeatherApp(
     navController: NavHostController = rememberNavController(),
     weatherRepository: WeatherRepository
 ) {
+    val preferencesRepository = get<PreferencesRepository>()
+    val preferences by preferencesRepository.getAllPreferences.collectAsState(initial = AppPreferences())
+
 
     //We remember the state to show snackbars across compositions
     val snackbarHostState = remember { SnackbarHostState() }
@@ -305,7 +310,9 @@ fun WeatherApp(
         snackbarHost = {
             SnackbarHost(
                 hostState = snackbarHostState,
-                modifier = Modifier.animateContentSize().semantics { testTag = "Undo Snackbar" },
+                modifier = Modifier
+                    .animateContentSize()
+                    .semantics { testTag = "Undo Snackbar" },
             ) { data ->
                 Snackbar(
                     snackbarData = data,
@@ -335,21 +342,22 @@ fun WeatherApp(
                 ) {
                     val weatherUiState by remember { weatherListViewModel.getAllWeather() }
                         .collectAsState()
-
+                    mainViewModel.updateActionBarTitle(stringResource(id = R.string.places))
                     MainWeatherListScreen(
                         weatherUiState = weatherUiState,
                         retryAction = { weatherListViewModel.refresh() },
                         modifier = modifier,
                         onClick = { location -> navController.navigateToDailyForecast(location) },
                         addWeatherFabAction = { navController.navigate(AddLocation.route) },
-                        weatherListViewModel = weatherListViewModel,
-                        mainViewModel = mainViewModel,
-                        weatherRepository = weatherRepository
+                        weatherRepository = weatherRepository,
+                        onEvent = weatherListViewModel::onEvent,
+                        preferences = preferences
                     )
                 }
             }
 
             composable(route = AddLocation.route) {
+                mainViewModel.updateActionBarTitle(stringResource(id = R.string.add_place))
                 val location = it.arguments?.getString("location")
                 AddWeatherScreen(
                     value = location ?: "",
@@ -370,6 +378,13 @@ fun WeatherApp(
                     val location =
                         navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
                     location?.let {
+
+                        mainViewModel.updateActionBarTitle(location)
+                        val state by remember {
+                            dailyForecastViewModel.getForecastForZipcode(
+                                location
+                            )
+                        }.collectAsState()
                         DailyForecastScreen(
                             modifier = modifier,
                             onClick = { date ->
@@ -378,11 +393,11 @@ fun WeatherApp(
                                     date
                                 )
                             },
-                            location = location,
-                            mainViewModel = mainViewModel,
                             alertFabOnClick = { navController.navigateToAlertsScreen(location) },
                             dailyForecastViewModel = dailyForecastViewModel,
-                            weatherRepository = weatherRepository
+                            preferences = preferences,
+                            state = state,
+                            retryAction = { dailyForecastViewModel.refresh() }
                         )
                     }
                 }
@@ -393,12 +408,19 @@ fun WeatherApp(
                     navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
                 val date = navBackStackEntry.arguments?.getString(MainWeatherList.dateArg)
                 if (date != null && location != null) {
+                    mainViewModel.updateActionBarTitle(date)
+                    val state by remember {
+                        hourlyForecastViewModel.getHourlyForecast(
+                            location
+                        )
+                    }.collectAsState()
+
                     HourlyForecastScreen(
                         modifier = modifier,
                         date = date,
-                        location = location,
-                        mainViewModel = mainViewModel,
-                        hourlyForecastViewModel = hourlyForecastViewModel
+                        preferences = preferences,
+                        retryAction = { hourlyForecastViewModel.refresh() },
+                        uiState = state
                     )
                 }
 
@@ -409,6 +431,7 @@ fun WeatherApp(
              * or to create the states in the screen composable itself
              */
             composable(route = UnitsMenu.route) {
+                mainViewModel.updateActionBarTitle(stringResource(id = R.string.units))
                 UnitSettingsScreen(
                     openDateFormatDialog = openDateUnitDialog,
                     onDismissRequest = { openTemperatureUnitDialog.value = false },
@@ -416,7 +439,6 @@ fun WeatherApp(
                     openClockFormatDialog = openClockFormatDialog,
                     openMeasurementDialog = openMeasurementDialog,
                     openWindspeedDialog = openWindspeedDialog,
-                    viewModel = mainViewModel,
                     coroutineScope = coroutineScope,
                     preferencesRepository = get(),
                     itemClick = { itemlabel ->
@@ -441,6 +463,7 @@ fun WeatherApp(
             }
 
             composable(route = InterfaceMenu.route) {
+                mainViewModel.updateActionBarTitle(stringResource(id = R.string.interface_settings))
                 InterfaceSettingsScreen(
                     viewModel = mainViewModel,
                     coroutineScope = coroutineScope,
@@ -450,9 +473,8 @@ fun WeatherApp(
             }
 
             composable(route = NotificationsMenu.route) {
-
+                mainViewModel.updateActionBarTitle(stringResource(id = R.string.notifications_settings))
                 NotificationSettingsScreen(
-                    viewModel = mainViewModel,
                     coroutineScope = coroutineScope,
                     preferencesRepository = get(),
                     locations = locationsInDatabase.value as List<String>
@@ -460,15 +482,19 @@ fun WeatherApp(
             }
 
             composable(route = Alerts.routeWithArgs) { navBackStackEntry ->
+                mainViewModel.updateActionBarTitle(stringResource(id = R.string.weather_alerts))
                 val location =
                     navBackStackEntry.arguments?.getString(MainWeatherList.locationArg)
                 location?.let {
-                    AlertsScreen(mainViewModel = mainViewModel, location = location)
+                    AlertsScreen(
+                        location = location
+                    )
                 }
             }
 
             composable(route = SettingsMenu.route) {
-                SettingsMenu(viewmodel = mainViewModel,
+                mainViewModel.updateActionBarTitle(stringResource(id = R.string.settings))
+                SettingsMenu(
                     itemClick = { itemLabel ->
                         when (itemLabel) {
                             ctx.getString(R.string.about) -> {

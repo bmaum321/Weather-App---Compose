@@ -40,34 +40,17 @@ import kotlinx.coroutines.launch
 fun DailyForecastScreen(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
-    location: String,
-    mainViewModel: MainViewModel,
     alertFabOnClick: () -> Unit,
     dailyForecastViewModel: DailyForecastViewModel,
-    weatherRepository: WeatherRepository
+    preferences: AppPreferences,
+    state: ForecastState,
+    retryAction: () -> Unit
 ) {
-    //val dailyForecastViewModel = getViewModel<DailyForecastViewModel>()
-    // update title bar
-
-    // This only seems to work if I pass the viewmodel all the way down from main activity and only have one instance of main view model, grabbing it from Koin doesnt work
-    LaunchedEffect(Unit) {
-        mainViewModel.updateActionBarTitle(
-            weatherRepository.getWeatherByZipcode(location).firstOrNull()?.cityName ?: ""
-       // location
-        )
-    }
-    val preferences = dailyForecastViewModel.getPreferences().collectAsState().value
-    val state by remember {
-        dailyForecastViewModel.getForecastForZipcode(
-            location
-        )
-    }.collectAsState()
-
     when (state) {
         is ForecastState.Loading -> LoadingScreen(modifier)
         is ForecastState.Success -> {
             ForecastList(
-                (state as ForecastState.Success).forecastDomainObject,
+                state.forecastDomainObject,
                 modifier,
                 onClick,
                 dailyForecastViewModel,
@@ -75,7 +58,7 @@ fun DailyForecastScreen(
                 preferences
             )
         }
-        is ForecastState.Error -> ErrorScreen({ dailyForecastViewModel.refresh() }, modifier)
+        is ForecastState.Error -> ErrorScreen( retryAction, modifier)
     }
 }
 

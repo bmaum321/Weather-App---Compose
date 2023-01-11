@@ -17,11 +17,17 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 
+sealed class AddWeatherScreenEvents {
+    object ClearQuery: AddWeatherScreenEvents()
+    object SetQuery: AddWeatherScreenEvents()
+    object SaveQueryInDatabase: AddWeatherScreenEvents()
+
+}
+
 /**
  * [ViewModel] to provide data to the  [AddWeatherLocationFragment] and allow for interaction the the [WeatherDao]
  */
 
-// Pass an application as a parameter to the viewmodel constructor which is the context passed to the singleton database object
 class AddWeatherLocationViewModel(
     private val weatherRepository: WeatherRepository,
     private val createSearchStateUseCase: CreateSearchStateUseCase,

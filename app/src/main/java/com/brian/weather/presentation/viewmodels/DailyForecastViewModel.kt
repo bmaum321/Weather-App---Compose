@@ -71,26 +71,6 @@ class DailyForecastViewModel(
         refreshFlow.tryEmit(Unit)
     }
 
-    fun getPreferences() = preferencesRepository
-        .getAllPreferences
-        .stateIn(
-            viewModelScope, SharingStarted.Lazily,
-            AppPreferences(
-                tempUnit = "",
-                clockFormat = "",
-                dateFormat = "",
-                windUnit = "",
-                dynamicColors = false,
-                showAlerts = false,
-                measurementUnit = "",
-                showNotifications = false,
-                showLocalForecast = false,
-                showPrecipitationNotifications = false,
-                precipitationLocations = setOf(),
-                cardSize = ""
-            )
-        )
-
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getForecastForZipcode(zipcode: String)
             : StateFlow<ForecastState> {

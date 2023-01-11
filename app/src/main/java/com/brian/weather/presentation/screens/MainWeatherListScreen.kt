@@ -38,9 +38,14 @@ import com.brian.weather.presentation.reusablecomposables.WeatherConditionIcon
 import com.brian.weather.presentation.theme.WeatherComposeTheme
 import com.brian.weather.presentation.viewmodels.MainViewModel
 import com.brian.weather.presentation.viewmodels.WeatherListState
+import com.brian.weather.presentation.viewmodels.WeatherListUIEvent
 import com.brian.weather.presentation.viewmodels.WeatherListViewModel
 import com.brian.weather.repository.WeatherRepository
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
@@ -54,23 +59,19 @@ fun MainWeatherListScreen(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
     addWeatherFabAction: () -> Unit,
-    weatherListViewModel: WeatherListViewModel,
-    mainViewModel: MainViewModel,
-    weatherRepository: WeatherRepository
+    weatherRepository: WeatherRepository,
+    onEvent: (WeatherListUIEvent) -> Unit,
+    preferences: AppPreferences?
 ) {
-
-    val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        mainViewModel.updateActionBarTitle(context.getString(R.string.places))
-    }
     when (weatherUiState) {
         is WeatherListState.Empty -> WeatherListScreen(
             emptyList(),
             modifier,
             onClick,
             addWeatherFabAction,
-            weatherListViewModel,
-            weatherRepository
+            weatherRepository,
+            onEvent,
+            preferences
         )
         is WeatherListState.Loading -> LoadingScreen(modifier)
         is WeatherListState.Success -> WeatherListScreen(
@@ -78,8 +79,9 @@ fun MainWeatherListScreen(
             modifier,
             onClick,
             addWeatherFabAction,
-            weatherListViewModel,
-            weatherRepository
+            weatherRepository,
+            onEvent,
+            preferences
         )
         is WeatherListState.Error -> ErrorScreen(
             retryAction,
@@ -101,23 +103,18 @@ fun WeatherListScreen(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
     addWeatherFabAction: () -> Unit,
-    weatherListViewModel: WeatherListViewModel,
-    weatherRepository: WeatherRepository
+    weatherRepository: WeatherRepository,
+    onEvent: (WeatherListUIEvent) -> Unit,
+    preferences: AppPreferences?
 ) {
-    /**
-     * Currently passing all the preferences down to the composable to add as semantics tags for
-     * testing purposes. This would allow me to make the decision what to present here instead
-     * of doing it in the mapper
-     *
-     * There must also be a better way to pass all the permissions instead of each individually
-     */
-    val preferences = weatherListViewModel.allPreferences.collectAsState().value
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = refreshing)
 
     fun refresh() = refreshScope.launch {
         refreshing = true
-        weatherListViewModel.refresh()
+       // weatherListViewModel.refresh()
+        onEvent(WeatherListUIEvent.Refresh)
         refreshing = false
     }
 
@@ -127,6 +124,7 @@ fun WeatherListScreen(
     // )
 
     val coroutineScope = rememberCoroutineScope()
+
 
     /**
      * This method currently seems very inconsistent and buggy, should just be removed until further
@@ -194,51 +192,70 @@ fun WeatherListScreen(
         // Box(modifier = Modifier.pullRefresh(refreshState)) {
         Box {
 
-            if (weatherDomainObjectList.isEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.empty_list_action_prompt),
-                        fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center
-                    )
-                }
-            }
-            LazyColumn(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(top = 8.dp)
-                    .reorderable(reorderableLazyListState)
-                    .detectReorderAfterLongPress(reorderableLazyListState),
-                contentPadding = innerPadding,
-                state = reorderableLazyListState.listState,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            SwipeRefresh(
+                state = swipeRefreshState,
+                onRefresh = { refresh() }
             ) {
-
-                //TODO the key is needed here to animate the re-order, there is a bug here though, can cause a when duplicate locations added
-                items(listData.value, { it.zipcode }) { item ->
-                    // items(listData.value) { item ->
-
-                    ReorderableItem(
-                        reorderableState = reorderableLazyListState,
-                        key = item
-                    ) { isDragging ->
-                        val elevation = animateDpAsState(if (isDragging) 200.dp else 0.dp)
-                        // val color = animate(if (isDragging) 1f else .5f)
-                        WeatherListItem(
-                            weatherDomainObject = item,
-                            onClick = onClick,
-                            preferences = preferences,
-                            viewModel = weatherListViewModel,
-                            elevation = elevation
+                if (weatherDomainObjectList.isEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.empty_list_action_prompt),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
                         )
                     }
+                }
+                LazyColumn(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(top = 8.dp)
+                        .reorderable(reorderableLazyListState)
+                        .detectReorderAfterLongPress(reorderableLazyListState),
+                    contentPadding = innerPadding,
+                    state = reorderableLazyListState.listState,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+
+                    //TODO the key is needed here to animate the re-order, there is a bug here though, can cause a when duplicate locations added
+                    items(listData.value, { it.zipcode }) { item ->
+                        // items(listData.value) { item ->
+
+                        val ticker = flow {
+                            while (currentCoroutineContext().isActive) {
+                                emit(item.time)
+                                delay(3000)
+                                emit("Wind: " + "${item.windSpeed.toInt()} ${preferences?.windUnit}")
+                                delay(3000)
+                                emit("Feels Like: ${item.feelsLikeTemp}°")
+                                delay(3000)
+                                emit("Humidity: ${item.humidity} %")
+                                delay(3000)
+                            }
+                        }
+
+                        ReorderableItem(
+                            reorderableState = reorderableLazyListState,
+                            key = item
+                        ) { isDragging ->
+                            val elevation = animateDpAsState(if (isDragging) 200.dp else 0.dp)
+                            // val color = animate(if (isDragging) 1f else .5f)
+                            WeatherListItem(
+                                weatherDomainObject = item,
+                                onClick = onClick,
+                                preferences = preferences,
+                                elevation = elevation,
+                                weatherTicker = ticker
+                            )
+                        }
 
 
-                    /*
+                        /*
 
                     // WeatherListItem(item, onClick = onClick)
                     val dismissState = rememberDismissState()
@@ -337,35 +354,36 @@ fun WeatherListScreen(
                     */
 
 
+                    }
                 }
-            }
-            // PullRefreshIndicator(
-            //      refreshing = refreshing,
-            //     state = refreshState,
-            //     Modifier.align(Alignment.TopCenter)
-            //   )
+                // PullRefreshIndicator(
+                //      refreshing = refreshing,
+                //     state = refreshState,
+                //     Modifier.align(Alignment.TopCenter)
+                //   )
 
-            AnimatedVisibility(
-                visible = showScrollToTopButton,
-                modifier = Modifier.align(Alignment.BottomCenter),
-                enter = scaleIn(),
-                exit = scaleOut()
-            ) {
-
-                FloatingActionButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            reorderableLazyListState.listState.animateScrollToItem(0, 0)
-                        }
-                    },
-                    modifier = Modifier
-                        .size(32.dp)
-                        .pressClickEffect()
+                AnimatedVisibility(
+                    visible = showScrollToTopButton,
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    enter = scaleIn(),
+                    exit = scaleOut()
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_baseline_expand_less_24),
-                        contentDescription = stringResource(R.string.scroll_to_top)
-                    )
+
+                    FloatingActionButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                reorderableLazyListState.listState.animateScrollToItem(0, 0)
+                            }
+                        },
+                        modifier = Modifier
+                            .size(32.dp)
+                            .pressClickEffect()
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_expand_less_24),
+                            contentDescription = stringResource(R.string.scroll_to_top)
+                        )
+                    }
                 }
             }
         }
@@ -403,15 +421,11 @@ fun WeatherListItem(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
     preferences: AppPreferences?,
-    viewModel: WeatherListViewModel,
-    elevation: State<Dp>
+    elevation: State<Dp>,
+    weatherTicker: Flow<String>
 ) {
-    val ticker = viewModel.weatherTicker(
-        humidity = weatherDomainObject.humidity,
-        feelsLikeTemp = weatherDomainObject.feelsLikeTemp,
-        time = weatherDomainObject.time,
-        windspeed = "${weatherDomainObject.windSpeed.toInt()} ${preferences?.windUnit}"
-    ).collectAsState(initial = "")
+
+    val ticker = weatherTicker.collectAsState(initial = "")
     val gradient = Brush.linearGradient(weatherDomainObject.backgroundColors)
 
     val colors =

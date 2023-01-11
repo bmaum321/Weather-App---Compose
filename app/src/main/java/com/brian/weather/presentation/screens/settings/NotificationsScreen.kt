@@ -28,14 +28,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun NotificationSettingsScreen(
-    viewModel: MainViewModel,
     modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope,
     preferencesRepository: PreferencesRepository,
     locations: List<String>
 ) {
     val showDialog = remember { mutableStateOf(false) }
-    viewModel.updateActionBarTitle(LocalContext.current.getString(R.string.notifications_settings))
     val itemsList = prepareNotificationSettings()
 
     val showNotifications = preferencesRepository.getNotificationSetting.collectAsState(initial = null)

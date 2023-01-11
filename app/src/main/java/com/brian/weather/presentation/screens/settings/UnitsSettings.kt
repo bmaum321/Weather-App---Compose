@@ -33,14 +33,12 @@ fun UnitSettingsScreen(
     openDateFormatDialog: MutableState<Boolean>,
     openWindspeedDialog: MutableState<Boolean>,
     openMeasurementDialog: MutableState<Boolean>,
-    viewModel: MainViewModel,
     modifier: Modifier = Modifier,
     itemClick: (String) -> Unit,
     onDismissRequest: () -> Unit,
     coroutineScope: CoroutineScope,
     preferencesRepository: PreferencesRepository,
 ) {
-    viewModel.updateActionBarTitle("Units")
     val itemsList = prepareUnitSettings()
 
     LazyColumn(

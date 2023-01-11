@@ -36,7 +36,8 @@ fun ErrorScreen(
         Spacer(modifier = Modifier.size(8.dp))
         Button(
             modifier = Modifier.pressClickEffect(),
-            onClick = retryAction) {
+            onClick = retryAction
+        ) {
             Text(stringResource(R.string.retry))
         }
     }

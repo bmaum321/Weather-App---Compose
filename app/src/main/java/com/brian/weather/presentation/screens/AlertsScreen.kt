@@ -37,18 +37,9 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun AlertsScreen(
     modifier: Modifier = Modifier,
-    mainViewModel: MainViewModel,
     location: String
 ) {
     val dailyForecastViewModel = getViewModel<DailyForecastViewModel>()
-    // update title bar
-
-    // This only seems to work if I pass the viewmodel all the way down from main activity and only have one instance of main view model, grabbing it from Koin doesnt work
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            mainViewModel.updateActionBarTitle("Weather Alerts")
-        }
-    }
     val state by remember {dailyForecastViewModel.getForecastForZipcode(location) }.collectAsState()
 
     when (state) {

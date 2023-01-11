@@ -25,13 +25,10 @@ import com.brian.weather.presentation.viewmodels.MainViewModel
 
 @Composable
 fun SettingsMenu(
-    gradientColors: List<Color> = listOf(Color(0xFFF70A74), Color(0xFFF59118)),
     itemClick: (String) -> Unit,
-    viewmodel: MainViewModel
 ) {
 
     val itemsList = prepareNavigationDrawerItems()
-    viewmodel.updateActionBarTitle("Settings")
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),

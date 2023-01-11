@@ -87,4 +87,8 @@
     <string name="turn_on_location_services">Turn on Location services in Settings</string>
     <string name="location_services_required">Location Services Required</string>
     <string name="card_size">Card Size</string>
+    <string name="add_place">Add Place</string>
+    <string name="interface_settings">Interface Settings</string>
+    <string name="weather_alerts">Weather Alerts</string>
+    <string name="settings">Settings</string>
 </resources>

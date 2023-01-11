@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class MainViewModel: ViewModel() {
 
-    private val _title = MutableStateFlow<String>("Weather")
+    private val _title = MutableStateFlow("Weather")
     val title = _title.asStateFlow()
 
     fun updateActionBarTitle(newTitle: String) {

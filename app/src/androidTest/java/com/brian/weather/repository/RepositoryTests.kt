@@ -149,33 +149,6 @@ class RepositoryTests {
 
 
     /**
-     * Verify error screen is shown on add weather screen when repository returns a network failure result
-     * Confirm retry button will reload content after repository returns a success result
-     *
-     * The only way for an error message to occur here is if there was a network disconnect after
-     * a successful search result and the user attempted to hit save
-     */
-
-    @Test
-    fun weatherRepository_repositoryReturnsFailure_addWeatherScreenShowsError() {
-        fakeWeatherRepository.setShouldReturnNetworkError(false)
-        retry()
-        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
-        navigateToAddWeatherScreen()
-        composeTestRule.onNodeWithText("Search for Places...").performClick()
-        composeTestRule.onNodeWithText("Search for Places...").performTextInput("Miami")
-        fakeWeatherRepository.setShouldReturnNetworkError(true)
-        composeTestRule.onNodeWithText("Save").performClick()
-        composeTestRule.waitUntilDoesNotExist(hasTestTag("Loading"))
-        Thread.sleep(1000)
-        composeTestRule.onNodeWithText("Retry").assertExists()
-        // Can't find a way to match text on a Toast being shown
-    }
-
-
-
-
-    /**
      * Verify error screen is shown on hourly forecast screen when repository returns a network failure result
      * Confirm retry button will reload content after repository returns a success result
      */

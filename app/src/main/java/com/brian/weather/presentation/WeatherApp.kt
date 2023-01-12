@@ -351,7 +351,8 @@ fun WeatherApp(
                         addWeatherFabAction = { navController.navigate(AddLocation.route) },
                         weatherRepository = weatherRepository,
                         onEvent = weatherListViewModel::onEvent,
-                        preferences = preferences
+                        preferences = preferences,
+                        snackbarHostState = snackbarHostState
                     )
                 }
             }

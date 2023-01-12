@@ -2,6 +2,7 @@ package com.brian.weather.presentation.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,11 +10,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.material3.Card
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -61,7 +64,8 @@ fun MainWeatherListScreen(
     addWeatherFabAction: () -> Unit,
     weatherRepository: WeatherRepository,
     onEvent: (WeatherListUIEvent) -> Unit,
-    preferences: AppPreferences?
+    preferences: AppPreferences?,
+    snackbarHostState: SnackbarHostState
 ) {
     when (weatherUiState) {
         is WeatherListState.Empty -> WeatherListScreen(
@@ -71,7 +75,8 @@ fun MainWeatherListScreen(
             addWeatherFabAction,
             weatherRepository,
             onEvent,
-            preferences
+            preferences,
+            snackbarHostState
         )
         is WeatherListState.Loading -> LoadingScreen(modifier)
         is WeatherListState.Success -> WeatherListScreen(
@@ -81,7 +86,8 @@ fun MainWeatherListScreen(
             addWeatherFabAction,
             weatherRepository,
             onEvent,
-            preferences
+            preferences,
+            snackbarHostState
         )
         is WeatherListState.Error -> ErrorScreen(
             retryAction,
@@ -105,15 +111,16 @@ fun WeatherListScreen(
     addWeatherFabAction: () -> Unit,
     weatherRepository: WeatherRepository,
     onEvent: (WeatherListUIEvent) -> Unit,
-    preferences: AppPreferences?
+    preferences: AppPreferences?,
+    snackbarHostState: SnackbarHostState
 ) {
+   // val snackbarHostState = remember { SnackbarHostState() }
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = refreshing)
 
     fun refresh() = refreshScope.launch {
         refreshing = true
-       // weatherListViewModel.refresh()
         onEvent(WeatherListUIEvent.Refresh)
         refreshing = false
     }
@@ -162,9 +169,7 @@ fun WeatherListScreen(
     val showAddWeatherFab by remember { derivedStateOf { reorderableLazyListState.listState.firstVisibleItemIndex == 0 } }
 
 
-    //val scaffoldState = rememberScaffoldState()
     Scaffold(
-        //    scaffoldState = scaffoldState,
         floatingActionButton =
         {
             if (weatherDomainObjectList.isEmpty()) {
@@ -186,7 +191,7 @@ fun WeatherListScreen(
                 }
             }
         },
-        floatingActionButtonPosition = FabPosition.End
+        floatingActionButtonPosition = FabPosition.End,
     ) { innerPadding ->
 
         // Box(modifier = Modifier.pullRefresh(refreshState)) {
@@ -239,6 +244,7 @@ fun WeatherListScreen(
                             }
                         }
 
+
                         ReorderableItem(
                             reorderableState = reorderableLazyListState,
                             key = item
@@ -255,112 +261,124 @@ fun WeatherListScreen(
                         }
 
 
-                        /*
 
-                    // WeatherListItem(item, onClick = onClick)
-                    val dismissState = rememberDismissState()
-                    if (dismissState.isDismissed(DismissDirection.EndToStart) ||
-                        dismissState.isDismissed(DismissDirection.StartToEnd)
-                    ) {
-                        LaunchedEffect(Unit) {
-                            val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
-                                message = "${item.zipcode} will be deleted",
-                                actionLabel = "Cancel",
-                                duration = SnackbarDuration.Short
-                            )
-                            when (snackbarResult) {
-                                SnackbarResult.Dismissed -> {}
-                                SnackbarResult.ActionPerformed -> {
-                                    cancel()
-                                    weatherListViewModel.refresh()
+/*
+
+                        // WeatherListItem(item, onClick = onClick)
+                        val dismissState = rememberDismissState()
+                        if (dismissState.isDismissed(DismissDirection.EndToStart) ||
+                            dismissState.isDismissed(DismissDirection.StartToEnd)
+                        ) {
+                            LaunchedEffect(Unit) {
+                            onEvent(WeatherListUIEvent.Delete(item.zipcode))
+                                delay(250)
+                            onEvent(WeatherListUIEvent.Refresh)
+
+                                /**
+                                 * The snackbar will never shown here after calling the refresh event.
+                                 * Somehow the emission of a new state and subsequent recomposition is cancelling
+                                 * the show snackbar call
+                                 */
+                                val snackbarResult = snackbarHostState.showSnackbar(
+                                    message = "${item.location} deleted",
+                                    actionLabel = "Undo",
+                                    duration = SnackbarDuration.Long
+                                )
+                                when (snackbarResult) {
+                                    SnackbarResult.Dismissed -> {}
+                                    SnackbarResult.ActionPerformed -> {
+                                        onEvent(WeatherListUIEvent.Undo(item.zipcode))
+                                    }
                                 }
-                            }
-                            withContext(Dispatchers.IO) {
-                                val weatherEntity =
-                                    weatherListViewModel.getWeatherByZipcode(item.zipcode)
-                                weatherListViewModel.deleteWeather(weatherEntity)
+                                /*
+                                withContext(Dispatchers.IO) {
+                                    val weatherEntity =
+                                        weatherListViewModel.getWeatherByZipcode(item.zipcode)
+                                    weatherListViewModel.deleteWeather(weatherEntity)
+                                }
+
+                                 */
                             }
                         }
 
-                        LaunchedEffect(Unit) {
-                            //TODO the logic here needs some work, the list getting passed to the worker is not updated
-                            // When a location is deleted from the database
-                            weatherListViewModel.updateLocations(weatherListViewModel.getZipCodesFromDatabase().first().toSet())
-                        }
-                    }
+                        SwipeToDismiss(
+                            state = dismissState,
+                            modifier = Modifier
+                                .padding(vertical = Dp(1f)),
+                            directions = setOf(
+                                DismissDirection.EndToStart,
+                                DismissDirection.StartToEnd
+                            ),
+                            background = {
+                                val color by animateColorAsState(
+                                    when (dismissState.targetValue) {
+                                        DismissValue.Default -> Color.White
+                                        else -> Color.Red
+                                    }
+                                )
+                                val alignment =
+                                    if (dismissState.dismissDirection == DismissDirection.EndToStart)
+                                        Alignment.CenterEnd
+                                    else
+                                        Alignment.CenterStart
 
-                    SwipeToDismiss(
-                        state = dismissState,
-                        modifier = Modifier
-                            .padding(vertical = Dp(1f)),
-                        directions = setOf(
-                            DismissDirection.EndToStart,
-                            DismissDirection.StartToEnd
-                        ),
-                        dismissThresholds = { direction ->
-                            FractionalThreshold(if (direction == DismissDirection.EndToStart) 0.1f else 0.1f)
-                        },
+                                val icon = Icons.Default.Delete
+                                val scale by animateFloatAsState(
+                                    if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
+                                )
 
-                        background = {
-                            val color by animateColorAsState(
-                                when (dismissState.targetValue) {
-                                    DismissValue.Default -> Color.White
-                                    else -> Color.Red
-                                }
-                            )
-                            val alignment =
-                                if(dismissState.dismissDirection == DismissDirection.EndToStart)
-                                    Alignment.CenterEnd
-                                 else
-                                    Alignment.CenterStart
-
-                            val icon = Icons.Default.Delete
-                            val scale by animateFloatAsState(
-                                if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
-                            )
-
-                            Card(
-                                Modifier
-                                    .padding(8.dp)
-                                    .height(175.dp)
-                                    .fillMaxWidth(),
-                                backgroundColor = color
-                            ) {
-                                Box(
-                                    contentAlignment = alignment
+                                val colors =
+                                    CardDefaults.cardColors(
+                                        containerColor = color
+                                    )
+                                Card(
+                                    Modifier
+                                        .padding(8.dp)
+                                        .height(175.dp)
+                                        .fillMaxWidth(),
+                                    colors = colors
+                                    // backgroundColor = color
                                 ) {
-                                    Icon(
-                                        icon,
-                                        contentDescription = "Delete Icon",
-                                        modifier = Modifier
-                                            .scale(scale)
-                                            .padding(8.dp)
+                                    Box(
+                                        contentAlignment = alignment
+                                    ) {
+                                        Icon(
+                                            icon,
+                                            contentDescription = "Delete Icon",
+                                            modifier = Modifier
+                                                .scale(scale)
+                                                .padding(8.dp)
+                                        )
+                                    }
+                                }
+                            },
+
+                            dismissContent = {
+                                ReorderableItem(
+                                    reorderableState = reorderableLazyListState,
+                                    key = item
+                                ) { isDragging ->
+                                    val elevation =
+                                        animateDpAsState(if (isDragging) 200.dp else 0.dp)
+                                    // val color = animate(if (isDragging) 1f else .5f)
+                                    WeatherListItem(
+                                        weatherDomainObject = item,
+                                        onClick = onClick,
+                                        preferences = preferences,
+                                        elevation = elevation,
+                                        weatherTicker = ticker
                                     )
                                 }
+
                             }
-                        },
 
-                        dismissContent = {
-                            WeatherListItem(
-                                weatherDomainObject = item,
-                                onClick = onClick,
-                                preferences = preferences,
-                                viewModel = weatherListViewModel
-                            )
+                        )
 
-                        }
-
-                    )
-                    */
+ */
 
 
                     }
                 }
-                // PullRefreshIndicator(
-                //      refreshing = refreshing,
-                //     state = refreshState,
-                //     Modifier.align(Alignment.TopCenter)
-                //   )
 
                 AnimatedVisibility(
                     visible = showScrollToTopButton,

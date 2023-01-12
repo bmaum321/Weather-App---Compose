@@ -30,6 +30,8 @@ sealed class WeatherListState {
 
 sealed class WeatherListUIEvent {
     object Refresh: WeatherListUIEvent()
+    data class Delete(val location: String): WeatherListUIEvent()
+    data class Undo(val location: String): WeatherListUIEvent()
 }
 
 class WeatherListViewModel(
@@ -61,6 +63,22 @@ class WeatherListViewModel(
         when (event){
             is WeatherListUIEvent.Refresh -> {
                 refreshFlow.tryEmit(Unit)
+            }
+            is WeatherListUIEvent.Delete -> {
+                viewModelScope.launch {
+                    val entity = weatherRepository.getWeatherByZipcode(event.location).firstOrNull()
+                    entity?.let {
+                        weatherRepository.deleteWeather(entity)
+                    }
+                }
+
+              //
+            }
+            is WeatherListUIEvent.Undo -> {
+                viewModelScope.launch {
+                    TODO()
+                }
+
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.brian.weather.presentation.reusablecomposables
 
+
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.TargetBasedAnimation
@@ -145,3 +146,4 @@ fun MarqueeText(
 
 private enum class MarqueeLayers { MainText, SecondaryText, EdgesGradient }
 private data class TextLayoutInfo(val textWidth: Int, val containerWidth: Int)
+
